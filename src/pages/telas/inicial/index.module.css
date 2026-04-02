@@ -1,37 +1,303 @@
 .container {
     width: 100%;
-    max-width: 120rem;
+    max-width: 110rem;
     margin: 0 auto;
-    padding: 4rem 2rem;
+    padding: 4rem 2rem 8rem;
 }
 
-/* HEADER */
+/* ===== CABEÇALHO ===== */
 
-.header {
+.cabecalho {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 6rem;
 }
 
-.logoArea {
+.areaLogo {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-.logoCircle {
+.circuloLogo {
     width: 3.5rem;
     height: 3.5rem;
-    background: #48acbb;
+    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
     border-radius: 50%;
 }
 
-.logoTitle {
-    color: #48acbb;
+.tituloLogo {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #0ea5b7;
 }
 
-.logoSub {
+.subtituloLogo {
     font-size: 1.2rem;
-    color: #777;
+    color: #9ca3af;
+}
+
+/* ===== NAV ===== */
+
+.navegacao {
+    display: flex;
+    gap: 1rem;
+}
+
+.botaoNav {
+    padding: 0.8rem 1.4rem;
+    border-radius: 2rem;
+    background: #f1f5f9;
+    font-size: 1.4rem;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.botaoNav:hover {
+    background: #e2e8f0;
+}
+
+/* ===== BOTÕES ===== */
+
+.botaoPrimario {
+    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+
+    box-shadow: 0 0.5rem 1.2rem rgba(14,165,183,0.3);
+    border: none;
+}
+
+.botaoSecundario {
+    border: 1px solid #d1d5db;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    background: #fff;
+    font-size: 1.4rem;
+}
+
+/* ===== HERO ===== */
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 6rem;
+    margin-bottom: 8rem;
+}
+
+.ladoEsquerdo {
+    max-width: 50rem;
+}
+
+.selo {
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 0.5rem 1.4rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+}
+
+.tituloPrincipal {
+    font-size: 3.4rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+    color: #374151;
+    margin: 2rem 0;
+}
+
+.descricao {
+    color: #9ca3af;
+    font-size: 1.5rem;
+}
+
+.acoes {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+
+/* ===== TAGS ===== */
+
+.tags {
+    margin-top: 2rem;
+    font-size: 1.3rem;
+    color: #9ca3af;
+    display: flex;
+    gap: 0.6rem;
+}
+
+.tagsSecundarias {
+    margin-top: 1rem;
+    display: flex;
+    gap: 1rem;
+}
+
+.tagsSecundarias span {
+    background: #eef2f7;
+    padding: 0.6rem 1.2rem;
+    border-radius: 1.6rem;
+    font-size: 1.2rem;
+    color: #6b7280;
+}
+
+/* ===== MOCKUP ===== */
+
+.preview {
+    width: 38rem;
+    height: 28rem;
+    background: #f9fafb;
+    border-radius: 2rem;
+    padding: 1.5rem;
+
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.05);
+}
+
+.previewTop {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.previewHeader {
+    height: 1.5rem;
+    background: #e5e7eb;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+}
+
+.previewBody {
+    height: 16rem;
+    background: #eef2f7;
+    border-radius: 1.2rem;
+}
+
+/* ===== PASSOS ===== */
+
+.secaoCards {
+    display: flex;
+    gap: 2rem;
+}
+
+.card {
+    flex: 1;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1.4rem;
+
+    border: 1px solid #e5e7eb;
+    transition: 0.2s;
+}
+
+.card:hover {
+    border-color: #d1d5db;
+}
+
+.card small {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    display: block;
+    margin-bottom: 0.8rem;
+}
+
+.card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.6rem;
+    color: #1f2937;
+}
+
+.card p {
+    font-size: 1.4rem;
+    color: #6b7280;
+}
+
+/* ===== FUNCIONALIDADES ===== */
+
+.funcionalidades {
+    margin-top: 6rem;
+}
+
+.tituloSecao {
+    font-size: 2rem;
+    color: #374151;
+    margin-bottom: 2rem;
+}
+
+.listaFuncionalidades {
+    display: flex;
+    gap: 2rem;
+}
+
+.itemFuncao {
+    flex: 1;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1.4rem;
+    border: 1px solid #e5e7eb;
+
+    display: flex;
+    gap: 1.5rem;
+}
+
+.icone {
+    width: 4rem;
+    height: 4rem;
+    background: #e0f2fe;
+    border-radius: 1rem;
+}
+
+.itemFuncao h4 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.itemFuncao p {
+    font-size: 1.3rem;
+    color: #9ca3af;
+}
+
+/* ===== RODAPÉ ===== */
+
+.rodape {
+    margin-top: 6rem;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #9ca3af;
+}
+
+.rodape span {
+    color: #0ea5b7;
+    cursor: pointer;
+}
+
+/* ===== RESPONSIVO ===== */
+
+@media (max-width: 900px) {
+    .hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .acoes {
+        justify-content: center;
+    }
+
+    .preview {
+        width: 100%;
+        max-width: 30rem;
+    }
+
+    .secaoCards,
+    .listaFuncionalidades {
+        flex-direction: column;
+    }
 }
