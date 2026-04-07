@@ -1,7 +1,7 @@
 
 import styles from './index.module.css';
 
-import logo from '../../../assets/image.png';
+import logo from '../../../assets/logo.png';
 
 
 export default function Inicial() {
@@ -46,15 +46,7 @@ export default function Inicial() {
             Organize notas fiscais, acompanhe limites mensais, gere histórico de DAS e visualize tudo em uma interface leve.
           </p>
 
-          <div className={styles.acoes}>
-            <button className={styles.botaoPrimario}>
-              Acessar o Sistema →
-            </button>
-
-            <button className={styles.botaoSecundario}>
-              Ver funcionalidades
-            </button>
-          </div>
+          
 
           <div className={styles.tags}>
             <span>Rápido</span>
@@ -144,8 +136,8 @@ export default function Inicial() {
       {/* RODAPÉ */}
       <footer className={styles.rodape}>
         <p>
-          * CONTAX — Versão clara da apresentação •  
-          Já tem a versão beta? <span> Entrar no sistema</span>
+          ©CONTAX — Versão clara da apresentação • 
+          <span> Entrar no sistema</span>
         </p>
       </footer>
 

@@ -20,11 +20,10 @@
     gap: 1rem;
 }
 
-.circuloLogo {
-    width: 3.5rem;
-    height: 3.5rem;
-    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
-    border-radius: 50%;
+.logoImagem {
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: contain;
 }
 
 .tituloLogo {
@@ -52,13 +51,20 @@
     font-size: 1.4rem;
     color: #374151;
     border: 1px solid #e5e7eb;
+
+    transition: all 0.2s ease;
 }
 
 .botaoNav:hover {
     background: #e2e8f0;
 }
 
-/* ===== BOTÕES ===== */
+.botaoNav:active {
+    transform: scale(0.95);
+    background: #dbeafe;
+}
+
+/* ===== BOTÃO PRINCIPAL ===== */
 
 .botaoPrimario {
     background: linear-gradient(135deg, #06b6d4, #0ea5b7);
@@ -67,17 +73,25 @@
     border-radius: 2rem;
     font-size: 1.4rem;
     font-weight: 500;
+    border: none;
 
     box-shadow: 0 0.5rem 1.2rem rgba(14,165,183,0.3);
-    border: none;
+    transition: all 0.2s ease;
 }
 
-.botaoSecundario {
-    border: 1px solid #d1d5db;
-    padding: 1rem 2rem;
-    border-radius: 2rem;
-    background: #fff;
-    font-size: 1.4rem;
+.botaoPrimario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.8rem 1.8rem rgba(14,165,183,0.4);
+}
+
+.botaoPrimario:active {
+    transform: scale(0.96);
+    box-shadow: 0 0.3rem 0.8rem rgba(14,165,183,0.3);
+}
+
+.botaoPrimario:focus {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
 }
 
 /* ===== HERO ===== */
@@ -85,12 +99,13 @@
 .hero {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 6rem;
-    margin-bottom: 8rem;
+    margin-bottom: 7rem;
 }
 
 .ladoEsquerdo {
-    max-width: 50rem;
+    max-width: 52rem;
 }
 
 .selo {
@@ -107,42 +122,44 @@
     line-height: 1.35;
     letter-spacing: -0.3px;
     color: #374151;
-    margin: 2rem 0;
+    margin: 1.5rem 0;
 }
 
 .descricao {
     color: #9ca3af;
     font-size: 1.5rem;
-}
-
-.acoes {
-    margin-top: 2rem;
-    display: flex;
-    gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 /* ===== TAGS ===== */
 
 .tags {
-    margin-top: 2rem;
+    display: flex;
+    gap: 0.5rem;
     font-size: 1.3rem;
     color: #9ca3af;
-    display: flex;
-    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.tags span {
+    white-space: nowrap;
 }
 
 .tagsSecundarias {
-    margin-top: 1rem;
     display: flex;
     gap: 1rem;
+    flex-wrap: wrap;
 }
 
 .tagsSecundarias span {
-    background: #eef2f7;
-    padding: 0.6rem 1.2rem;
-    border-radius: 1.6rem;
+    background: #e6f6f9;
+    color: #0ea5b7;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
     font-size: 1.2rem;
-    color: #6b7280;
+    font-weight: 500;
+
+    width: fit-content;
 }
 
 /* ===== MOCKUP ===== */
@@ -184,6 +201,7 @@
 .secaoCards {
     display: flex;
     gap: 2rem;
+    margin-top: 2rem;
 }
 
 .card {
@@ -283,12 +301,7 @@
 @media (max-width: 900px) {
     .hero {
         flex-direction: column;
-        align-items: center;
         text-align: center;
-    }
-
-    .acoes {
-        justify-content: center;
     }
 
     .preview {
