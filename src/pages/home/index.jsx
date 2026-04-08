@@ -9,6 +9,7 @@ function Home() {
       <div className={styles.containerLista}>
         <h1>Telas do Contax</h1>
         <Link to="/tela/inicial">Tela de Apresentação.</Link>
+        <Link to="/tela/login">Tela de Login.</Link>
       </div>
     </div>
   )

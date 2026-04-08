@@ -1,10 +1,12 @@
-
+import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
 
 import logo from '../../../assets/logo.png';
 
 
 export default function Inicial() {
+
+  const navigate = useNavigate();
 
   return (
     <div className={styles.container}>
@@ -26,9 +28,14 @@ export default function Inicial() {
         <nav className={styles.navegacao}>
           <button className={styles.botaoNav}>Benefícios</button>
           <button className={styles.botaoNav}>Como funciona</button>
-          <button className={styles.botaoPrimario}>
+          
+          <button
+          className={styles.botaoPrimario}
+          onClick={() => navigate('/tela/login')}
+          >
             Acessar o Sistema
           </button>
+
         </nav>
       </header>
 
