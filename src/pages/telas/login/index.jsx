@@ -39,6 +39,7 @@ function Login() {
           <label>Entrar como</label>
           <select>
             <option>Administrador</option>
+            <option>Usuário</option>
           </select>
 
           {/* INPUT */}
