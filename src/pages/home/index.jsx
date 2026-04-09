@@ -10,6 +10,8 @@ function Home() {
         <h1>Telas do Contax</h1>
         <Link to="/tela/inicial">Tela de Apresentação.</Link>
         <Link to="/tela/login">Tela de Login.</Link>
+        <Link to="/tela/menuAdm">Tela de menu Administrador.</Link>
+        <Link to="/tela/menuME">Tela de menu ME.</Link>
       </div>
     </div>
   )

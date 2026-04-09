@@ -1,0 +1,481 @@
+import { useNavigate } from 'react-router-dom';
+import styles from './index.module.css';
+
+import logo from '../../../assets/logo.png';
+
+
+export default function Inicial() {
+
+  const navigate = useNavigate();
+
+  return (
+    <div className={styles.container}>
+
+      {/* CABEÇALHO */}
+      <header className={styles.cabecalho}>
+        <div className={styles.areaLogo}>
+          <img src={logo} alt="Logo CONTAX" className={styles.logoImagem} />
+
+          <div>
+            <h1 className={styles.tituloLogo}>CONTAX</h1>
+            <span className={styles.subtituloLogo}>
+              ME & MEI <br />
+              <small>Gestão de Notas • Controle de DAS • Painel intuitivo</small>
+            </span>
+          </div>
+        </div>
+
+        <nav className={styles.navegacao}>
+          <button className={styles.botaoNav}>Benefícios</button>
+          <button className={styles.botaoNav}>Como funciona</button>
+          
+          <button
+          className={styles.botaoPrimario}
+          onClick={() => navigate('/tela/login')}
+          >
+            Acessar o Sistema
+          </button>
+
+        </nav>
+      </header>
+
+      {/* HERO */}
+      <section className={styles.hero}>
+
+        <div className={styles.ladoEsquerdo}>
+          <span className={styles.selo}>Para ME & MEI</span>
+
+          <h2 className={styles.tituloPrincipal}>
+            Controle financeiro e fiscal — claro, simples e direto.
+          </h2>
+
+          <p className={styles.descricao}>
+            Organize notas fiscais, acompanhe limites mensais, gere histórico de DAS e visualize tudo em uma interface leve.
+          </p>
+
+          
+
+          <div className={styles.tags}>
+            <span>Rápido</span>
+            <span>•</span>
+            <span>Fácil</span>
+            <span>•</span>
+            <span>Responsivo</span>
+          </div>
+
+          <div className={styles.tagsSecundarias}>
+            <span>Dashboard leve</span>
+            <span>Controle de DAS</span>
+          </div>
+        </div>
+
+        {/* MOCKUP */}
+        <div className={styles.preview}>
+          <div className={styles.previewTop}>
+            <span>Preview</span>
+            <span>Exemplo</span>
+          </div>
+
+          <div className={styles.previewHeader}></div>
+          <div className={styles.previewBody}></div>
+        </div>
+
+      </section>
+
+      {/* PASSOS */}
+      <section className={styles.secaoCards}>
+
+        <div className={styles.card}>
+          <small>Passo 1</small>
+          <h3>Cadastre sua empresa</h3>
+          <p>Informe CNPJ e tipo ME/MEI</p>
+        </div>
+
+        <div className={styles.card}>
+          <small>Passo 2</small>
+          <h3>Lance suas notas</h3>
+          <p>Registre data, descrição e valor</p>
+        </div>
+
+        <div className={styles.card}>
+          <small>Passo 3</small>
+          <h3>Acompanhe tudo</h3>
+          <p>Painel limpo, dados sempre atualizados.</p>
+        </div>
+
+      </section>
+
+      {/* FUNCIONALIDADES */}
+      <section className={styles.funcionalidades}>
+
+        <h3 className={styles.tituloSecao}>O que o CONTAX faz</h3>
+
+        <div className={styles.listaFuncionalidades}>
+
+          <div className={styles.itemFuncao}>
+            <div className={styles.icone}></div>
+            <div>
+              <h4>Gestão de Notas</h4>
+              <p>Cadastre notas por data, descrição e valor. Filtre por mês e empresa.</p>
+            </div>
+          </div>
+
+          <div className={styles.itemFuncao}>
+            <div className={styles.icone}></div>
+            <div>
+              <h4>Controle de DAS</h4>
+              <p>Acompanhe pagamentos, vencimentos e histórico anual.</p>
+            </div>
+          </div>
+
+          <div className={styles.itemFuncao}>
+            <div className={styles.icone}></div>
+            <div>
+              <h4>Painel Intuitivo</h4>
+              <p>Resumo financeiro por período, total por empresa e tabelas organizadas.</p>
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      {/* RODAPÉ */}
+      <footer className={styles.rodape}>
+        <p>
+          ©CONTAX — Versão clara da apresentação • 
+          <span> Entrar no sistema</span>
+        </p>
+      </footer>
+
+    </div>
+  );
+}
+
+
+
+
+
+
+
+
+
+
+.container {
+    width: 100%;
+    max-width: 110rem;
+    margin: 0 auto;
+    padding: 4rem 2rem 8rem;
+}
+
+/* ===== CABEÇALHO ===== */
+
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6rem;
+}
+
+.areaLogo {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logoImagem {
+    width: 4.5rem;
+    height: 4.5rem;
+    object-fit: contain;
+}
+
+.tituloLogo {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #0ea5b7;
+}
+
+.subtituloLogo {
+    font-size: 1.2rem;
+    color: #9ca3af;
+}
+
+/* ===== NAV ===== */
+
+.navegacao {
+    display: flex;
+    gap: 1rem;
+}
+
+.botaoNav {
+    padding: 0.8rem 1.4rem;
+    border-radius: 2rem;
+    background: #f1f5f9;
+    font-size: 1.4rem;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+
+    transition: all 0.2s ease;
+}
+
+.botaoNav:hover {
+    background: #e2e8f0;
+}
+
+.botaoNav:active {
+    transform: scale(0.95);
+    background: #dbeafe;
+}
+
+/* ===== BOTÃO PRINCIPAL ===== */
+
+.botaoPrimario {
+    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
+    color: #fff;
+    padding: 1rem 2rem;
+    border-radius: 2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    border: none;
+
+    box-shadow: 0 0.5rem 1.2rem rgba(14,165,183,0.3);
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.botaoPrimario:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.8rem 1.8rem rgba(14,165,183,0.4);
+}
+
+.botaoPrimario:active {
+    transform: scale(0.96);
+    box-shadow: 0 0.3rem 0.8rem rgba(14,165,183,0.3);
+}
+
+.botaoPrimario:focus {
+    outline: 2px solid #22d3ee;
+    outline-offset: 2px;
+}
+
+/* ===== HERO ===== */
+
+.hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6rem;
+    margin-bottom: 7rem;
+}
+
+.ladoEsquerdo {
+    max-width: 52rem;
+}
+
+.selo {
+    background: #e0f2fe;
+    color: #0284c7;
+    padding: 0.5rem 1.4rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+}
+
+.tituloPrincipal {
+    font-size: 3.4rem;
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.3px;
+    color: #374151;
+    margin: 1.5rem 0;
+}
+
+.descricao {
+    color: #9ca3af;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ===== TAGS ===== */
+
+.tags {
+    display: flex;
+    gap: 0.5rem;
+    font-size: 1.3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.tags span {
+    white-space: nowrap;
+}
+
+.tagsSecundarias {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.tagsSecundarias span {
+    background: #e6f6f9;
+    color: #0ea5b7;
+    padding: 0.6rem 1.4rem;
+    border-radius: 2rem;
+    font-size: 1.2rem;
+    font-weight: 500;
+
+    width: fit-content;
+}
+
+/* ===== MOCKUP ===== */
+
+.preview {
+    width: 38rem;
+    height: 28rem;
+    background: #f9fafb;
+    border-radius: 2rem;
+    padding: 1.5rem;
+
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1rem 3rem rgba(0,0,0,0.05);
+}
+
+.previewTop {
+    display: flex;
+    justify-content: space-between;
+    font-size: 1.1rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.previewHeader {
+    height: 1.5rem;
+    background: #e5e7eb;
+    border-radius: 1rem;
+    margin-bottom: 1rem;
+}
+
+.previewBody {
+    height: 16rem;
+    background: #eef2f7;
+    border-radius: 1.2rem;
+}
+
+/* ===== PASSOS ===== */
+
+.secaoCards {
+    display: flex;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.card {
+    flex: 1;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1.4rem;
+
+    border: 1px solid #e5e7eb;
+    transition: 0.2s;
+}
+
+.card:hover {
+    border-color: #d1d5db;
+}
+
+.card small {
+    font-size: 1.2rem;
+    color: #9ca3af;
+    display: block;
+    margin-bottom: 0.8rem;
+}
+
+.card h3 {
+    font-size: 1.8rem;
+    margin-bottom: 0.6rem;
+    color: #1f2937;
+}
+
+.card p {
+    font-size: 1.4rem;
+    color: #6b7280;
+}
+
+/* ===== FUNCIONALIDADES ===== */
+
+.funcionalidades {
+    margin-top: 6rem;
+}
+
+.tituloSecao {
+    font-size: 2rem;
+    color: #374151;
+    margin-bottom: 2rem;
+}
+
+.listaFuncionalidades {
+    display: flex;
+    gap: 2rem;
+}
+
+.itemFuncao {
+    flex: 1;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 1.4rem;
+    border: 1px solid #e5e7eb;
+
+    display: flex;
+    gap: 1.5rem;
+}
+
+.icone {
+    width: 4rem;
+    height: 4rem;
+    background: #e0f2fe;
+    border-radius: 1rem;
+}
+
+.itemFuncao h4 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.itemFuncao p {
+    font-size: 1.3rem;
+    color: #9ca3af;
+}
+
+/* ===== RODAPÉ ===== */
+
+.rodape {
+    margin-top: 6rem;
+    text-align: center;
+    font-size: 1.2rem;
+    color: #9ca3af;
+}
+
+.rodape span {
+    color: #0ea5b7;
+    cursor: pointer;
+}
+
+/* ===== RESPONSIVO ===== */
+
+@media (max-width: 900px) {
+    .hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .preview {
+        width: 100%;
+        max-width: 30rem;
+    }
+
+    .secaoCards,
+    .listaFuncionalidades {
+        flex-direction: column;
+    }
+}
