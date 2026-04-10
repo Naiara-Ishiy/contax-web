@@ -1,7 +1,52 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
 import logo from '../../../assets/logo2.png';
 
 function Login() {
+
+  const navigate = useNavigate();
+
+  // STATES
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [erro, setErro] = useState('');
+
+  // LOGIN
+  function handleLogin() {
+
+    if (!email || !senha) {
+      setErro('Preencha todos os campos');
+      return;
+    }
+
+    let tipo = '';
+
+    // 🔹 REGRA DE NEGÓCIO (exemplo)
+    if (email === 'admin@contax.com') {
+      tipo = 'admin';
+    } else if (email === 'gerente@contax.com') {
+      tipo = 'gerente';
+    } else {
+      tipo = 'usuario';
+    }
+
+    // 🔐 validação de senha (exemplo simples)
+    if (senha !== '1234') {
+      setErro('Senha inválida');
+      return;
+    }
+
+    // salvar sessão
+    localStorage.setItem('user', JSON.stringify({ email, tipo }));
+
+    // redirecionamento por tipo
+    if (tipo === 'admin') navigate('/dashboard/admin');
+    if (tipo === 'gerente') navigate('/dashboard/gerente');
+    if (tipo === 'usuario') navigate('/dashboard/user');
+  }
+
   return (
     <div className={styles.pagina}>
 
@@ -35,25 +80,42 @@ function Login() {
             Acesse o sistema com suas credenciais abaixo.
           </p>
 
-          {/* SELECT */}
-          <label>Entrar como</label>
-          <select>
-            <option>Administrador</option>
-            <option>Usuário</option>
-          </select>
+          {/* EMAIL */}
+          <label>Email</label>
+          <input
+            type="email"
+            placeholder="seuemail@contax.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          {/* INPUT */}
-          <label>Senha do administrador</label>
-          <input type="password" placeholder="••••••••" />
+          {/* SENHA */}
+          <label>Senha</label>
+          <input
+            type={mostrarSenha ? 'text' : 'password'}
+            placeholder="••••••••"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+          />
 
           {/* CHECK */}
           <div className={styles.opcoes}>
-            <input type="checkbox" />
+            <input
+              type="checkbox"
+              checked={mostrarSenha}
+              onChange={() => setMostrarSenha(!mostrarSenha)}
+            />
             <span>Mostrar senha</span>
           </div>
 
+          {/* ERRO */}
+          {erro && <span style={{ color: 'red' }}>{erro}</span>}
+
           {/* BOTÃO */}
-          <button className={styles.botaoLogin}>
+          <button
+            className={styles.botaoLogin}
+            onClick={handleLogin}
+          >
             Entrar no sistema
           </button>
 

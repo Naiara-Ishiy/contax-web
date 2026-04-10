@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import styles from "./index.module.css";
-import logo from '../../../assets/logo.png';
+import logo from '../../../assets/logo2.png';
 
 export default function MenuAdm() {
   const [activeTab, setActiveTab] = useState("notas");
@@ -238,10 +238,10 @@ export default function MenuAdm() {
                 <h2>Dashboard Administrativo</h2>
               </div>
 
-              <div className={styles.dashboardGrid}>
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Empresas cadastradas</span>
-                  <strong className={styles.statValue}>{totalEmpresas}</strong>
+              <div className={`${styles.dashboardGrid} ${styles.dashboardGridCustom}`}>
+                <div className={`${styles.statCard} ${styles.statCardCustom}`}>
+                 <span className={`${styles.statLabel} ${styles.statLabelCustom}`}>Empresas cadastradas</span>
+                  <strong className={`${styles.statValue} ${styles.statValueCustom}`}>{totalEmpresas}</strong>
                 </div>
 
                 <div className={styles.statCard}>
