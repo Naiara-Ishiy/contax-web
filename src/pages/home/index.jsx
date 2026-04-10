@@ -12,6 +12,7 @@ function Home() {
         <Link to="/tela/login">Tela de Login.</Link>
         <Link to="/tela/menuAdm">Tela de menu Administrador.</Link>
         <Link to="/tela/menuME">Tela de menu ME.</Link>
+        <Link to="/tela/menuMEI">Tela de menu MEI.</Link>
       </div>
     </div>
   )

@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from "react";
 import styles from "./index.module.css";
-import logo from '../../../assets/logo.png';
+import logo from "../../../assets/logo.png";
 
-export default function MenuME() {
+export default function MenuMEI() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [mesFiltro, setMesFiltro] = useState("2026-02");
   const [darkMode, setDarkMode] = useState(false);
 
   const [notas] = useState([]);
+  const [impostosDas] = useState([]);
+  const [controles] = useState([]);
 
   const tituloMes = useMemo(() => {
     if (!mesFiltro) return "Visão Geral";
@@ -36,8 +38,9 @@ export default function MenuME() {
     const [anoFiltro, mesFiltroNum] = mesFiltro.split("-");
 
     return notas.filter((nota) => {
+      if (!nota.data) return false;
       const [, mes, ano] = nota.data.split("/");
-     return ano === anoFiltro && mes === mesFiltroNum;
+      return ano === anoFiltro && mes === mesFiltroNum;
     });
   }, [mesFiltro, notas]);
 
@@ -70,38 +73,11 @@ export default function MenuME() {
 
             <button
               className={`${styles.navButton} ${
-                activeTab === "caixa" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("caixa")}
-            >
-              Caixa
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "despesas" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("despesas")}
-            >
-              Despesas
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "faturamento" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("faturamento")}
-            >
-              Faturamento
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
                 activeTab === "imposto" ? styles.navButtonActive : ""
               }`}
               onClick={() => setActiveTab("imposto")}
             >
-              Imposto
+              Imposto (DAS)
             </button>
 
             <button
@@ -112,11 +88,20 @@ export default function MenuME() {
             >
               Notas Emitidas
             </button>
+
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "controle" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("controle")}
+            >
+              Controle Mensal
+            </button>
           </nav>
         </div>
 
         <div className={styles.rightHeader}>
-          <span className={styles.userText}>Acesso: teste me</span>
+          <span className={styles.userText}>Acesso: teste mei</span>
 
           <button
             className={styles.moonButton}
@@ -219,58 +204,44 @@ export default function MenuME() {
           </>
         )}
 
-        {activeTab === "caixa" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Caixa</h2>
-            </div>
-
-            <div className={styles.placeholderBody}>
-              <div className={styles.placeholderText}>
-                Área de caixa pronta para integrar entradas, saídas e saldo atual.
-              </div>
-            </div>
-          </section>
-        )}
-
-        {activeTab === "despesas" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Despesas</h2>
-            </div>
-
-            <div className={styles.placeholderBody}>
-              <div className={styles.placeholderText}>
-                Área de despesas pronta para cadastro e listagem.
-              </div>
-            </div>
-          </section>
-        )}
-
-        {activeTab === "faturamento" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Faturamento</h2>
-            </div>
-
-            <div className={styles.placeholderBody}>
-              <div className={styles.placeholderText}>
-                Área de faturamento pronta para gráficos, totais e metas.
-              </div>
-            </div>
-          </section>
-        )}
-
         {activeTab === "imposto" && (
           <section className={styles.card}>
             <div className={styles.cardHeader}>
-              <h2>Imposto</h2>
+              <h2>Imposto (DAS)</h2>
             </div>
 
-            <div className={styles.placeholderBody}>
-              <div className={styles.placeholderText}>
-                Área de impostos pronta para cálculos e acompanhamento.
-              </div>
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>MÊS</th>
+                    <th>ANO</th>
+                    <th>STATUS</th>
+                    <th className={styles.valueHeader}>VALOR (R$)</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {impostosDas.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className={styles.emptyTableText}>
+                        Nenhum imposto DAS cadastrado.
+                      </td>
+                    </tr>
+                  ) : (
+                    impostosDas.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.mes}</td>
+                        <td>{item.ano}</td>
+                        <td>{item.status}</td>
+                        <td className={styles.valueCell}>
+                          {formatCurrency(item.valor)}
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
           </section>
         )}
@@ -295,7 +266,7 @@ export default function MenuME() {
                 <tbody>
                   {notas.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className={styles.emptyTable}>
+                      <td colSpan="4" className={styles.emptyTableText}>
                         Nenhuma nota emitida cadastrada.
                       </td>
                     </tr>
@@ -308,6 +279,46 @@ export default function MenuME() {
                         <td className={styles.valueCell}>
                           {formatCurrency(nota.valor)}
                         </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {activeTab === "controle" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Controle Mensal</h2>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>MÊS</th>
+                    <th>RECEITA</th>
+                    <th>NOTAS</th>
+                    <th className={styles.valueHeader}>OBSERVAÇÃO</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {controles.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className={styles.emptyTableText}>
+                        Nenhum controle mensal cadastrado.
+                      </td>
+                    </tr>
+                  ) : (
+                    controles.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.mes}</td>
+                        <td>{formatCurrency(item.receita)}</td>
+                        <td>{item.notas}</td>
+                        <td className={styles.valueCell}>{item.observacao}</td>
                       </tr>
                     ))
                   )}

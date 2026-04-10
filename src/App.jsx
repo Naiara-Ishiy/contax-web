@@ -6,6 +6,7 @@ import Inicial from './pages/telas/inicial';
 import Login from './pages/telas/login';
 import MenuAdm from './pages/telas/menuAdm';
 import MenuME from './pages/telas/menuME';
+import MenuMEI from './pages/telas/menuMEI';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path='/tela/login' element={<Login/>}/>
         <Route path='/tela/menuAdm' element={<MenuAdm/>}/>
         <Route path='/tela/menuME' element={<MenuME/>}/>
+        <Route path='/tela/menuMEI' element={<MenuMEI/>}/>
       </Routes>
     
   )

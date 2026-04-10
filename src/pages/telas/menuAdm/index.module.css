@@ -21,6 +21,12 @@
   gap: 10px;
 }
 
+.logoImg {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
 .logoBox {
   width: 36px;
   height: 36px;

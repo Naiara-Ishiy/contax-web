@@ -7,6 +7,8 @@ export default function MenuAdm() {
   const [isAdmin] = useState(true);
 
   const [empresas, setEmpresas] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+
   const [empresaForm, setEmpresaForm] = useState({
     nome: "",
     cnpj: "",
@@ -20,10 +22,20 @@ export default function MenuAdm() {
     descricao: "",
   });
 
+  const [usuarioForm, setUsuarioForm] = useState({
+    nome: "",
+    email: "",
+    documento: "",
+    senha: "",
+    tipo: "Contabilista",
+    status: "Ativo",
+  });
+
   const [notas, setNotas] = useState([]);
 
   const totalEmpresas = empresas.length;
   const totalNotas = notas.length;
+  const totalUsuarios = usuarios.length;
 
   const totalFaturado = useMemo(() => {
     return notas.reduce((acc, item) => acc + Number(item.valor || 0), 0);
@@ -40,6 +52,14 @@ export default function MenuAdm() {
   const handleNotaChange = (e) => {
     const { name, value } = e.target;
     setNotaForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleUsuarioChange = (e) => {
+    const { name, value } = e.target;
+    setUsuarioForm((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -63,6 +83,40 @@ export default function MenuAdm() {
       nome: "",
       cnpj: "",
       categoria: "",
+    });
+  };
+
+  const cadastrarUsuario = (e) => {
+    e.preventDefault();
+
+    if (
+      !usuarioForm.nome.trim() ||
+      !usuarioForm.email.trim() ||
+      !usuarioForm.documento.trim() ||
+      !usuarioForm.senha.trim()
+    ) {
+      return;
+    }
+
+    const novoUsuario = {
+      id: Date.now(),
+      nome: usuarioForm.nome.trim(),
+      email: usuarioForm.email.trim(),
+      documento: usuarioForm.documento.trim(),
+      senha: usuarioForm.senha,
+      tipo: usuarioForm.tipo,
+      status: usuarioForm.status,
+    };
+
+    setUsuarios((prev) => [...prev, novoUsuario]);
+
+    setUsuarioForm({
+      nome: "",
+      email: "",
+      documento: "",
+      senha: "",
+      tipo: "Contabilista",
+      status: "Ativo",
     });
   };
 
@@ -116,11 +170,15 @@ export default function MenuAdm() {
     }
   };
 
+  const excluirUsuario = (id) => {
+    setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
+  };
+
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
         <div className={styles.logoArea}>
-          <img src={logo} alt="Logo" className={styles.logoImg} />
+          <img src={logo} alt="Contax" className={styles.logoImg} />
 
           <div className={styles.logoText}>
             <h1 className={styles.brand}>CONTAX</h1>
@@ -145,6 +203,15 @@ export default function MenuAdm() {
             onClick={() => setActiveTab("empresas")}
           >
             Empresas
+          </button>
+
+          <button
+            className={`${styles.navButton} ${
+              activeTab === "usuarios" ? styles.navButtonActive : ""
+            }`}
+            onClick={() => setActiveTab("usuarios")}
+          >
+            Usuários
           </button>
 
           <button
@@ -178,6 +245,11 @@ export default function MenuAdm() {
                 </div>
 
                 <div className={styles.statCard}>
+                  <span className={styles.statLabel}>Usuários cadastrados</span>
+                  <strong className={styles.statValue}>{totalUsuarios}</strong>
+                </div>
+
+                <div className={styles.statCard}>
                   <span className={styles.statLabel}>Notas lançadas</span>
                   <strong className={styles.statValue}>{totalNotas}</strong>
                 </div>
@@ -197,9 +269,9 @@ export default function MenuAdm() {
               </div>
 
               <div className={styles.emptyBox}>
-                {empresas.length === 0 && notas.length === 0
+                {empresas.length === 0 && usuarios.length === 0 && notas.length === 0
                   ? "Nenhum dado cadastrado ainda."
-                  : "Use as abas de Empresas e Notas Fiscais para gerenciar os dados do painel."}
+                  : "Use as abas de Empresas, Usuários e Notas Fiscais para gerenciar o sistema."}
               </div>
             </section>
           </>
@@ -290,6 +362,148 @@ export default function MenuAdm() {
                             <button
                               className={styles.actionButton}
                               onClick={() => excluirEmpresa(empresa.id)}
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeTab === "usuarios" && (
+          <>
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Cadastrar Usuário (Contabilista)</h2>
+              </div>
+
+              <form className={styles.form} onSubmit={cadastrarUsuario}>
+                <div className={styles.field}>
+                  <label>Nome completo</label>
+                  <input
+                    type="text"
+                    name="nome"
+                    value={usuarioForm.nome}
+                    onChange={handleUsuarioChange}
+                    className={styles.input}
+                    placeholder="Digite o nome completo"
+                  />
+                </div>
+
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>E-mail</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={usuarioForm.email}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>CPF ou CRC</label>
+                    <input
+                      type="text"
+                      name="documento"
+                      value={usuarioForm.documento}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite o documento"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>Senha</label>
+                    <input
+                      type="password"
+                      name="senha"
+                      value={usuarioForm.senha}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite a senha"
+                    />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>Status</label>
+                    <select
+                      name="status"
+                      value={usuarioForm.status}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                    >
+                      <option value="Ativo">Ativo</option>
+                      <option value="Inativo">Inativo</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label>Tipo de acesso</label>
+                  <input
+                    type="text"
+                    name="tipo"
+                    value={usuarioForm.tipo}
+                    onChange={handleUsuarioChange}
+                    className={styles.input}
+                    readOnly
+                  />
+                </div>
+
+                <button type="submit" className={styles.primaryButton}>
+                  Cadastrar Usuário
+                </button>
+              </form>
+            </section>
+
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Usuários cadastrados</h2>
+              </div>
+
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Nome</th>
+                      <th>E-mail</th>
+                      <th>Documento</th>
+                      <th>Tipo</th>
+                      <th>Status</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {usuarios.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className={styles.emptyTable}>
+                          Nenhum usuário cadastrado.
+                        </td>
+                      </tr>
+                    ) : (
+                      usuarios.map((usuario) => (
+                        <tr key={usuario.id}>
+                          <td>{usuario.nome}</td>
+                          <td>{usuario.email}</td>
+                          <td>{usuario.documento}</td>
+                          <td>{usuario.tipo}</td>
+                          <td>{usuario.status}</td>
+                          <td>
+                            <button
+                              className={styles.actionButton}
+                              onClick={() => excluirUsuario(usuario.id)}
                             >
                               Excluir
                             </button>
