@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
 
-import logo from '../../../assets/logo2.png';
+import logo from '../../../assets/logoContaxCor.png';
 
 
 export default function Inicial() {

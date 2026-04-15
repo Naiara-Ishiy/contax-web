@@ -17,19 +17,19 @@
 .areaLogo {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0rem;
 }
 
 .logoImagem {
-    width: 4.5rem;
-    height: 4.5rem;
+    width: 7rem;
+    height: 7rem;
     object-fit: contain;
 }
 
 .tituloLogo {
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 600;
-    color: #0ea5b7;
+    color: #0cbddd;
 }
 
 .subtituloLogo {
@@ -82,8 +82,8 @@
 }
 
 .botaoPrimario:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.8rem 1.8rem rgba(14,165,183,0.4);
+    filter: brightness(1.05);
+    transform: translateY(-1px);
 }
 
 .botaoPrimario:active {

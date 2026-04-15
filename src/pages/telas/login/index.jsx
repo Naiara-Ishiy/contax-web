@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
-import logo from '../../../assets/logo2.png';
+import logo from '../../../assets/logoContax.png';
+import logoAlt from '../../../assets/logoContaxCor.png';
 
 function Login() {
 
@@ -51,29 +52,27 @@ function Login() {
     <div className={styles.pagina}>
 
       {/* HEADER */}
-      <header className={styles.header}>
+        <header className={styles.header}>
         <div className={styles.logoArea}>
           <img src={logo} alt="logo" className={styles.logoTopo} />
-          <div>
-            <strong>CONTAX</strong>
+          {/* <div>
+            <strong>ONTAX</strong>
             <span>ME & MEI</span>
-          </div>
-        </div>
-
-        <button className={styles.botaoTema}>🌙</button>
-      </header>
-
+          </div> */}
+        </div> 
+      </header> 
+          
       {/* CONTEÚDO */}
       <main className={styles.container}>
         <div className={styles.card}>
 
-          <img src={logo} alt="logo" className={styles.logoCard} />
+          <img src={logoAlt} alt="logoAlt" className={styles.logoCard} />
 
           <h2>CONTAX</h2>
           <span className={styles.subtitulo}>Gestão ME & MEI</span>
 
           <h3 className={styles.titulo}>
-            Bem-vindo(a) 👋
+            Bem-vindo(a)
           </h3>
 
           <p className={styles.descricao}>
@@ -102,6 +101,7 @@ function Login() {
           <div className={styles.opcoes}>
             <input
               type="checkbox"
+              id="mostrarSenha"
               checked={mostrarSenha}
               onChange={() => setMostrarSenha(!mostrarSenha)}
             />
