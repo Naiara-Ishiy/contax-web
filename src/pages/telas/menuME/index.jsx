@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import styles from "./index.module.css";
-import logo from "../../../assets/logo2.png";
+import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState("dashboard");

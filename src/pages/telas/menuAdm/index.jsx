@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from "react";
 import styles from "./index.module.css";
-import logo from '../../../assets/logo2.png';
+import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuAdm() {
   const [activeTab, setActiveTab] = useState("notas");

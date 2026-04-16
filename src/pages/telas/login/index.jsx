@@ -52,15 +52,15 @@ function Login() {
     <div className={styles.pagina}>
 
       {/* HEADER */}
-        <header className={styles.header}>
+      {/*  <header className={styles.header}>
         <div className={styles.logoArea}>
           <img src={logo} alt="logo" className={styles.logoTopo} />
-          {/* <div>
+           <div>
             <strong>ONTAX</strong>
             <span>ME & MEI</span>
-          </div> */}
+          </div> 
         </div> 
-      </header> 
+      </header> */}
           
       {/* CONTEÚDO */}
       <main className={styles.container}>
@@ -120,7 +120,7 @@ function Login() {
           </button>
 
           <small className={styles.rodape}>
-            © CONTAX — Sistema ME & MEI
+            © CONTAX
           </small>
 
         </div>

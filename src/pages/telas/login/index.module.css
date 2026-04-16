@@ -1,10 +1,20 @@
 /* PÁGINA */
 .pagina {
-    width: 100%;
     min-height: 100vh;
-    background: #f5f7fa;
+
+    background: linear-gradient(
+        135deg,
+        #0ea5b7 0%,
+        #06b6d4 50%,
+        #22d3ee 100%
+    );
+
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    position: relative;
+    overflow: hidden;
 }
 
 /* HEADER */
@@ -54,15 +64,16 @@
 /* CARD */
 .card {
     width: 100%;
-    max-width: 38rem;
-    padding: 3.5rem 3rem;
+    max-width: 44rem;
+    padding: 6rem 5.5rem;
 
     background: #ffffff;
     border-radius: 1.6rem;
-
+  
     box-shadow: 
-      0 10px 25px rgba(0,0,0,0.05),
-      0 2px 8px rgba(0,0,0,0.04);
+      0 30px 60px rgba(0, 0, 0, 0.18),
+      0 10px 20px rgba(0, 0, 0, 0.08),
+      0 0 40px rgba(14, 165, 183, 0.15);
 
     display: flex;
     flex-direction: column;
@@ -77,13 +88,13 @@
 
 /* TEXTOS */
 .card h2 {
-    font-size: 2.5rem;
+    font-size: 3rem;
     color: #0cbddd;
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.5rem;
 }
 
 .subtitulo {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
     color: #9ca3af;
     margin-bottom: 1.8rem;
 }
@@ -105,21 +116,28 @@
 /* FORM */
 .card label {
     width: 100%;
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     color: #6b7280;
     margin: 0.8rem 0 0.4rem;
+    font-weight: bold;
 }
 
 /* INPUTS */
 .card select,
 .card input {
-    width: 100%;
+    width: 95%;
     padding: 1.1rem;
     border-radius: 0.8rem;
     border: 1px solid #e5e7eb;
     background: #f9fafb;
     font-size: 1.4rem;
     transition: 0.2s;
+}
+
+.card input:hover,
+.card select:hover {
+    border-color: #0ea5b7;
+    outline: none;
 }
 
 .card input:focus,
@@ -129,7 +147,7 @@
     background: #fff;
 }
 
-/* CHECK */
+/* CHECKBOX */
 .opcoes {
     display: flex;
     align-items: center;
@@ -140,9 +158,8 @@
 }
 
 .opcoes span {
-    white-space: nowrap; /* impede quebra de linha */
+    white-space: nowrap; 
 }
-
 
 /* BOTÃO LOGIN */
 .botaoLogin {
@@ -161,13 +178,13 @@
     transition: 0.2s;
 }
 
-/* HOVER */
+
 .botaoLogin:hover {
     filter: brightness(1.05);
     transform: translateY(-1px);
 }
 
-/* CLICK */
+
 .botaoLogin:active {
     transform: scale(0.98);
 }
