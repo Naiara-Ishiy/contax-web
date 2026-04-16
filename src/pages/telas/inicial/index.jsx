@@ -2,7 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
 
 import logo from '../../../assets/logoContaxCor.png';
-
+import icone1 from '../../../assets/passo1.png';
+import icone2 from '../../../assets/passo2.png';
+import icone3 from '../../../assets/passo3.png';
 
 export default function Inicial() {
 
@@ -113,7 +115,9 @@ export default function Inicial() {
         <div className={styles.listaFuncionalidades}>
 
           <div className={styles.itemFuncao}>
-            <div className={styles.icone}></div>
+            <div>
+            <img src={icone1} alt="passo1" className={styles.icone}></img>
+            </div>
             <div>
               <h4>Gestão de Notas</h4>
               <p>Cadastre notas por data, descrição e valor. Filtre por mês e empresa.</p>
@@ -121,7 +125,9 @@ export default function Inicial() {
           </div>
 
           <div className={styles.itemFuncao}>
-            <div className={styles.icone}></div>
+            <div>
+            <img src={icone2} alt="passo2" className={styles.icone}></img>
+            </div>
             <div>
               <h4>Controle de DAS</h4>
               <p>Acompanhe pagamentos, vencimentos e histórico anual.</p>
@@ -129,7 +135,9 @@ export default function Inicial() {
           </div>
 
           <div className={styles.itemFuncao}>
-            <div className={styles.icone}></div>
+            <div>
+            <img src={icone3} alt="passo3" className={styles.icone}></img>
+            </div>
             <div>
               <h4>Painel Intuitivo</h4>
               <p>Resumo financeiro por período, total por empresa e tabelas organizadas.</p>

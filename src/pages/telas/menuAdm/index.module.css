@@ -8,10 +8,10 @@
 
 /* ===== HEADER ===== */
 .topbar {
-  height: 7rem;
-  padding: 0 3rem;
+  height: 8.5rem;
+  padding: 0 5.5rem;
   background: #f0f4f8;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;
 
   display: flex;
   align-items: center;
@@ -26,8 +26,8 @@
 }
 
 .logoImg {
-  width: 4rem;
-  height: 4rem;
+  width: 6.5rem;
+  height: 6.5rem;
   object-fit: contain;
 }
 
@@ -37,13 +37,13 @@
 }
 
 .brand {
-  font-size: 1.8rem;
+  font-size: 2.25rem;
   font-weight: 600;
-  color: #0ea5b7;
+  color: #0cbddd;
 }
 
 .brandSubtitle {
-  font-size: 1.2rem;
+  font-size: 1.25rem;
   color: #9ca3af;
 }
 
@@ -161,7 +161,7 @@
 }
 
 .input:focus {
-  border-color: #0ea5b7;
+  border-color: #0cbddd;
   background: #fff;
   outline: none;
 }
@@ -284,6 +284,7 @@
 }
 
 .emptyBox {
+  font-size: 1.5rem;
   padding: 2rem;
   color: #9ca3af;
   text-align: center;
