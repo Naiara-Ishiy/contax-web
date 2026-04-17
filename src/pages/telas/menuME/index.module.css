@@ -237,6 +237,33 @@
   color: #9ca3af;
 }
 
+/* ===== RESUMO FINANCEIRO ===== */
+.summaryBox {
+  display: flex;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.summaryItem span {
+  font-size: 1.2rem;
+  color: #9ca3af;
+}
+
+.summaryItem strong {
+  font-size: 2rem;
+  color: #0ea5b7;
+}
+
+/* STATUS */
+.statusOk {
+  color: #10b981;
+}
+
 /* ===== RESPONSIVO ===== */
 @media (max-width: 900px) {
   .topbar {

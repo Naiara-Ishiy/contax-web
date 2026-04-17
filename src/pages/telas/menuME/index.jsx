@@ -104,35 +104,69 @@ export default function MenuME() {
       <main className={styles.content}>
         {/* ===== DASHBOARD ===== */}
         {activeTab === "dashboard" && (
-          <>
-            <div className={styles.dashboardGrid}>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Notas no período</span>
-                <strong className={styles.statValue}>{totalNotas}</strong>
-              </div>
+  <>
+    {/* KPIs */}
+    <div className={styles.dashboardGrid}>
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Notas no período</span>
+        <strong className={styles.statValue}>{totalNotas}</strong>
+      </div>
 
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Faturamento</span>
-                <strong className={styles.statValue}>
-                  {formatCurrency(totalFaturado)}
-                </strong>
-              </div>
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Receita</span>
+        <strong className={styles.statValue}>
+          {formatCurrency(totalFaturado)}
+        </strong>
+      </div>
+
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Despesas</span>
+        <strong className={styles.statValue}>
+          {formatCurrency(0)}
+        </strong>
+      </div>
+
+      <div className={styles.statCard}>
+        <span className={styles.statLabel}>Lucro estimado</span>
+        <strong className={styles.statValue}>
+          {formatCurrency(totalFaturado)}
+        </strong>
+      </div>
+    </div>
+
+    {/* RESUMO INTELIGENTE */}
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Resumo Financeiro</h2>
+      </div>
+
+      <div className={styles.summaryBox}>
+        {notas.length === 0 ? (
+          <p className={styles.emptyBox}>
+            Nenhuma movimentação registrada ainda.
+          </p>
+        ) : (
+          <>
+            <div className={styles.summaryItem}>
+              <span>Total de notas emitidas</span>
+              <strong>{totalNotas}</strong>
             </div>
 
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Visão Geral</h2>
-              </div>
+            <div className={styles.summaryItem}>
+              <span>Faturamento total</span>
+              <strong>{formatCurrency(totalFaturado)}</strong>
+            </div>
 
-              <div className={styles.emptyBox}>
-                {notas.length === 0
-                  ? "Nenhuma nota fiscal no período."
-                  : "Utilize os filtros para refinar os resultados."}
-              </div>
-            </section>
+            <div className={styles.summaryItem}>
+              <span>Status</span>
+              <strong className={styles.statusOk}>Operacional</strong>
+            </div>
           </>
         )}
-
+      </div>
+    </section>
+  </>
+)}
         {/* ===== CAIXA ===== */}
         {activeTab === "caixa" && (
           <section className={styles.card}>
