@@ -177,58 +177,66 @@ export default function MenuAdm() {
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <div className={styles.logoArea}>
-          <img src={logo} alt="Contax" className={styles.logoImg} />
+  <div className={styles.topbarInner}>
 
-          <div className={styles.logoText}>
-            <h1 className={styles.brand}>CONTAX</h1>
-            <span className={styles.brandSubtitle}>ME &amp; MEI - Dashboard</span>
-          </div>
-        </div>
+    {/* LOGO */}
+    <div className={styles.logoArea}>
+      <img src={logo} alt="Contax" className={styles.logoImg} />
 
-        <nav className={styles.nav}>
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "dashboard" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("dashboard")}
-          >
-            Dashboard
-          </button>
+      <div className={styles.logoText}>
+        <h1 className={styles.brand}>CONTAX</h1>
+        <span className={styles.brandSubtitle}>
+          ME & MEI - Dashboard
+        </span>
+      </div>
+    </div>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "empresas" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("empresas")}
-          >
-            Empresas
-          </button>
+    {/* NAV */}
+    <nav className={styles.nav}>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "dashboard" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("dashboard")}
+      >
+        Dashboard
+      </button>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "usuarios" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("usuarios")}
-          >
-            Usuários
-          </button>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "empresas" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("empresas")}
+      >
+        Empresas
+      </button>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "notas" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("notas")}
-          >
-            Notas Fiscais
-          </button>
-        </nav>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "usuarios" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("usuarios")}
+      >
+        Usuários
+      </button>
 
-        <div className={styles.userArea}>
-          <span className={styles.userText}>Acesso: Administrador</span>
-          <div className={styles.userBadge} />
-        </div>
-      </header>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "notas" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("notas")}
+      >
+        Notas Fiscais
+      </button>
+    </nav>
+
+    {/* USER */}
+    <div className={styles.userArea}>
+      <span className={styles.userText}>Acesso: Administrador</span>
+    </div>
+
+  </div>
+</header>
 
       <main className={styles.content}>
         {activeTab === "dashboard" && (

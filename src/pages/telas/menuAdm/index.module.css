@@ -8,14 +8,21 @@
 
 /* ===== HEADER ===== */
 .topbar {
-  height: 8.5rem;
-  padding: 0 5.5rem;
+  width: 100%;
   background: #f0f4f8;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #e5e7eb;;
+}
+
+/* NOVA DIV CENTRAL */
+.topbarInner {
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2rem;
 }
 
 /* LOGO */
@@ -49,8 +56,10 @@
 
 /* ===== NAV ===== */
 .nav {
+  flex: 1;
   display: flex;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.6rem; /* antes 0.8rem */
 }
 
 .navButton {
@@ -86,13 +95,6 @@
   color: #9ca3af;
 }
 
-.userBadge {
-  width: 3.6rem;
-  height: 3.6rem;
-  background: #ffffff;
-  border-radius: 1rem;
-  border: 1px solid #e5e7eb;
-}
 
 /* ===== CONTEÚDO ===== */
 .content {
