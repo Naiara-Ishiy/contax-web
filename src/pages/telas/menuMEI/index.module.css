@@ -286,3 +286,117 @@
     grid-template-columns: 1fr;
   }
 }
+
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.companyCard {
+  margin: 16px;
+  padding: 18px;
+  border: 1px solid #dce5ee;
+  border-radius: 14px;
+  background: #ffffff;
+}
+
+.companyTop {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.typeBadge,
+.monthBadge {
+  background: #eef3f8;
+  border: 1px solid #d9e3ee;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #172033;
+}
+
+.companyContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.companyName {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 22px;
+  color: #111827;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  background: #12b8cf;
+  border-radius: 50%;
+}
+
+.limitText {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: #60708a;
+}
+
+.progressArea {
+  width: 240px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px 14px;
+}
+
+.progressBar {
+  height: 12px;
+  background: #e2f7fa;
+  border: 1px solid #c9edf2;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  width: 0%;
+  background: #12b8cf;
+}
+
+.percent {
+  font-size: 14px;
+  color: #111827;
+}
+
+.statusBadge {
+  justify-self: end;
+  grid-column: 2;
+  background: #d9f8e8;
+  color: #047857;
+  border: 1px solid #b7efcf;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .dashboardLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .companyContent {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .progressArea {
+    width: 100%;
+  }
+}

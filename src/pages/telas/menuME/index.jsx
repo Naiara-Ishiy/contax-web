@@ -1,253 +1,176 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import styles from "./index.module.css";
-import logo from '../../../assets/logoContaxCor.png';
+import logo from "../../../assets/logoContaxCor.png";
 
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState("dashboard");
-
-  const [notas, setNotas] = useState([]);
   const [filtroMes, setFiltroMes] = useState("");
 
-  // ===== FILTRO =====
+  const [notas] = useState([]);
+
   const notasFiltradas = useMemo(() => {
     if (!filtroMes) return notas;
 
     return notas.filter((nota) => nota.data?.includes(filtroMes));
   }, [notas, filtroMes]);
 
-  // ===== RESUMO =====
   const totalNotas = notasFiltradas.length;
 
   const totalFaturado = useMemo(() => {
-    return notasFiltradas.reduce((acc, item) => acc + Number(item.valor || 0), 0);
+    return notasFiltradas.reduce((acc, nota) => acc + Number(nota.valor || 0), 0);
   }, [notasFiltradas]);
+
+  const tituloMes = filtroMes
+    ? `Visão Geral — ${formatMonthBR(filtroMes)}`
+    : "Visão Geral";
 
   return (
     <div className={styles.page}>
-      {/* HEADER */}
       <header className={styles.topbar}>
-  <div className={styles.topbarInner}>
+        <div className={styles.topbarInner}>
+          <div className={styles.logoArea}>
+            <img src={logo} alt="Contax" className={styles.logoImg} />
 
-    {/* LOGO */}
-    <div className={styles.logoArea}>
-      <img src={logo} alt="Contax" className={styles.logoImg} />
+            <div className={styles.logoText}>
+              <h1 className={styles.brand}>CONTAX</h1>
+              <span className={styles.brandSubtitle}>ME &amp; MEI - Dashboard</span>
+            </div>
+          </div>
 
-      <div className={styles.logoText}>
-        <h1 className={styles.brand}>CONTAX</h1>
-        <span className={styles.brandSubtitle}>
-          ME & MEI - Dashboard
-        </span>
-      </div>
-    </div>
+          <nav className={styles.nav}>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "dashboard" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("dashboard")}
+            >
+              Dashboard
+            </button>
 
-    {/* NAV */}
-    <nav className={styles.nav}>
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "dashboard" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("dashboard")}
-      >
-        Dashboard
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "caixa" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("caixa")}
+            >
+              Caixa
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "caixa" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("caixa")}
-      >
-        Caixa
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "despesas" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("despesas")}
+            >
+              Despesas
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "despesas" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("despesas")}
-      >
-        Despesas
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "faturamento" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("faturamento")}
+            >
+              Faturamento
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "faturamento" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("faturamento")}
-      >
-        Faturamento
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "imposto" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("imposto")}
+            >
+              Imposto
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "imposto" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("imposto")}
-      >
-        Imposto
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === "notas" ? styles.navButtonActive : ""
+              }`}
+              onClick={() => setActiveTab("notas")}
+            >
+              Notas Emitidas
+            </button>
+          </nav>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "notas" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("notas")}
-      >
-        Notas Emitidas
-      </button>
-    </nav>
+          <div className={styles.userArea}>
+            <span className={styles.userText}>Acesso: ME</span>
+          </div>
+        </div>
+      </header>
 
-    {/* USER */}
-    <div className={styles.userArea}>
-      <span className={styles.userText}>Acesso: ME</span>
-    </div>
-
-  </div>
-</header>
-
-      {/* CONTEÚDO */}
       <main className={styles.content}>
-        {/* ===== DASHBOARD ===== */}
-        
-  <>
-    {/* KPIs */}
-    <div className={styles.dashboardGrid}>
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Notas no período</span>
-        <strong className={styles.statValue}>{totalNotas}</strong>
-      </div>
-
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Receita</span>
-        <strong className={styles.statValue}>
-          {formatCurrency(totalFaturado)}
-        </strong>
-      </div>
-
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Despesas</span>
-        <strong className={styles.statValue}>
-          {formatCurrency(0)}
-        </strong>
-      </div>
-
-      <div className={styles.statCard}>
-        <span className={styles.statLabel}>Lucro estimado</span>
-        <strong className={styles.statValue}>
-          {formatCurrency(totalFaturado)}
-        </strong>
-      </div>
-    </div>
-
-    {/* RESUMO INTELIGENTE */}
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Resumo Financeiro</h2>
-      </div>
-
-      <div className={styles.summaryBox}>
-        {notas.length === 0 ? (
-          <p className={styles.emptyBox}>
-            Nenhuma movimentação registrada ainda.
-          </p>
-        ) : (
+        {activeTab === "dashboard" && (
           <>
-            <div className={styles.summaryItem}>
-              <span>Total de notas emitidas</span>
-              <strong>{totalNotas}</strong>
+            <div className={styles.dashboardLayout}>
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>{tituloMes}</h2>
+                </div>
+
+                <div className={styles.companyCard}>
+                  <div className={styles.companyTop}>
+                    <span className={styles.typeBadge}>ME</span>
+                    <span className={styles.monthBadge}>
+                      {filtroMes ? formatMonthBR(filtroMes) : "Mês atual"}
+                    </span>
+                  </div>
+
+                  <div className={styles.companyContent}>
+                    <div>
+                      <div className={styles.companyName}>
+                        <span className={styles.dot}></span>
+                        <strong>Empresa ME</strong>
+                      </div>
+
+                      <p className={styles.limitText}>
+                        Limite: <strong>R$ 30.000,00</strong> • Utilizado:{" "}
+                        <strong>{formatCurrency(totalFaturado)}</strong> • Restante:{" "}
+                        <strong>{formatCurrency(30000 - totalFaturado)}</strong>
+                      </p>
+                    </div>
+
+                    <div className={styles.progressArea}>
+                      <div className={styles.progressBar}>
+                        <div
+                          className={styles.progressFill}
+                          style={{
+                            width: `${Math.min((totalFaturado / 30000) * 100, 100)}%`,
+                          }}
+                        ></div>
+                      </div>
+
+                      <strong className={styles.percent}>
+                        {((totalFaturado / 30000) * 100).toFixed(1)}%
+                      </strong>
+
+                      <span className={styles.statusBadge}>Saudável</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <section className={`${styles.card} ${styles.filterCard}`}>
+                <div className={styles.cardHeader}>
+                  <h2>Filtro</h2>
+                </div>
+
+                <div className={styles.filterBody}>
+                  <div className={styles.field}>
+                    <label>Mês</label>
+                    <input
+                      type="month"
+                      value={filtroMes}
+                      onChange={(e) => setFiltroMes(e.target.value)}
+                      className={styles.input}
+                    />
+                  </div>
+
+                  <button className={styles.applyButton}>Aplicar</button>
+                </div>
+              </section>
             </div>
 
-            <div className={styles.summaryItem}>
-              <span>Faturamento total</span>
-              <strong>{formatCurrency(totalFaturado)}</strong>
-            </div>
-
-            <div className={styles.summaryItem}>
-              <span>Status</span>
-              <strong className={styles.statusOk}>Operacional</strong>
-            </div>
-          </>
-        )}
-      </div>
-    </section>
-  </>
-
-        {/* ===== CAIXA ===== */}
-        {activeTab === "caixa" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Caixa</h2>
-            </div>
-
-            <div className={styles.emptyBox}>
-              Área de caixa pronta para integrar entradas, saídas e saldo atual.
-            </div>
-          </section>
-        )}
-
-        {/* ===== DESPESAS ===== */}
-        {activeTab === "despesas" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Despesas</h2>
-            </div>
-
-            <div className={styles.emptyBox}>
-              Área de despesas pronta para cadastro e listagem.
-            </div>
-          </section>
-        )}
-
-        {/* ===== FATURAMENTO ===== */}
-        {activeTab === "faturamento" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Faturamento</h2>
-            </div>
-
-            <div className={styles.emptyBox}>
-              Área de faturamento pronta para gráficos, totais e metas.
-            </div>
-          </section>
-        )}
-
-        {/* ===== IMPOSTO ===== */}
-        {activeTab === "imposto" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Imposto</h2>
-            </div>
-
-            <div className={styles.emptyBox}>
-              Área de impostos pronta para cálculos e acompanhamento.
-            </div>
-          </section>
-        )}
-
-        {/* ===== NOTAS ===== */}
-        {activeTab === "notas" && (
-          <>
-            {/* FILTRO */}
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Filtro</h2>
-              </div>
-
-              <div className={styles.filterBox}>
-                <input
-                  type="month"
-                  value={filtroMes}
-                  onChange={(e) => setFiltroMes(e.target.value)}
-                  className={styles.input}
-                />
-
-                <button className={styles.primaryButton}>
-                  Aplicar
-                </button>
-              </div>
-            </section>
-
-            {/* TABELA */}
             <section className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Notas Fiscais do período</h2>
@@ -257,18 +180,18 @@ export default function MenuME() {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Data</th>
-                      <th>Empresa</th>
-                      <th>Descrição</th>
-                      <th>Valor (R$)</th>
+                      <th>DATA</th>
+                      <th>EMPRESA</th>
+                      <th>DESCRIÇÃO</th>
+                      <th className={styles.valueHeader}>VALOR (R$)</th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {notasFiltradas.length === 0 ? (
                       <tr>
-                        <td colSpan="4" className={styles.emptyBox}>
-                          Nenhuma nota fiscal encontrada.
+                        <td colSpan="4" className={styles.emptyTableText}>
+                          Sem notas neste período.
                         </td>
                       </tr>
                     ) : (
@@ -287,16 +210,121 @@ export default function MenuME() {
             </section>
           </>
         )}
+
+        {activeTab === "caixa" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Caixa</h2>
+            </div>
+            <div className={styles.emptyBox}>
+              Área de caixa pronta para integrar entradas, saídas e saldo atual.
+            </div>
+          </section>
+        )}
+
+        {activeTab === "despesas" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Despesas</h2>
+            </div>
+            <div className={styles.emptyBox}>
+              Área de despesas pronta para cadastro e listagem.
+            </div>
+          </section>
+        )}
+
+        {activeTab === "faturamento" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Faturamento</h2>
+            </div>
+            <div className={styles.emptyBox}>
+              Área de faturamento pronta para gráficos, totais e metas.
+            </div>
+          </section>
+        )}
+
+        {activeTab === "imposto" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Imposto</h2>
+            </div>
+            <div className={styles.emptyBox}>
+              Área de impostos pronta para cálculos e acompanhamento.
+            </div>
+          </section>
+        )}
+
+        {activeTab === "notas" && (
+          <section className={styles.card}>
+            <div className={styles.cardHeader}>
+              <h2>Notas Emitidas</h2>
+            </div>
+
+            <div className={styles.tableWrapper}>
+              <table className={styles.table}>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Empresa</th>
+                    <th>Descrição</th>
+                    <th>Valor (R$)</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {notasFiltradas.length === 0 ? (
+                    <tr>
+                      <td colSpan="4" className={styles.emptyTableText}>
+                        Nenhuma nota fiscal encontrada.
+                      </td>
+                    </tr>
+                  ) : (
+                    notasFiltradas.map((nota) => (
+                      <tr key={nota.id}>
+                        <td>{nota.data}</td>
+                        <td>{nota.empresa}</td>
+                        <td>{nota.descricao}</td>
+                        <td>{formatCurrency(nota.valor)}</td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
 }
-
-/* ===== HELPERS ===== */
 
 function formatCurrency(value) {
   return Number(value).toLocaleString("pt-BR", {
     style: "currency",
     currency: "BRL",
   });
+}
+
+function formatMonthBR(value) {
+  if (!value) return "";
+
+  const [year, month] = value.split("-");
+
+  const months = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ];
+
+  return `${months[Number(month) - 1]} de ${year}`;
 }
