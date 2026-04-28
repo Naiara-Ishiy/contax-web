@@ -108,7 +108,7 @@ export default function MenuME() {
       {/* CONTEÚDO */}
       <main className={styles.content}>
         {/* ===== DASHBOARD ===== */}
-        {activeTab === "dashboard" && (
+        
   <>
     {/* KPIs */}
     <div className={styles.dashboardGrid}>
@@ -171,7 +171,7 @@ export default function MenuME() {
       </div>
     </section>
   </>
-)}
+
         {/* ===== CAIXA ===== */}
         {activeTab === "caixa" && (
           <section className={styles.card}>
