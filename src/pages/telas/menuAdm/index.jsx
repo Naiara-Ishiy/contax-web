@@ -240,51 +240,181 @@ export default function MenuAdm() {
 
       <main className={styles.content}>
         {activeTab === "dashboard" && (
-          <>
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Dashboard Administrativo</h2>
-              </div>
+        <>
+      <div className={styles.dashboardLayout}>
 
-              <div className={`${styles.dashboardGrid} ${styles.dashboardGridCustom}`}>
-                <div className={`${styles.statCard} ${styles.statCardCustom}`}>
-                 <span className={`${styles.statLabel} ${styles.statLabelCustom}`}>Empresas cadastradas</span>
-                  <strong className={`${styles.statValue} ${styles.statValueCustom}`}>{totalEmpresas}</strong>
+      {/* ESQUERDA */}
+      <section className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2>Visão Geral</h2>
+        </div>
+
+        {empresas.length === 0 ? (
+          <div className={styles.emptyBox}>
+            Nenhuma empresa cadastrada.
+          </div>
+        ) : (
+          empresas.map((empresa) => {
+            const notasEmpresa = notas.filter(
+              (n) => n.empresa === empresa.nome
+            );
+
+            const total = notasEmpresa.reduce(
+              (acc, n) => acc + Number(n.valor || 0),
+              0
+            );
+
+            const limite = 20000;
+            const percentual = Math.min((total / limite) * 100, 100);
+
+            const status =
+              percentual < 50
+                ? "Saudável"
+                : percentual < 80
+                ? "Atenção"
+                : "Risco";
+
+            return (
+              <div key={empresa.id} className={styles.companyCard}>
+                
+                <div className={styles.companyTop}>
+                  <span className={styles.typeBadge}>
+                    {empresa.categoria || "ME"}
+                  </span>
+
+                  <span className={styles.monthBadge}>
+                    {new Date().toLocaleDateString("pt-BR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Usuários cadastrados</span>
-                  <strong className={styles.statValue}>{totalUsuarios}</strong>
-                </div>
+                <div className={styles.companyContent}>
+                  
+                  <div>
+                    <div className={styles.companyName}>
+                      <span className={styles.dot}></span>
+                      <strong>{empresa.nome}</strong>
+                    </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Notas lançadas</span>
-                  <strong className={styles.statValue}>{totalNotas}</strong>
-                </div>
+                    <p className={styles.limitText}>
+                      Limite: <strong>{formatCurrency(limite)}</strong> •
+                      Utilizado: <strong>{formatCurrency(total)}</strong> •
+                      Restante:{" "}
+                      <strong>{formatCurrency(limite - total)}</strong>
+                    </p>
+                  </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Total faturado</span>
-                  <strong className={styles.statValue}>
-                    {formatCurrency(totalFaturado)}
-                  </strong>
+                  <div className={styles.progressArea}>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${percentual}%` }}
+                      />
+                    </div>
+
+                    <strong className={styles.percent}>
+                      {percentual.toFixed(1)}%
+                    </strong>
+
+                    <span
+                      className={styles.statusBadge}
+                      style={{
+                        background:
+                          status === "Saudável"
+                            ? "#d9f8e8"
+                            : status === "Atenção"
+                            ? "#fff4d6"
+                            : "#ffe4e6",
+                        color:
+                          status === "Saudável"
+                            ? "#047857"
+                            : status === "Atenção"
+                            ? "#b45309"
+                            : "#b91c1c",
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+
                 </div>
               </div>
-            </section>
-
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Resumo rápido</h2>
-              </div>
-
-              <div className={styles.emptyBox}>
-                {empresas.length === 0 && usuarios.length === 0 && notas.length === 0
-                  ? "Nenhum dado cadastrado ainda."
-                  : "Use as abas de Empresas, Usuários e Notas Fiscais para gerenciar o sistema."}
-              </div>
-            </section>
-          </>
+            );
+          })
         )}
+      </section>
 
+      {/* DIREITA */}
+      <section className={`${styles.card} ${styles.filterCard}`}>
+        <div className={styles.cardHeader}>
+          <h2>Filtro</h2>
+        </div>
+
+        <div className={styles.filterBody}>
+          <div className={styles.field}>
+            <label>Mês</label>
+            <input type="month" className={styles.input} />
+          </div>
+
+          <div className={styles.field}>
+            <label>Empresa</label>
+            <select className={styles.input}>
+              <option value="">Todas</option>
+              {empresas.map((e) => (
+                <option key={e.id}>{e.nome}</option>
+              ))}
+            </select>
+          </div>
+
+          <button className={styles.primaryButton}>
+            Aplicar
+          </button>
+        </div>
+      </section>
+    </div>
+
+    {/* TABELA */}
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Notas Fiscais</h2>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>DATA</th>
+              <th>EMPRESA</th>
+              <th>DESCRIÇÃO</th>
+              <th>VALOR</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {notas.length === 0 ? (
+              <tr>
+                <td colSpan="4" className={styles.emptyTable}>
+                  Nenhuma nota cadastrada.
+                </td>
+              </tr>
+            ) : (
+              notas.map((nota) => (
+                <tr key={nota.id}>
+                  <td>{nota.data}</td>
+                  <td>{nota.empresa}</td>
+                  <td>{nota.descricao}</td>
+                  <td>{formatCurrency(nota.valor)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </>
+)}
         {activeTab === "empresas" && (
           <>
             <section className={styles.card}>
