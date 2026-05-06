@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styles from "./index.module.css";
+import api from "../../../services/apis";
+
 import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuAdm() {
@@ -8,6 +10,29 @@ export default function MenuAdm() {
 
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const buscarEmpresas = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/empresas`);
+
+      console.log(response.data);
+
+      setEmpresas(response.data.dados);
+    } catch (err) {
+      console.log("Erro ao buscar empresas", err);
+
+      setError("Erro ao carregar empresas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    buscarEmpresas();
+  }, []);
 
   const [empresaForm, setEmpresaForm] = useState({
     nome: "",
@@ -173,6 +198,14 @@ export default function MenuAdm() {
   const excluirUsuario = (id) => {
     setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
   };
+
+  if (loading && empresas.length === 0) {
+  return <p>Carregando empresas...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
+  }
 
   return (
     <div className={styles.page}>
