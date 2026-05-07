@@ -20,7 +20,7 @@ export default function MenuAdm() {
 
       console.log(response.data);
 
-      setEmpresas(response.data.dados);
+      setEmpresas(response.data.dados || []);
     } catch (err) {
       console.log("Erro ao buscar empresas", err);
 
@@ -36,8 +36,14 @@ export default function MenuAdm() {
 
   const [empresaForm, setEmpresaForm] = useState({
     nome: "",
+    razao_social: "",
     cnpj: "",
-    categoria: "",
+    endereco: "",
+    municipio: "",
+    telefone: "",
+    email: "",
+    senha: "",
+    tipo: 0,
   });
 
   const [notaForm, setNotaForm] = useState({
@@ -58,7 +64,7 @@ export default function MenuAdm() {
 
   const [notas, setNotas] = useState([]);
 
-  const totalEmpresas = empresas.length;
+  const totalEmpresas = empresas?.length || 0;
   const totalNotas = notas.length;
   const totalUsuarios = usuarios.length;
 
@@ -99,7 +105,7 @@ export default function MenuAdm() {
       id: Date.now(),
       nome: empresaForm.nome.trim(),
       cnpj: empresaForm.cnpj.trim(),
-      categoria: empresaForm.categoria.trim(),
+      categoria: empresaForm.emp_tipo.trim(),
     };
 
     setEmpresas((prev) => [...prev, novaEmpresa]);
@@ -158,13 +164,13 @@ export default function MenuAdm() {
     }
 
     const empresaSelecionada = empresas.find(
-      (empresa) => String(empresa.id) === notaForm.empresa
+      (empresa) => String(empresa.emp_id) === notaForm.empresa
     );
 
     const novaNota = {
       id: Date.now(),
       data: formatDateBR(notaForm.data),
-      empresa: empresaSelecionada?.nome || "",
+      empresa: empresaSelecionada?.emp_nome_fantasia || "",
       descricao: notaForm.descricao.trim(),
       valor: Number(notaForm.valor),
     };
@@ -184,13 +190,13 @@ export default function MenuAdm() {
   };
 
   const excluirEmpresa = (id) => {
-    const empresaRemovida = empresas.find((item) => item.id === id);
+    const empresaRemovida = empresas.find((item) => item.emp_id === id);
 
-    setEmpresas((prev) => prev.filter((empresa) => empresa.id !== id));
+    setEmpresas((prev) => prev.filter((empresa) => empresa.emp_id !== id));
 
     if (empresaRemovida) {
       setNotas((prev) =>
-        prev.filter((nota) => nota.empresa !== empresaRemovida.nome)
+        prev.filter((nota) => nota.empresa !== empresaRemovida.emp_nome_fantasia)
       );
     }
   };
@@ -289,7 +295,7 @@ export default function MenuAdm() {
         ) : (
           empresas.map((empresa) => {
             const notasEmpresa = notas.filter(
-              (n) => n.empresa === empresa.nome
+              (n) => n.empresa === empresa.emp_nome_fantasia
             );
 
             const total = notasEmpresa.reduce(
@@ -308,11 +314,11 @@ export default function MenuAdm() {
                 : "Risco";
 
             return (
-              <div key={empresa.id} className={styles.companyCard}>
+              <div key={empresa.emp_id} className={styles.companyCard}>
                 
                 <div className={styles.companyTop}>
                   <span className={styles.typeBadge}>
-                    {empresa.categoria || "ME"}
+                    {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
                   </span>
 
                   <span className={styles.monthBadge}>
@@ -328,7 +334,7 @@ export default function MenuAdm() {
                   <div>
                     <div className={styles.companyName}>
                       <span className={styles.dot}></span>
-                      <strong>{empresa.nome}</strong>
+                      <strong>{empresa.emp_nome_fantasia}</strong>
                     </div>
 
                     <p className={styles.limitText}>
@@ -396,7 +402,7 @@ export default function MenuAdm() {
             <select className={styles.input}>
               <option value="">Todas</option>
               {empresas.map((e) => (
-                <option key={e.id}>{e.nome}</option>
+                <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
               ))}
             </select>
           </div>
@@ -482,15 +488,11 @@ export default function MenuAdm() {
                   </div>
 
                   <div className={styles.field}>
-                    <label>Categoria</label>
-                    <input
-                      type="text"
-                      name="categoria"
-                      value={empresaForm.categoria}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                      placeholder="Ex: Comércio, Serviços..."
-                    />
+                    <label>Tipo</label>
+                    <select name="tipo">
+                    <option value={0}>ME</option>
+                    <option value={1}>MEI</option>
+                    </select>
                   </div>
                 </div>
 
@@ -525,14 +527,14 @@ export default function MenuAdm() {
                       </tr>
                     ) : (
                       empresas.map((empresa) => (
-                        <tr key={empresa.id}>
-                          <td>{empresa.nome}</td>
-                          <td>{empresa.cnpj || "-"}</td>
-                          <td>{empresa.categoria || "-"}</td>
+                        <tr key={empresa.emp_id}>
+                          <td>{empresa.emp_nome_fantasia}</td>
+                          <td>{empresa.emp_cnpj || "-"}</td>
+                          <td>{Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}</td>
                           <td>
                             <button
                               className={styles.actionButton}
-                              onClick={() => excluirEmpresa(empresa.id)}
+                              onClick={() => excluirEmpresa(empresa.emp_id)}
                             >
                               Excluir
                             </button>
@@ -708,8 +710,8 @@ export default function MenuAdm() {
                   >
                     <option value="">Selecione uma empresa</option>
                     {empresas.map((empresa) => (
-                      <option key={empresa.id} value={empresa.id}>
-                        {empresa.nome}
+                      <option key={empresa.emp_id} value={empresa.emp_id}>
+                        {empresa.emp_nome_fantasia}
                       </option>
                     ))}
                   </select>
