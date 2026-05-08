@@ -35,15 +35,15 @@ export default function MenuAdm() {
   }, []);
 
   const [empresaForm, setEmpresaForm] = useState({
-    nome: "",
-    razao_social: "",
-    cnpj: "",
-    endereco: "",
-    municipio: "",
-    telefone: "",
-    email: "",
-    senha: "",
-    tipo: 0,
+    emp_nome_fantasia: "",
+    emp_razao_social: "",
+    emp_cnpj: "",
+    emp_endereco: "",
+    emp_municipio: "",
+    emp_telefone: "",
+    emp_email: "",
+    emp_senha: "",
+    emp_tipo: 0,
   });
 
   const [notaForm, setNotaForm] = useState({
@@ -76,7 +76,7 @@ export default function MenuAdm() {
     const { name, value } = e.target;
     setEmpresaForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "emp_tipo" ? Number(value) : value,
     }));
   };
 
@@ -99,23 +99,29 @@ export default function MenuAdm() {
   const cadastrarEmpresa = (e) => {
     e.preventDefault();
 
-    if (!empresaForm.nome.trim()) return;
+    if (!empresaForm.emp_nome_fantasia.trim()) return;
 
     const novaEmpresa = {
-      id: Date.now(),
-      nome: empresaForm.nome.trim(),
-      cnpj: empresaForm.cnpj.trim(),
-      categoria: empresaForm.emp_tipo.trim(),
+      emp_id: Date.now(),
+      emp_nome_fantasia: empresaForm.emp_nome_fantasia.trim(),
+      emp_cnpj: empresaForm.emp_cnpj.trim(),
+      emp_tipo: empresaForm.emp_tipo,
     };
 
     setEmpresas((prev) => [...prev, novaEmpresa]);
 
-    setEmpresaForm({
-      nome: "",
-      cnpj: "",
-      categoria: "",
-    });
-  };
+  setEmpresaForm({
+     emp_nome_fantasia: "",
+     emp_razao_social: "",
+     emp_cnpj: "",
+     emp_endereco: "",
+     emp_municipio: "",
+     emp_telefone: "",
+     emp_email: "",
+     emp_senha: "",
+     emp_tipo: 0,
+  });
+};
 
   const cadastrarUsuario = (e) => {
     e.preventDefault();
@@ -170,7 +176,7 @@ export default function MenuAdm() {
     const novaNota = {
       id: Date.now(),
       data: formatDateBR(notaForm.data),
-      empresa: empresaSelecionada?.emp_nome_fantasia || "",
+      empresa_id: empresaSelecionada?.emp_id || null,
       descricao: notaForm.descricao.trim(),
       valor: Number(notaForm.valor),
     };
@@ -295,7 +301,7 @@ export default function MenuAdm() {
         ) : (
           empresas.map((empresa) => {
             const notasEmpresa = notas.filter(
-              (n) => n.empresa === empresa.emp_nome_fantasia
+              (n) => n.empresa === empresa.emp_id
             );
 
             const total = notasEmpresa.reduce(
@@ -466,8 +472,8 @@ export default function MenuAdm() {
                   <label>Nome da empresa</label>
                   <input
                     type="text"
-                    name="nome"
-                    value={empresaForm.nome}
+                    name="emp_nome_fantasia"
+                    value={empresaForm.emp_nome_fantasia}
                     onChange={handleEmpresaChange}
                     className={styles.input}
                     placeholder="Digite o nome da empresa"
@@ -479,8 +485,8 @@ export default function MenuAdm() {
                     <label>CNPJ</label>
                     <input
                       type="text"
-                      name="cnpj"
-                      value={empresaForm.cnpj}
+                      name="emp_cnpj"
+                      value={empresaForm.emp_cnpj}
                       onChange={handleEmpresaChange}
                       className={styles.input}
                       placeholder="00.000.000/0000-00"
@@ -489,9 +495,14 @@ export default function MenuAdm() {
 
                   <div className={styles.field}>
                     <label>Tipo</label>
-                    <select name="tipo">
-                    <option value={0}>ME</option>
-                    <option value={1}>MEI</option>
+                    <select
+                      name="emp_tipo"
+                      value={empresaForm.emp_tipo}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                    >
+                      <option value={0}>ME</option>
+                      <option value={1}>MEI</option>
                     </select>
                   </div>
                 </div>
