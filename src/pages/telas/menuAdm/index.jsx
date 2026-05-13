@@ -18,12 +18,12 @@ export default function MenuAdm() {
       setLoading(true);
       const response = await api.get(`/empresas`);
 
-      console.log(response.data);
+      console.log("RESPOSTA:", response.data);
 
       setEmpresas(response.data.dados || []);
     } catch (err) {
-      console.log("Erro ao buscar empresas", err);
-
+      console.log(err);
+      setEmpresas([]);
       setError("Erro ao carregar empresas");
     } finally {
       setLoading(false);
@@ -54,12 +54,13 @@ export default function MenuAdm() {
   });
 
   const [usuarioForm, setUsuarioForm] = useState({
-    nome: "",
-    email: "",
-    documento: "",
-    senha: "",
-    tipo: "Contabilista",
-    status: "Ativo",
+    usu_nome: "",
+    usu_email: "",
+    usu_cpf: "",
+    usu_senha: "",
+    usu_telefone: "",
+    usu_status: 1,
+    usu_alterar_senha: 0,
   });
 
   const [notas, setNotas] = useState([]);
@@ -92,7 +93,10 @@ export default function MenuAdm() {
     const { name, value } = e.target;
     setUsuarioForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: 
+        name === "usu_status"
+          ? Number(value)
+          : value,
     }));
   };
 
@@ -127,22 +131,24 @@ export default function MenuAdm() {
     e.preventDefault();
 
     if (
-      !usuarioForm.nome.trim() ||
-      !usuarioForm.email.trim() ||
-      !usuarioForm.documento.trim() ||
-      !usuarioForm.senha.trim()
+      !usuarioForm.usu_nome.trim() ||
+      !usuarioForm.usu_email.trim() ||
+      !usuarioForm.usu_cpf.trim() ||
+      !usuarioForm.usu_senha.trim() ||
+      !usuarioForm.usu_telefone.trim()
     ) {
       return;
     }
 
     const novoUsuario = {
-      id: Date.now(),
-      nome: usuarioForm.nome.trim(),
-      email: usuarioForm.email.trim(),
-      documento: usuarioForm.documento.trim(),
-      senha: usuarioForm.senha,
-      tipo: usuarioForm.tipo,
-      status: usuarioForm.status,
+      usu_id: Date.now(),
+      usu_nome: usuarioForm.usu_nome.trim(),
+      usu_email: usuarioForm.usu_email.trim(),
+      usu_cpf: usuarioForm.usu_cpf.trim(),
+      usu_senha: usuarioForm.usu_senha,
+      usu_telefone: usuarioForm.usu_telefone.trim(),
+      usu_status: usuarioForm.usu_status,
+      usu_alterar_senha: 0,
     };
 
     setUsuarios((prev) => [...prev, novoUsuario]);
@@ -572,8 +578,8 @@ export default function MenuAdm() {
                   <label>Nome completo</label>
                   <input
                     type="text"
-                    name="nome"
-                    value={usuarioForm.nome}
+                    name="usu_nome"
+                    value={usuarioForm.usu_nome}
                     onChange={handleUsuarioChange}
                     className={styles.input}
                     placeholder="Digite o nome completo"
@@ -585,8 +591,8 @@ export default function MenuAdm() {
                     <label>E-mail</label>
                     <input
                       type="email"
-                      name="email"
-                      value={usuarioForm.email}
+                      name="usu_email"
+                      value={usuarioForm.usu_email}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="email@exemplo.com"
@@ -597,11 +603,23 @@ export default function MenuAdm() {
                     <label>CPF ou CRC</label>
                     <input
                       type="text"
-                      name="documento"
-                      value={usuarioForm.documento}
+                      name="usu_cpf"
+                      value={usuarioForm.usu_cpf}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="Digite o documento"
+                    />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>Telefone</label>
+                    <input
+                      type="text"
+                      name="usu_telefone"
+                      value={usuarioForm.usu_telefone}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="(00) 00000-0000"
                     />
                   </div>
                 </div>
@@ -611,8 +629,8 @@ export default function MenuAdm() {
                     <label>Senha</label>
                     <input
                       type="password"
-                      name="senha"
-                      value={usuarioForm.senha}
+                      name="usu_senha"
+                      value={usuarioForm.usu_senha}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="Digite a senha"
@@ -622,13 +640,13 @@ export default function MenuAdm() {
                   <div className={styles.field}>
                     <label>Status</label>
                     <select
-                      name="status"
-                      value={usuarioForm.status}
+                      name="usu_status"
+                      value={usuarioForm.usu_status}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                     >
-                      <option value="Ativo">Ativo</option>
-                      <option value="Inativo">Inativo</option>
+                      <option value={1}>Ativo</option>
+                      <option value={0}>Inativo</option>
                     </select>
                   </div>
                 </div>
@@ -679,11 +697,11 @@ export default function MenuAdm() {
                     ) : (
                       usuarios.map((usuario) => (
                         <tr key={usuario.id}>
-                          <td>{usuario.nome}</td>
-                          <td>{usuario.email}</td>
-                          <td>{usuario.documento}</td>
-                          <td>{usuario.tipo}</td>
-                          <td>{usuario.status}</td>
+                          <td>{usuario.usu_nome}</td>
+                          <td>{usuario.usu_email}</td>
+                          <td>{usuario.usu_cpf}</td>
+                          <td>{usuario.usu_telefone}</td>
+                          <td>{usuario.usu_status ? "Ativo" : "Inativo"}</td>
                           <td>
                             <button
                               className={styles.actionButton}
