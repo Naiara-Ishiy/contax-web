@@ -681,7 +681,7 @@ export default function MenuAdm() {
                       <th>Nome</th>
                       <th>E-mail</th>
                       <th>Documento</th>
-                      <th>Tipo</th>
+                      <th>Telefone</th>
                       <th>Status</th>
                       <th></th>
                     </tr>
