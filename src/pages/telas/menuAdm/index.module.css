@@ -8,14 +8,20 @@
 
 /* ===== HEADER ===== */
 .topbar {
-  height: 8.5rem;
-  padding: 0 5.5rem;
+  width: 100%;
   background: #f0f4f8;
   border-bottom: 2px solid #e5e7eb;
+}
+
+.topbarInner {
+  max-width: 110rem;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
 
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 2rem;
 }
 
 /* LOGO */
@@ -49,8 +55,10 @@
 
 /* ===== NAV ===== */
 .nav {
+  flex: 1;
   display: flex;
-  gap: 1rem;
+  justify-content: center;
+  gap: 1.6rem;
 }
 
 .navButton {
@@ -61,7 +69,6 @@
   color: #374151;
   border: 1px solid #e5e7eb;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .navButton:hover {
@@ -75,23 +82,9 @@
 }
 
 /* ===== USER ===== */
-.userArea {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
 .userText {
   font-size: 1.2rem;
   color: #9ca3af;
-}
-
-.userBadge {
-  width: 3.6rem;
-  height: 3.6rem;
-  background: #ffffff;
-  border-radius: 1rem;
-  border: 1px solid #e5e7eb;
 }
 
 /* ===== CONTEÚDO ===== */
@@ -107,12 +100,8 @@
   border-radius: 1.6rem;
   padding: 2.5rem;
   margin-bottom: 2rem;
-
   border: 1px solid #e5e7eb;
-
-  box-shadow:
-    0 10px 25px rgba(0,0,0,0.05),
-    0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
 }
 
 .cardHeader {
@@ -121,7 +110,6 @@
 
 .cardHeader h2 {
   font-size: 1.8rem;
-  color: #374151;
 }
 
 /* ===== FORM ===== */
@@ -139,25 +127,20 @@
 .field label {
   font-size: 1.3rem;
   color: #6b7280;
-  margin-bottom: 0.4rem;
 }
 
-/* GRID */
 .row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1rem;
 }
 
-/* INPUT */
 .input {
   width: 100%;
   padding: 1.1rem;
   border-radius: 0.8rem;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
-  font-size: 1.4rem;
-  transition: 0.2s;
 }
 
 .input:focus {
@@ -179,17 +162,20 @@
   font-size: 1.4rem;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+
+  transition: all 0.18s ease;
 }
 
+/* HOVER */
 .primaryButton:hover {
-  filter: brightness(1.05);
   transform: translateY(-1px);
+  filter: brightness(1.05);
 }
 
-.primaryButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+/* CLICK (PRESSIONADO) */
+.primaryButton:active {
+  transform: scale(0.96);
+  filter: brightness(0.95);
 }
 
 /* ===== TABELA ===== */
@@ -203,7 +189,7 @@
   border-collapse: collapse;
 }
 
-.table thead th {
+.table th {
   text-align: left;
   padding: 1rem;
   font-size: 1.2rem;
@@ -211,69 +197,145 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
-.table tbody td {
+.table td {
   padding: 1rem;
   font-size: 1.3rem;
-  color: #374151;
   border-bottom: 1px solid #f1f5f9;
 }
 
-/* BOTÃO AÇÃO */
-.actionButton {
-  padding: 0.6rem 1.2rem;
-  border-radius: 0.8rem;
-  border: none;
+/* ===== DASHBOARD ===== */
 
-  background: #ef4444;
-  color: white;
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.actionButton:hover {
-  background: #dc2626;
-}
-
-/* ===== DASHBOARD (MELHORADO) ===== */
-
-.dashboardGrid {
+.dashboardLayout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.6rem;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
 }
 
-/* CARD BASE */
-.statCard {
-  background: linear-gradient(135deg, #ffffff, #f8fbfd);
-  border-radius: 1.4rem;
-  padding: 1.8rem;
-  border: 1px solid #e5e7eb;
+/* FILTRO */
+.filterCard {
+  height: fit-content;
+}
 
+.filterBody {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-
-  transition: all 0.2s ease;
+  gap: 16px;
 }
 
-/* HOVER BONITO */
-.statCard:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.06);
-  border-color: #cfe8ef;
+/* ===== CARD EMPRESA ===== */
+
+.companyCard {
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
 }
 
-/* LABEL */
-.statLabel {
-  font-size: 1.2rem;
-  color: #9ca3af;
+/* TOP */
+.companyTop {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
 }
 
-/* VALOR */
-.statValue {
-  font-size: 2.4rem;
-  font-weight: 700;
-  color: #0ea5b7;
+.typeBadge,
+.monthBadge {
+  background: #f1f5f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* CONTEÚDO */
+.companyContent {
+  display: flex;
+  flex-direction: column; 
+  gap: 10px;
+}
+
+/* ESQUERDA */
+.companyLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.companyName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: bold;
+  margin-top: 2.5px;
+  margin-bottom: 10px;
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  background: #06b6d4;
+  border-radius: 50%;
+}
+
+.limitText {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* DIREITA */
+.companyRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.progressArea {
+  width: 100%; 
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 🔥 BARRA AGORA FICA ABAIXO */
+.progressBar {
+  width: 100%;
+  height: 15px;
+  background: #e0f2f7;
+  border-radius: 900px;
+  overflow: hidden;
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+}
+
+.progressFill {
+  height: 100%;
+  background: #06b6d4;
+}
+
+/* TEXTO ABAIXO */
+.progressInfo {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.percent {
+  font-size: 13.5px;
+  color: #06b6d4;
+  font-weight: bold;
+}
+
+.statusBadge {
+  background: #dcfce7;
+  color: #166534;
+  font-size: 1.325rem;
+  padding: 2px 8px;
+  width: 12%;
+  border-radius: 900px;
 }
 
 /* ===== EMPTY ===== */
@@ -284,31 +346,37 @@
 }
 
 .emptyBox {
-  font-size: 1.5rem;
+  text-align: center;
   padding: 2rem;
   color: #9ca3af;
-  text-align: center;
 }
 
 /* ===== RESPONSIVO ===== */
 @media (max-width: 900px) {
-  .topbar {
-    flex-direction: column;
-    height: auto;
-    gap: 1rem;
-    padding: 1.5rem;
+  .dashboardLayout {
+    grid-template-columns: 1fr;
   }
 
-  .nav {
-    flex-wrap: wrap;
-    justify-content: center;
+  .companyContent {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .companyRight {
+    width: 100%;
+    align-items: flex-start;
+  }
+
+  .progressBar {
+    width: 100%;
   }
 
   .row {
     grid-template-columns: 1fr;
   }
 
-  .dashboardGrid {
-    grid-template-columns: 1fr;
+  .nav {
+    flex-wrap: wrap;
   }
 }

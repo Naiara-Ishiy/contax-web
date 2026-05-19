@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import styles from "./index.module.css";
+import api from "../../../services/apis";
+
 import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuAdm() {
@@ -8,11 +10,40 @@ export default function MenuAdm() {
 
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  const buscarEmpresas = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get(`/empresas`);
+
+      console.log("RESPOSTA:", response.data);
+
+      setEmpresas(response.data.dados || []);
+    } catch (err) {
+      console.log(err);
+      setEmpresas([]);
+      setError("Erro ao carregar empresas");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    buscarEmpresas();
+  }, []);
 
   const [empresaForm, setEmpresaForm] = useState({
-    nome: "",
-    cnpj: "",
-    categoria: "",
+    emp_nome_fantasia: "",
+    emp_razao_social: "",
+    emp_cnpj: "",
+    emp_endereco: "",
+    emp_municipio: "",
+    emp_telefone: "",
+    emp_email: "",
+    emp_senha: "",
+    emp_tipo: 0,
   });
 
   const [notaForm, setNotaForm] = useState({
@@ -23,17 +54,18 @@ export default function MenuAdm() {
   });
 
   const [usuarioForm, setUsuarioForm] = useState({
-    nome: "",
-    email: "",
-    documento: "",
-    senha: "",
-    tipo: "Contabilista",
-    status: "Ativo",
+    usu_nome: "",
+    usu_email: "",
+    usu_cpf: "",
+    usu_senha: "",
+    usu_telefone: "",
+    usu_status: 1,
+    usu_alterar_senha: 0,
   });
 
   const [notas, setNotas] = useState([]);
 
-  const totalEmpresas = empresas.length;
+  const totalEmpresas = empresas?.length || 0;
   const totalNotas = notas.length;
   const totalUsuarios = usuarios.length;
 
@@ -45,7 +77,7 @@ export default function MenuAdm() {
     const { name, value } = e.target;
     setEmpresaForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: name === "emp_tipo" ? Number(value) : value,
     }));
   };
 
@@ -61,51 +93,62 @@ export default function MenuAdm() {
     const { name, value } = e.target;
     setUsuarioForm((prev) => ({
       ...prev,
-      [name]: value,
+      [name]: 
+        name === "usu_status"
+          ? Number(value)
+          : value,
     }));
   };
 
   const cadastrarEmpresa = (e) => {
     e.preventDefault();
 
-    if (!empresaForm.nome.trim()) return;
+    if (!empresaForm.emp_nome_fantasia.trim()) return;
 
     const novaEmpresa = {
-      id: Date.now(),
-      nome: empresaForm.nome.trim(),
-      cnpj: empresaForm.cnpj.trim(),
-      categoria: empresaForm.categoria.trim(),
+      emp_id: Date.now(),
+      emp_nome_fantasia: empresaForm.emp_nome_fantasia.trim(),
+      emp_cnpj: empresaForm.emp_cnpj.trim(),
+      emp_tipo: empresaForm.emp_tipo,
     };
 
     setEmpresas((prev) => [...prev, novaEmpresa]);
 
-    setEmpresaForm({
-      nome: "",
-      cnpj: "",
-      categoria: "",
-    });
-  };
+  setEmpresaForm({
+     emp_nome_fantasia: "",
+     emp_razao_social: "",
+     emp_cnpj: "",
+     emp_endereco: "",
+     emp_municipio: "",
+     emp_telefone: "",
+     emp_email: "",
+     emp_senha: "",
+     emp_tipo: 0,
+  });
+};
 
   const cadastrarUsuario = (e) => {
     e.preventDefault();
 
     if (
-      !usuarioForm.nome.trim() ||
-      !usuarioForm.email.trim() ||
-      !usuarioForm.documento.trim() ||
-      !usuarioForm.senha.trim()
+      !usuarioForm.usu_nome.trim() ||
+      !usuarioForm.usu_email.trim() ||
+      !usuarioForm.usu_cpf.trim() ||
+      !usuarioForm.usu_senha.trim() ||
+      !usuarioForm.usu_telefone.trim()
     ) {
       return;
     }
 
     const novoUsuario = {
-      id: Date.now(),
-      nome: usuarioForm.nome.trim(),
-      email: usuarioForm.email.trim(),
-      documento: usuarioForm.documento.trim(),
-      senha: usuarioForm.senha,
-      tipo: usuarioForm.tipo,
-      status: usuarioForm.status,
+      usu_id: Date.now(),
+      usu_nome: usuarioForm.usu_nome.trim(),
+      usu_email: usuarioForm.usu_email.trim(),
+      usu_cpf: usuarioForm.usu_cpf.trim(),
+      usu_senha: usuarioForm.usu_senha,
+      usu_telefone: usuarioForm.usu_telefone.trim(),
+      usu_status: usuarioForm.usu_status,
+      usu_alterar_senha: 0,
     };
 
     setUsuarios((prev) => [...prev, novoUsuario]);
@@ -133,13 +176,13 @@ export default function MenuAdm() {
     }
 
     const empresaSelecionada = empresas.find(
-      (empresa) => String(empresa.id) === notaForm.empresa
+      (empresa) => String(empresa.emp_id) === notaForm.empresa
     );
 
     const novaNota = {
       id: Date.now(),
       data: formatDateBR(notaForm.data),
-      empresa: empresaSelecionada?.nome || "",
+      empresa_id: empresaSelecionada?.emp_id || null,
       descricao: notaForm.descricao.trim(),
       valor: Number(notaForm.valor),
     };
@@ -159,13 +202,13 @@ export default function MenuAdm() {
   };
 
   const excluirEmpresa = (id) => {
-    const empresaRemovida = empresas.find((item) => item.id === id);
+    const empresaRemovida = empresas.find((item) => item.emp_id === id);
 
-    setEmpresas((prev) => prev.filter((empresa) => empresa.id !== id));
+    setEmpresas((prev) => prev.filter((empresa) => empresa.emp_id !== id));
 
     if (empresaRemovida) {
       setNotas((prev) =>
-        prev.filter((nota) => nota.empresa !== empresaRemovida.nome)
+        prev.filter((nota) => nota.empresa !== empresaRemovida.emp_nome_fantasia)
       );
     }
   };
@@ -174,109 +217,255 @@ export default function MenuAdm() {
     setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
   };
 
+  if (loading && empresas.length === 0) {
+  return <p>Carregando empresas...</p>;
+  }
+
+  if (error) {
+    return <p style={{ color: "red" }}>{error}</p>;
+  }
+
   return (
     <div className={styles.page}>
       <header className={styles.topbar}>
-        <div className={styles.logoArea}>
-          <img src={logo} alt="Contax" className={styles.logoImg} />
+  <div className={styles.topbarInner}>
 
-          <div className={styles.logoText}>
-            <h1 className={styles.brand}>CONTAX</h1>
-            <span className={styles.brandSubtitle}>ME &amp; MEI - Dashboard</span>
-          </div>
-        </div>
+    {/* LOGO */}
+    <div className={styles.logoArea}>
+      <img src={logo} alt="Contax" className={styles.logoImg} />
 
-        <nav className={styles.nav}>
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "dashboard" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("dashboard")}
-          >
-            Dashboard
-          </button>
+      <div className={styles.logoText}>
+        <h1 className={styles.brand}>CONTAX</h1>
+        <span className={styles.brandSubtitle}>
+          ME & MEI - Dashboard
+        </span>
+      </div>
+    </div>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "empresas" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("empresas")}
-          >
-            Empresas
-          </button>
+    {/* NAV */}
+    <nav className={styles.nav}>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "dashboard" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("dashboard")}
+      >
+        Dashboard
+      </button>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "usuarios" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("usuarios")}
-          >
-            Usuários
-          </button>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "empresas" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("empresas")}
+      >
+        Empresas
+      </button>
 
-          <button
-            className={`${styles.navButton} ${
-              activeTab === "notas" ? styles.navButtonActive : ""
-            }`}
-            onClick={() => setActiveTab("notas")}
-          >
-            Notas Fiscais
-          </button>
-        </nav>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "usuarios" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("usuarios")}
+      >
+        Usuários
+      </button>
 
-        <div className={styles.userArea}>
-          <span className={styles.userText}>Acesso: Administrador</span>
-          <div className={styles.userBadge} />
-        </div>
-      </header>
+      <button
+        className={`${styles.navButton} ${
+          activeTab === "notas" ? styles.navButtonActive : ""
+        }`}
+        onClick={() => setActiveTab("notas")}
+      >
+        Notas Fiscais
+      </button>
+    </nav>
+
+    {/* USER */}
+    <div className={styles.userArea}>
+      <span className={styles.userText}>Acesso: Administrador</span>
+    </div>
+
+  </div>
+</header>
 
       <main className={styles.content}>
         {activeTab === "dashboard" && (
-          <>
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Dashboard Administrativo</h2>
-              </div>
+        <>
+      <div className={styles.dashboardLayout}>
 
-              <div className={`${styles.dashboardGrid} ${styles.dashboardGridCustom}`}>
-                <div className={`${styles.statCard} ${styles.statCardCustom}`}>
-                 <span className={`${styles.statLabel} ${styles.statLabelCustom}`}>Empresas cadastradas</span>
-                  <strong className={`${styles.statValue} ${styles.statValueCustom}`}>{totalEmpresas}</strong>
+      {/* ESQUERDA */}
+      <section className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2>Visão Geral</h2>
+        </div>
+
+        {empresas.length === 0 ? (
+          <div className={styles.emptyBox}>
+            Nenhuma empresa cadastrada.
+          </div>
+        ) : (
+          empresas.map((empresa) => {
+            const notasEmpresa = notas.filter(
+              (n) => n.empresa === empresa.emp_id
+            );
+
+            const total = notasEmpresa.reduce(
+              (acc, n) => acc + Number(n.valor || 0),
+              0
+            );
+
+            const limite = 20000;
+            const percentual = Math.min((total / limite) * 100, 100);
+
+            const status =
+              percentual < 50
+                ? "Saudável"
+                : percentual < 80
+                ? "Atenção"
+                : "Risco";
+
+            return (
+              <div key={empresa.emp_id} className={styles.companyCard}>
+                
+                <div className={styles.companyTop}>
+                  <span className={styles.typeBadge}>
+                    {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
+                  </span>
+
+                  <span className={styles.monthBadge}>
+                    {new Date().toLocaleDateString("pt-BR", {
+                      month: "long",
+                      year: "numeric",
+                    })}
+                  </span>
                 </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Usuários cadastrados</span>
-                  <strong className={styles.statValue}>{totalUsuarios}</strong>
-                </div>
+                <div className={styles.companyContent}>
+                  
+                  <div>
+                    <div className={styles.companyName}>
+                      <span className={styles.dot}></span>
+                      <strong>{empresa.emp_nome_fantasia}</strong>
+                    </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Notas lançadas</span>
-                  <strong className={styles.statValue}>{totalNotas}</strong>
-                </div>
+                    <p className={styles.limitText}>
+                      Limite: <strong>{formatCurrency(limite)}</strong> •
+                      Utilizado: <strong>{formatCurrency(total)}</strong> •
+                      Restante:{" "}
+                      <strong>{formatCurrency(limite - total)}</strong>
+                    </p>
+                  </div>
 
-                <div className={styles.statCard}>
-                  <span className={styles.statLabel}>Total faturado</span>
-                  <strong className={styles.statValue}>
-                    {formatCurrency(totalFaturado)}
-                  </strong>
+                  <div className={styles.progressArea}>
+                    <div className={styles.progressBar}>
+                      <div
+                        className={styles.progressFill}
+                        style={{ width: `${percentual}%` }}
+                      />
+                    </div>
+
+                    <strong className={styles.percent}>
+                      {percentual.toFixed(1)}%
+                    </strong>
+
+                    <span
+                      className={styles.statusBadge}
+                      style={{
+                        background:
+                          status === "Saudável"
+                            ? "#d9f8e8"
+                            : status === "Atenção"
+                            ? "#fff4d6"
+                            : "#ffe4e6",
+                        color:
+                          status === "Saudável"
+                            ? "#047857"
+                            : status === "Atenção"
+                            ? "#b45309"
+                            : "#b91c1c",
+                      }}
+                    >
+                      {status}
+                    </span>
+                  </div>
+
                 </div>
               </div>
-            </section>
-
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Resumo rápido</h2>
-              </div>
-
-              <div className={styles.emptyBox}>
-                {empresas.length === 0 && usuarios.length === 0 && notas.length === 0
-                  ? "Nenhum dado cadastrado ainda."
-                  : "Use as abas de Empresas, Usuários e Notas Fiscais para gerenciar o sistema."}
-              </div>
-            </section>
-          </>
+            );
+          })
         )}
+      </section>
 
+      {/* DIREITA */}
+      <section className={`${styles.card} ${styles.filterCard}`}>
+        <div className={styles.cardHeader}>
+          <h2>Filtro</h2>
+        </div>
+
+        <div className={styles.filterBody}>
+          <div className={styles.field}>
+            <label>Mês</label>
+            <input type="month" className={styles.input} />
+          </div>
+
+          <div className={styles.field}>
+            <label>Empresa</label>
+            <select className={styles.input}>
+              <option value="">Todas</option>
+              {empresas.map((e) => (
+                <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
+              ))}
+            </select>
+          </div>
+
+          <button className={styles.primaryButton}>
+            Aplicar
+          </button>
+        </div>
+      </section>
+    </div>
+
+    {/* TABELA */}
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Notas Fiscais</h2>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>DATA</th>
+              <th>EMPRESA</th>
+              <th>DESCRIÇÃO</th>
+              <th>VALOR</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {notas.length === 0 ? (
+              <tr>
+                <td colSpan="4" className={styles.emptyTable}>
+                  Nenhuma nota cadastrada.
+                </td>
+              </tr>
+            ) : (
+              notas.map((nota) => (
+                <tr key={nota.id}>
+                  <td>{nota.data}</td>
+                  <td>{nota.empresa}</td>
+                  <td>{nota.descricao}</td>
+                  <td>{formatCurrency(nota.valor)}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </>
+)}
         {activeTab === "empresas" && (
           <>
             <section className={styles.card}>
@@ -289,8 +478,8 @@ export default function MenuAdm() {
                   <label>Nome da empresa</label>
                   <input
                     type="text"
-                    name="nome"
-                    value={empresaForm.nome}
+                    name="emp_nome_fantasia"
+                    value={empresaForm.emp_nome_fantasia}
                     onChange={handleEmpresaChange}
                     className={styles.input}
                     placeholder="Digite o nome da empresa"
@@ -302,8 +491,8 @@ export default function MenuAdm() {
                     <label>CNPJ</label>
                     <input
                       type="text"
-                      name="cnpj"
-                      value={empresaForm.cnpj}
+                      name="emp_cnpj"
+                      value={empresaForm.emp_cnpj}
                       onChange={handleEmpresaChange}
                       className={styles.input}
                       placeholder="00.000.000/0000-00"
@@ -311,15 +500,16 @@ export default function MenuAdm() {
                   </div>
 
                   <div className={styles.field}>
-                    <label>Categoria</label>
-                    <input
-                      type="text"
-                      name="categoria"
-                      value={empresaForm.categoria}
+                    <label>Tipo</label>
+                    <select
+                      name="emp_tipo"
+                      value={empresaForm.emp_tipo}
                       onChange={handleEmpresaChange}
                       className={styles.input}
-                      placeholder="Ex: Comércio, Serviços..."
-                    />
+                    >
+                      <option value={0}>ME</option>
+                      <option value={1}>MEI</option>
+                    </select>
                   </div>
                 </div>
 
@@ -354,14 +544,14 @@ export default function MenuAdm() {
                       </tr>
                     ) : (
                       empresas.map((empresa) => (
-                        <tr key={empresa.id}>
-                          <td>{empresa.nome}</td>
-                          <td>{empresa.cnpj || "-"}</td>
-                          <td>{empresa.categoria || "-"}</td>
+                        <tr key={empresa.emp_id}>
+                          <td>{empresa.emp_nome_fantasia}</td>
+                          <td>{empresa.emp_cnpj || "-"}</td>
+                          <td>{Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}</td>
                           <td>
                             <button
                               className={styles.actionButton}
-                              onClick={() => excluirEmpresa(empresa.id)}
+                              onClick={() => excluirEmpresa(empresa.emp_id)}
                             >
                               Excluir
                             </button>
@@ -388,8 +578,8 @@ export default function MenuAdm() {
                   <label>Nome completo</label>
                   <input
                     type="text"
-                    name="nome"
-                    value={usuarioForm.nome}
+                    name="usu_nome"
+                    value={usuarioForm.usu_nome}
                     onChange={handleUsuarioChange}
                     className={styles.input}
                     placeholder="Digite o nome completo"
@@ -401,8 +591,8 @@ export default function MenuAdm() {
                     <label>E-mail</label>
                     <input
                       type="email"
-                      name="email"
-                      value={usuarioForm.email}
+                      name="usu_email"
+                      value={usuarioForm.usu_email}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="email@exemplo.com"
@@ -413,11 +603,23 @@ export default function MenuAdm() {
                     <label>CPF ou CRC</label>
                     <input
                       type="text"
-                      name="documento"
-                      value={usuarioForm.documento}
+                      name="usu_cpf"
+                      value={usuarioForm.usu_cpf}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="Digite o documento"
+                    />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>Telefone</label>
+                    <input
+                      type="text"
+                      name="usu_telefone"
+                      value={usuarioForm.usu_telefone}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="(00) 00000-0000"
                     />
                   </div>
                 </div>
@@ -427,8 +629,8 @@ export default function MenuAdm() {
                     <label>Senha</label>
                     <input
                       type="password"
-                      name="senha"
-                      value={usuarioForm.senha}
+                      name="usu_senha"
+                      value={usuarioForm.usu_senha}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                       placeholder="Digite a senha"
@@ -438,13 +640,13 @@ export default function MenuAdm() {
                   <div className={styles.field}>
                     <label>Status</label>
                     <select
-                      name="status"
-                      value={usuarioForm.status}
+                      name="usu_status"
+                      value={usuarioForm.usu_status}
                       onChange={handleUsuarioChange}
                       className={styles.input}
                     >
-                      <option value="Ativo">Ativo</option>
-                      <option value="Inativo">Inativo</option>
+                      <option value={1}>Ativo</option>
+                      <option value={0}>Inativo</option>
                     </select>
                   </div>
                 </div>
@@ -479,7 +681,7 @@ export default function MenuAdm() {
                       <th>Nome</th>
                       <th>E-mail</th>
                       <th>Documento</th>
-                      <th>Tipo</th>
+                      <th>Telefone</th>
                       <th>Status</th>
                       <th></th>
                     </tr>
@@ -495,11 +697,11 @@ export default function MenuAdm() {
                     ) : (
                       usuarios.map((usuario) => (
                         <tr key={usuario.id}>
-                          <td>{usuario.nome}</td>
-                          <td>{usuario.email}</td>
-                          <td>{usuario.documento}</td>
-                          <td>{usuario.tipo}</td>
-                          <td>{usuario.status}</td>
+                          <td>{usuario.usu_nome}</td>
+                          <td>{usuario.usu_email}</td>
+                          <td>{usuario.usu_cpf}</td>
+                          <td>{usuario.usu_telefone}</td>
+                          <td>{usuario.usu_status ? "Ativo" : "Inativo"}</td>
                           <td>
                             <button
                               className={styles.actionButton}
@@ -537,8 +739,8 @@ export default function MenuAdm() {
                   >
                     <option value="">Selecione uma empresa</option>
                     {empresas.map((empresa) => (
-                      <option key={empresa.id} value={empresa.id}>
-                        {empresa.nome}
+                      <option key={empresa.emp_id} value={empresa.emp_id}>
+                        {empresa.emp_nome_fantasia}
                       </option>
                     ))}
                   </select>

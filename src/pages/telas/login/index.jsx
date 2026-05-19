@@ -43,9 +43,9 @@ function Login() {
     localStorage.setItem('user', JSON.stringify({ email, tipo }));
 
     // redirecionamento por tipo
-    if (tipo === 'admin') navigate('/dashboard/admin');
-    if (tipo === 'gerente') navigate('/dashboard/gerente');
-    if (tipo === 'usuario') navigate('/dashboard/user');
+    if (tipo === 'admin') navigate('/tela/menuAdm');
+    if (tipo === 'gerente') navigate('/tela/menuMEI');
+    if (tipo === 'usuario') navigate('/tela/menuME');
   }
 
   return (
