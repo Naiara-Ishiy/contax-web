@@ -10,6 +10,7 @@ export default function MenuAdm() {
 
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [notas, setNotas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
@@ -30,8 +31,46 @@ export default function MenuAdm() {
     }
   };
 
+  const buscarUsuarios = async () => {
+  try {
+    setLoading(true);
+
+    const response = await api.get(`/usuarios`);
+
+    console.log("USUÁRIOS:", response.data);
+
+    setUsuarios(response.data.dados || []);
+  } catch (err) {
+    console.log(err);
+    setUsuarios([]);
+    setError("Erro ao carregar usuários");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const buscarNotas = async () => {
+  try {
+    setLoading(true);
+
+    const response = await api.get(`/documentos`);
+
+    console.log("DOCUMENTOS:", response.data);
+
+    setNotas(response.data.dados || []);
+  } catch (err) {
+    console.log(err);
+    setNotas([]);
+    setError("Erro ao carregar notas fiscais");
+  } finally {
+    setLoading(false);
+  }
+};
+
   useEffect(() => {
     buscarEmpresas();
+    buscarUsuarios();
+    buscarNotas();
   }, []);
 
   const [empresaForm, setEmpresaForm] = useState({
@@ -63,7 +102,6 @@ export default function MenuAdm() {
     usu_alterar_senha: 0,
   });
 
-  const [notas, setNotas] = useState([]);
 
   const totalEmpresas = empresas?.length || 0;
   const totalNotas = notas.length;
@@ -183,6 +221,8 @@ export default function MenuAdm() {
       id: Date.now(),
       data: formatDateBR(notaForm.data),
       empresa_id: empresaSelecionada?.emp_id || null,
+      empresa_nome: empresaSelecionada?.emp_nome_fantasia || "",
+      emp_cnpj: empresaSelecionada?.emp_cnpj || "",
       descricao: notaForm.descricao.trim(),
       valor: Number(notaForm.valor),
     };
@@ -297,7 +337,13 @@ export default function MenuAdm() {
       {/* ESQUERDA */}
       <section className={styles.card}>
         <div className={styles.cardHeader}>
-          <h2>Visão Geral</h2>
+          <h2>
+            Visão Geral —{" "}
+            {new Date().toLocaleDateString("pt-BR", {
+              month: "long",
+              year: "numeric",
+            })}
+        </h2>
         </div>
 
         {empresas.length === 0 ? (
@@ -305,96 +351,98 @@ export default function MenuAdm() {
             Nenhuma empresa cadastrada.
           </div>
         ) : (
-          empresas.map((empresa) => {
-            const notasEmpresa = notas.filter(
-              (n) => n.empresa === empresa.emp_id
-            );
+  <div className={styles.dashboardCompanies}>
+    {empresas.map((empresa) => {
+      const notasEmpresa = notas.filter(
+        (n) => n.emp_id === empresa.emp_id
+      );
 
-            const total = notasEmpresa.reduce(
-              (acc, n) => acc + Number(n.valor || 0),
-              0
-            );
+      const total = notasEmpresa.reduce(
+        (acc, n) => acc + Number(n.doc_valor || 0),
+        0
+      );
 
-            const limite = 20000;
-            const percentual = Math.min((total / limite) * 100, 100);
+      const limite = 20000;
+      const percentual = Math.min((total / limite) * 100, 100);
 
-            const status =
-              percentual < 50
-                ? "Saudável"
-                : percentual < 80
-                ? "Atenção"
-                : "Risco";
+      const status =
+        percentual < 50
+          ? "Saudável"
+          : percentual < 80
+          ? "Atenção"
+          : "Risco";
 
-            return (
-              <div key={empresa.emp_id} className={styles.companyCard}>
-                
-                <div className={styles.companyTop}>
-                  <span className={styles.typeBadge}>
-                    {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
-                  </span>
+      return (
+        <div key={empresa.emp_id} className={styles.companyCard}>
+          
+          <div className={styles.companyTop}>
+            <span className={styles.typeBadge}>
+              {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
+            </span>
 
-                  <span className={styles.monthBadge}>
-                    {new Date().toLocaleDateString("pt-BR", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
+            <span className={styles.monthBadge}>
+              {new Date().toLocaleDateString("pt-BR", {
+                month: "long",
+                year: "numeric",
+              })}
+            </span>
+          </div>
 
-                <div className={styles.companyContent}>
-                  
-                  <div>
-                    <div className={styles.companyName}>
-                      <span className={styles.dot}></span>
-                      <strong>{empresa.emp_nome_fantasia}</strong>
-                    </div>
-
-                    <p className={styles.limitText}>
-                      Limite: <strong>{formatCurrency(limite)}</strong> •
-                      Utilizado: <strong>{formatCurrency(total)}</strong> •
-                      Restante:{" "}
-                      <strong>{formatCurrency(limite - total)}</strong>
-                    </p>
-                  </div>
-
-                  <div className={styles.progressArea}>
-                    <div className={styles.progressBar}>
-                      <div
-                        className={styles.progressFill}
-                        style={{ width: `${percentual}%` }}
-                      />
-                    </div>
-
-                    <strong className={styles.percent}>
-                      {percentual.toFixed(1)}%
-                    </strong>
-
-                    <span
-                      className={styles.statusBadge}
-                      style={{
-                        background:
-                          status === "Saudável"
-                            ? "#d9f8e8"
-                            : status === "Atenção"
-                            ? "#fff4d6"
-                            : "#ffe4e6",
-                        color:
-                          status === "Saudável"
-                            ? "#047857"
-                            : status === "Atenção"
-                            ? "#b45309"
-                            : "#b91c1c",
-                      }}
-                    >
-                      {status}
-                    </span>
-                  </div>
-
-                </div>
+          <div className={styles.companyContent}>
+            
+            <div>
+              <div className={styles.companyName}>
+                <span className={styles.dot}></span>
+                <strong>{empresa.emp_nome_fantasia}</strong>
               </div>
-            );
-          })
-        )}
+
+              <p className={styles.limitText}>
+                Limite: <strong>{formatCurrency(limite)}</strong> •
+                Utilizado: <strong>{formatCurrency(total)}</strong> •
+                Restante:{" "}
+                <strong>{formatCurrency(limite - total)}</strong>
+              </p>
+            </div>
+
+            <div className={styles.progressArea}>
+              <div className={styles.progressBar}>
+                <div
+                  className={styles.progressFill}
+                  style={{ width: `${percentual}%` }}
+                />
+              </div>
+
+              <strong className={styles.percent}>
+                {percentual.toFixed(1)}%
+              </strong>
+
+              <span
+                className={styles.statusBadge}
+                style={{
+                  background:
+                    status === "Saudável"
+                      ? "#d9f8e8"
+                      : status === "Atenção"
+                      ? "#fff4d6"
+                      : "#ffe4e6",
+                  color:
+                    status === "Saudável"
+                      ? "#047857"
+                      : status === "Atenção"
+                      ? "#b45309"
+                      : "#b91c1c",
+                }}
+              >
+                {status}
+              </span>
+            </div>
+
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
       </section>
 
       {/* DIREITA */}
@@ -452,11 +500,11 @@ export default function MenuAdm() {
               </tr>
             ) : (
               notas.map((nota) => (
-                <tr key={nota.id}>
-                  <td>{nota.data}</td>
-                  <td>{nota.empresa}</td>
-                  <td>{nota.descricao}</td>
-                  <td>{formatCurrency(nota.valor)}</td>
+                <tr key={nota.doc_id}>
+                  <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
+                  <td>{nota.emp_nome_fantasia}</td>
+                  <td>{nota.tpd_descricao || nota.doc_arquivo_nome}</td>
+                  <td>{formatCurrency(nota.doc_valor)}</td>
                 </tr>
               ))
             )}
@@ -467,104 +515,146 @@ export default function MenuAdm() {
   </>
 )}
         {activeTab === "empresas" && (
-          <>
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Cadastrar Empresa</h2>
-              </div>
+  <>
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Cadastrar Empresa</h2>
+      </div>
 
-              <form className={styles.form} onSubmit={cadastrarEmpresa}>
-                <div className={styles.field}>
-                  <label>Nome da empresa</label>
-                  <input
-                    type="text"
-                    name="emp_nome_fantasia"
-                    value={empresaForm.emp_nome_fantasia}
-                    onChange={handleEmpresaChange}
-                    className={styles.input}
-                    placeholder="Digite o nome da empresa"
-                  />
-                </div>
+      <form className={styles.form} onSubmit={cadastrarEmpresa}>
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label>Nome da empresa</label>
 
-                <div className={styles.row}>
-                  <div className={styles.field}>
-                    <label>CNPJ</label>
-                    <input
-                      type="text"
-                      name="emp_cnpj"
-                      value={empresaForm.emp_cnpj}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                      placeholder="00.000.000/0000-00"
-                    />
-                  </div>
+            <input
+              type="text"
+              name="emp_nome_fantasia"
+              value={empresaForm.emp_nome_fantasia}
+              onChange={handleEmpresaChange}
+              className={styles.input}
+              placeholder="Ex.: Acme LTDA"
+            />
+          </div>
 
-                  <div className={styles.field}>
-                    <label>Tipo</label>
-                    <select
-                      name="emp_tipo"
-                      value={empresaForm.emp_tipo}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
+          <div className={styles.field}>
+            <label>CNPJ</label>
+
+            <input
+              type="text"
+              name="emp_cnpj"
+              value={empresaForm.emp_cnpj}
+              onChange={handleEmpresaChange}
+              className={styles.input}
+              placeholder="00.000.000/0000-00"
+            />
+          </div>
+        </div>
+
+        <div className={styles.row}>
+          <div className={styles.field}>
+            <label>Tipo</label>
+
+            <select
+              name="emp_tipo"
+              value={empresaForm.emp_tipo}
+              onChange={handleEmpresaChange}
+              className={styles.input}
+            >
+              <option value={0}>ME</option>
+              <option value={1}>MEI</option>
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label>Limite mensal (R$)</label>
+
+            <input
+              type="number"
+              name="emp_limite"
+              value={empresaForm.emp_limite || ""}
+              onChange={handleEmpresaChange}
+              className={styles.input}
+              placeholder="Ex.: 20000"
+            />
+          </div>
+        </div>
+
+        <button type="submit" className={styles.primaryButton}>
+          Salvar Empresa
+        </button>
+      </form>
+    </section>
+
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Empresas cadastradas</h2>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>NOME</th>
+              <th>TIPO</th>
+              <th>LIMITE MENSAL</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {empresas.length === 0 ? (
+              <tr>
+                <td colSpan="4" className={styles.emptyTable}>
+                  Nenhuma empresa cadastrada.
+                </td>
+              </tr>
+            ) : (
+              empresas.map((empresa) => (
+                <tr key={empresa.emp_id} className={styles.companyRow}>
+                  <td>
+                    <div className={styles.companyInfo}>
+                      <strong>{empresa.emp_nome_fantasia}</strong>
+                      <span>{empresa.emp_cnpj || "00.000.000/0000-00"}</span>
+                    </div>
+                  </td>
+
+                  <td>
+                    <span
+                      className={`${styles.companyBadge} ${
+                        Number(empresa.emp_tipo) === 0
+                          ? styles.badgeME
+                          : styles.badgeMEI
+                      }`}
                     >
-                      <option value={0}>ME</option>
-                      <option value={1}>MEI</option>
-                    </select>
-                  </div>
-                </div>
+                      {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
+                    </span>
+                  </td>
 
-                <button type="submit" className={styles.primaryButton}>
-                  Cadastrar Empresa
-                </button>
-              </form>
-            </section>
+                  <td className={styles.limitCell}>
+                    {formatCurrency(empresa.emp_limite || 20000)}
+                  </td>
 
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Empresas cadastradas</h2>
-              </div>
+                  <td className={styles.actionsCell}>
+                    <button className={styles.editButton}>
+                      Editar
+                    </button>
 
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>CNPJ</th>
-                      <th>Categoria</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {empresas.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className={styles.emptyTable}>
-                          Nenhuma empresa cadastrada.
-                        </td>
-                      </tr>
-                    ) : (
-                      empresas.map((empresa) => (
-                        <tr key={empresa.emp_id}>
-                          <td>{empresa.emp_nome_fantasia}</td>
-                          <td>{empresa.emp_cnpj || "-"}</td>
-                          <td>{Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}</td>
-                          <td>
-                            <button
-                              className={styles.actionButton}
-                              onClick={() => excluirEmpresa(empresa.emp_id)}
-                            >
-                              Excluir
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </>
-        )}
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => excluirEmpresa(empresa.emp_id)}
+                    >
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </>
+)}
 
         {activeTab === "usuarios" && (
           <>
@@ -586,43 +676,43 @@ export default function MenuAdm() {
                   />
                 </div>
 
-                <div className={styles.row}>
-                  <div className={styles.field}>
-                    <label>E-mail</label>
-                    <input
-                      type="email"
-                      name="usu_email"
-                      value={usuarioForm.usu_email}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="email@exemplo.com"
-                    />
-                  </div>
+                <div className={styles.rowThree}>
+  <div className={styles.field}>
+    <label>E-mail</label>
+    <input
+      type="email"
+      name="usu_email"
+      value={usuarioForm.usu_email}
+      onChange={handleUsuarioChange}
+      className={styles.input}
+      placeholder="email@exemplo.com"
+    />
+  </div>
 
-                  <div className={styles.field}>
-                    <label>CPF ou CRC</label>
-                    <input
-                      type="text"
-                      name="usu_cpf"
-                      value={usuarioForm.usu_cpf}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="Digite o documento"
-                    />
-                  </div>
+  <div className={styles.field}>
+    <label>CPF ou CRC</label>
+    <input
+      type="text"
+      name="usu_cpf"
+      value={usuarioForm.usu_cpf}
+      onChange={handleUsuarioChange}
+      className={styles.input}
+      placeholder="Digite o documento"
+    />
+  </div>
 
-                  <div className={styles.field}>
-                    <label>Telefone</label>
-                    <input
-                      type="text"
-                      name="usu_telefone"
-                      value={usuarioForm.usu_telefone}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="(00) 00000-0000"
-                    />
-                  </div>
-                </div>
+  <div className={styles.field}>
+    <label>Telefone</label>
+    <input
+      type="text"
+      name="usu_telefone"
+      value={usuarioForm.usu_telefone}
+      onChange={handleUsuarioChange}
+      className={styles.input}
+      placeholder="(00) 00000-0000"
+    />
+  </div>
+</div>
 
                 <div className={styles.row}>
                   <div className={styles.field}>
@@ -651,17 +741,45 @@ export default function MenuAdm() {
                   </div>
                 </div>
 
-                <div className={styles.field}>
-                  <label>Tipo de acesso</label>
-                  <input
-                    type="text"
-                    name="tipo"
-                    value={usuarioForm.tipo}
-                    onChange={handleUsuarioChange}
-                    className={styles.input}
-                    readOnly
-                  />
-                </div>
+                <div className={styles.row}>
+  <div className={styles.field}>
+    <label>Tipo de acesso</label>
+
+    <select
+      name="tipo_acesso"
+      value={usuarioForm.tipo_acesso || ""}
+      onChange={handleUsuarioChange}
+      className={styles.input}
+    >
+      <option value="">Selecione</option>
+      <option value="0">Visualizador</option>
+      <option value="1">Gerente</option>
+      <option value="2">Administrador</option>
+    </select>
+  </div>
+
+  <div className={styles.field}>
+    <label>Empresa vinculada</label>
+
+    <select
+      name="empresa_vinculada"
+      value={usuarioForm.empresa_vinculada || ""}
+      onChange={handleUsuarioChange}
+      className={styles.input}
+    >
+      <option value="">Selecione uma empresa</option>
+
+      {empresas.map((empresa) => (
+        <option
+          key={empresa.emp_id}
+          value={empresa.emp_id}
+        >
+          {empresa.emp_nome_fantasia}
+        </option>
+      ))}
+    </select>
+  </div>
+</div>
 
                 <button type="submit" className={styles.primaryButton}>
                   Cadastrar Usuário
@@ -677,43 +795,62 @@ export default function MenuAdm() {
               <div className={styles.tableWrapper}>
                 <table className={styles.table}>
                   <thead>
-                    <tr>
-                      <th>Nome</th>
-                      <th>E-mail</th>
-                      <th>Documento</th>
-                      <th>Telefone</th>
-                      <th>Status</th>
-                      <th></th>
-                    </tr>
-                  </thead>
+  <tr>
+    <th>NOME</th>
+    <th>EMPRESA VINCULADA</th>
+    <th>TIPO DE ACESSO</th>
+    <th>STATUS</th>
+    <th></th>
+  </tr>
+</thead>
 
-                  <tbody>
-                    {usuarios.length === 0 ? (
-                      <tr>
-                        <td colSpan="6" className={styles.emptyTable}>
-                          Nenhum usuário cadastrado.
-                        </td>
-                      </tr>
-                    ) : (
-                      usuarios.map((usuario) => (
-                        <tr key={usuario.id}>
-                          <td>{usuario.usu_nome}</td>
-                          <td>{usuario.usu_email}</td>
-                          <td>{usuario.usu_cpf}</td>
-                          <td>{usuario.usu_telefone}</td>
-                          <td>{usuario.usu_status ? "Ativo" : "Inativo"}</td>
-                          <td>
-                            <button
-                              className={styles.actionButton}
-                              onClick={() => excluirUsuario(usuario.id)}
-                            >
-                              Excluir
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
+<tbody>
+  {usuarios.length === 0 ? (
+    <tr>
+      <td colSpan="5" className={styles.emptyTable}>
+        Nenhum usuário cadastrado.
+      </td>
+    </tr>
+  ) : (
+    usuarios.map((usuario) => (
+      <tr key={usuario.usu_id} className={styles.userRow}>
+        <td>
+          <div className={styles.userInfo}>
+            <strong>{usuario.usu_nome}</strong>
+            <span>{usuario.usu_cpf || "000.000.000-00"}</span>
+          </div>
+        </td>
+
+        <td className={styles.companyLinkedCell}>
+          {usuario.empresa_nome || "Nenhuma empresa vinculada"}
+        </td>
+
+        <td>
+          <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
+            Visualizador
+          </span>
+        </td>
+
+        <td className={styles.statusCell}>
+          {Number(usuario.usu_status) === 1 ? "Ativo" : "Inativo"}
+        </td>
+
+        <td className={styles.actionsCell}>
+          <button className={styles.editButton}>
+            Editar
+          </button>
+
+          <button
+            className={styles.deleteButton}
+            onClick={() => excluirUsuario(usuario.usu_id)}
+          >
+            Excluir
+          </button>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
                 </table>
               </div>
             </section>
@@ -807,40 +944,69 @@ export default function MenuAdm() {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Data</th>
-                      <th>Empresa</th>
-                      <th>Descrição</th>
-                      <th>Valor (R$)</th>
-                      <th></th>
-                    </tr>
-                  </thead>
+                     <th>EMPRESA</th>
+                     <th>DOCUMENTO</th>
+                     <th>DATA</th>
+                     <th>VALOR</th>
+                     <th>STATUS</th>
+                     <th></th>
+                  </tr>
+                </thead>
 
                   <tbody>
-                    {notas.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className={styles.emptyTable}>
-                          Nenhuma nota fiscal lançada.
-                        </td>
-                      </tr>
-                    ) : (
-                      notas.map((nota) => (
-                        <tr key={nota.id}>
-                          <td>{nota.data}</td>
-                          <td>{nota.empresa}</td>
-                          <td>{nota.descricao}</td>
-                          <td>{formatCurrency(nota.valor)}</td>
-                          <td>
-                            <button
-                              className={styles.actionButton}
-                              onClick={() => excluirNota(nota.id)}
-                            >
-                              Excluir
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
+  {notas.length === 0 ? (
+    <tr>
+      <td colSpan="6" className={styles.emptyTable}>
+        Nenhuma nota fiscal lançada.
+      </td>
+    </tr>
+  ) : (
+    notas.map((nota) => (
+      <tr key={nota.id} className={styles.noteRow}>
+        <td>
+          <div className={styles.noteCompanyInfo}>
+            <strong>{nota.emp_nome_fantasia || nota.empresa || "Empresa não informada"}</strong>
+            <span>{nota.emp_cnpj || "CNPJ não informado"}</span>
+          </div>
+        </td>
+
+        <td>
+          <div className={styles.noteDocumentInfo}>
+            <strong>{nota.doc_arquivo_nome || "Nota Fiscal"}</strong>
+            <span>{nota.tpd_descricao || "Documento fiscal"}</span>
+          </div>
+        </td>
+
+        <td className={styles.noteDateCell}>
+          {formatDateBRFromAPI(nota.doc_data_emissao)}
+        </td>
+
+        <td className={styles.noteValueCell}>
+          {formatCurrency(nota.doc_valor)}
+        </td>
+
+        <td>
+          <span className={styles.noteStatusBadge}>
+            Ativo
+          </span>
+        </td>
+
+        <td className={styles.actionsCell}>
+          <button className={styles.editButton}>
+            Editar
+          </button>
+
+          <button
+            className={styles.deleteButton}
+            onClick={() => excluirNota(nota.id)}
+          >
+            Excluir
+          </button>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
                 </table>
               </div>
             </section>
@@ -861,4 +1027,14 @@ function formatCurrency(value) {
 function formatDateBR(dateString) {
   const [year, month, day] = dateString.split("-");
   return `${day}/${month}/${year}`;
+}
+
+function formatDateBRFromAPI(dateString) {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
 }
