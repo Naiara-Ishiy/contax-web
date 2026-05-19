@@ -1,4 +1,4 @@
-import { Routes, Route} from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import Home from './pages/home';
 
@@ -12,16 +12,16 @@ import MenuMEI from './pages/telas/menuMEI';
 function App() {
 
   return (
-    
-      <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/tela/inicial' element={<Inicial/>}/>
-        <Route path='/tela/login' element={<Login/>}/>
-        <Route path='/tela/menuAdm' element={<MenuAdm/>}/>
-        <Route path='/tela/menuME' element={<MenuME/>}/>
-        <Route path='/tela/menuMEI' element={<MenuMEI/>}/>
-      </Routes>
-    
+
+    <Routes>
+      <Route path='/' element={<Home />} />
+      <Route path='/tela/inicial' element={<Inicial />} />
+      <Route path='/tela/login' element={<Login />} />
+      <Route path='/tela/menuAdm' element={<MenuAdm />} />
+      <Route path='/tela/menuME' element={<MenuME />} />
+      <Route path='/tela/menuMEI' element={<MenuMEI />} />
+    </Routes>
+
   )
 }
 
