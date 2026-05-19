@@ -13,6 +13,11 @@ export default function MenuAdm() {
   const [notas, setNotas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [feedback, setFeedback] = useState({
+  ativo: false,
+  titulo: "",
+  mensagem: "",
+});
   
   const buscarEmpresas = async () => {
     try {
@@ -72,6 +77,14 @@ const buscarNotas = async () => {
     buscarUsuarios();
     buscarNotas();
   }, []);
+
+  const mostrarFeedback = (titulo, mensagem) => {
+    setFeedback({
+      ativo: true,
+      titulo,
+      mensagem,
+    });
+  };
 
   const [empresaForm, setEmpresaForm] = useState({
     emp_nome_fantasia: "",
@@ -141,7 +154,16 @@ const buscarNotas = async () => {
   const cadastrarEmpresa = (e) => {
     e.preventDefault();
 
-    if (!empresaForm.emp_nome_fantasia.trim()) return;
+    if (
+      !empresaForm.emp_nome_fantasia.trim() ||
+      !empresaForm.emp_cnpj.trim()
+    ) {
+      mostrarFeedback(
+        "Campos obrigatórios",
+        "Preencha todos os campos antes de cadastrar a empresa."
+    );
+    return;
+  }
 
     const novaEmpresa = {
       emp_id: Date.now(),
@@ -173,8 +195,14 @@ const buscarNotas = async () => {
       !usuarioForm.usu_email.trim() ||
       !usuarioForm.usu_cpf.trim() ||
       !usuarioForm.usu_senha.trim() ||
-      !usuarioForm.usu_telefone.trim()
+      !usuarioForm.usu_telefone.trim() ||
+      !usuarioForm.tipo_acesso ||
+      !usuarioForm.empresa_vinculada
     ) {
+      mostrarFeedback(
+        "Campos obrigatórios",
+        "Preencha todos os campos antes de cadastrar o usuário."
+      );
       return;
     }
 
@@ -210,6 +238,10 @@ const buscarNotas = async () => {
       !notaForm.valor ||
       !notaForm.descricao.trim()
     ) {
+      mostrarFeedback(
+        "Campos obrigatórios",
+        "Preencha todos os campos antes de lançar a nota fiscal."
+      );
       return;
     }
 
@@ -267,6 +299,30 @@ const buscarNotas = async () => {
 
   return (
     <div className={styles.page}>
+
+      {feedback.ativo && (
+  <div className={styles.feedbackOverlay}>
+    <div className={styles.feedbackModal}>
+      <h3>{feedback.titulo}</h3>
+
+      <p>{feedback.mensagem}</p>
+
+      <button
+        type="button"
+        className={styles.feedbackButton}
+        onClick={() =>
+          setFeedback({
+            ativo: false,
+            titulo: "",
+            mensagem: "",
+          })
+        }
+      >
+        Entendi
+      </button>
+    </div>
+  </div>
+)}
       <header className={styles.topbar}>
   <div className={styles.topbarInner}>
 
@@ -664,127 +720,107 @@ const buscarNotas = async () => {
               </div>
 
               <form className={styles.form} onSubmit={cadastrarUsuario}>
-                <div className={styles.field}>
-                  <label>Nome completo</label>
-                  <input
-                    type="text"
-                    name="usu_nome"
-                    value={usuarioForm.usu_nome}
-                    onChange={handleUsuarioChange}
-                    className={styles.input}
-                    placeholder="Digite o nome completo"
-                  />
-                </div>
-
-                <div className={styles.rowThree}>
   <div className={styles.field}>
-    <label>E-mail</label>
-    <input
-      type="email"
-      name="usu_email"
-      value={usuarioForm.usu_email}
-      onChange={handleUsuarioChange}
-      className={styles.input}
-      placeholder="email@exemplo.com"
-    />
-  </div>
-
-  <div className={styles.field}>
-    <label>CPF ou CRC</label>
+    <label>Nome completo</label>
     <input
       type="text"
-      name="usu_cpf"
-      value={usuarioForm.usu_cpf}
+      name="usu_nome"
+      value={usuarioForm.usu_nome}
       onChange={handleUsuarioChange}
       className={styles.input}
-      placeholder="Digite o documento"
+      placeholder="Digite o nome completo"
     />
   </div>
 
-  <div className={styles.field}>
-    <label>Telefone</label>
-    <input
-      type="text"
-      name="usu_telefone"
-      value={usuarioForm.usu_telefone}
-      onChange={handleUsuarioChange}
-      className={styles.input}
-      placeholder="(00) 00000-0000"
-    />
-  </div>
-</div>
+  <div className={styles.rowThree}>
+    <div className={styles.field}>
+      <label>E-mail</label>
+      <input
+        type="email"
+        name="usu_email"
+        value={usuarioForm.usu_email}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+        placeholder="email@exemplo.com"
+      />
+    </div>
 
-                <div className={styles.row}>
-                  <div className={styles.field}>
-                    <label>Senha</label>
-                    <input
-                      type="password"
-                      name="usu_senha"
-                      value={usuarioForm.usu_senha}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="Digite a senha"
-                    />
-                  </div>
+    <div className={styles.field}>
+      <label>CPF ou CRC</label>
+      <input
+        type="text"
+        name="usu_cpf"
+        value={usuarioForm.usu_cpf}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+        placeholder="Digite o documento"
+      />
+    </div>
 
-                  <div className={styles.field}>
-                    <label>Status</label>
-                    <select
-                      name="usu_status"
-                      value={usuarioForm.usu_status}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                    >
-                      <option value={1}>Ativo</option>
-                      <option value={0}>Inativo</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className={styles.row}>
-  <div className={styles.field}>
-    <label>Tipo de acesso</label>
-
-    <select
-      name="tipo_acesso"
-      value={usuarioForm.tipo_acesso || ""}
-      onChange={handleUsuarioChange}
-      className={styles.input}
-    >
-      <option value="">Selecione</option>
-      <option value="0">Visualizador</option>
-      <option value="1">Gerente</option>
-      <option value="2">Administrador</option>
-    </select>
+    <div className={styles.field}>
+      <label>Telefone</label>
+      <input
+        type="text"
+        name="usu_telefone"
+        value={usuarioForm.usu_telefone}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+        placeholder="(00) 00000-0000"
+      />
+    </div>
   </div>
 
-  <div className={styles.field}>
-    <label>Empresa vinculada</label>
+  <div className={styles.rowThree}>
+    <div className={styles.field}>
+      <label>Senha</label>
+      <input
+        type="password"
+        name="usu_senha"
+        value={usuarioForm.usu_senha}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+        placeholder="Digite a senha"
+      />
+    </div>
 
-    <select
-      name="empresa_vinculada"
-      value={usuarioForm.empresa_vinculada || ""}
-      onChange={handleUsuarioChange}
-      className={styles.input}
-    >
-      <option value="">Selecione uma empresa</option>
+    <div className={styles.field}>
+      <label>Tipo de acesso</label>
+      <select
+        name="tipo_acesso"
+        value={usuarioForm.tipo_acesso || ""}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+      >
+        <option value="">Selecione</option>
+        <option value="0">Visualizador</option>
+        <option value="1">Gerente</option>
+        <option value="2">Administrador</option>
+      </select>
+    </div>
 
-      {empresas.map((empresa) => (
-        <option
-          key={empresa.emp_id}
-          value={empresa.emp_id}
-        >
-          {empresa.emp_nome_fantasia}
-        </option>
-      ))}
-    </select>
+    <div className={styles.field}>
+      <label>Empresa vinculada</label>
+      <select
+        name="empresa_vinculada"
+        value={usuarioForm.empresa_vinculada || ""}
+        onChange={handleUsuarioChange}
+        className={styles.input}
+      >
+        <option value="">Selecione uma empresa</option>
+
+        {empresas.map((empresa) => (
+          <option key={empresa.emp_id} value={empresa.emp_id}>
+            {empresa.emp_nome_fantasia}
+          </option>
+        ))}
+      </select>
+    </div>
   </div>
-</div>
 
-                <button type="submit" className={styles.primaryButton}>
-                  Cadastrar Usuário
-                </button>
-              </form>
+  <button type="submit" className={styles.primaryButton}>
+    Cadastrar Usuário
+  </button>
+</form>
             </section>
 
             <section className={styles.card}>

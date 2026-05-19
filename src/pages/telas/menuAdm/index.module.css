@@ -211,6 +211,12 @@
   border-bottom: 1px solid #f1f5f9;
 }
 
+.table th:last-child,
+.table td:last-child {
+  width: 26rem;
+  min-width: 26rem;
+}
+
 /* ===== DASHBOARD ===== */
 
 .dashboardLayout {
@@ -222,26 +228,14 @@
 .dashboardCompanies {
   display: flex;
   flex-direction: column;
-  gap: 1.6rem;
+  gap: 1.2rem;
 
-  max-height: 72rem;
-
+  max-height: 46rem;
   overflow-y: auto;
 
   padding-right: 0.6rem;
 }
 
-.dashboardCompanies {
-  display: flex;
-  flex-direction: column;
-  gap: 1.6rem;
-
-  max-height: 75rem;
-
-  overflow-y: auto;
-
-  padding-right: 0.6rem;
-}
 
 .dashboardCompanies::-webkit-scrollbar {
   width: 0.8rem;
@@ -274,10 +268,10 @@
 /* ===== CARD EMPRESA ===== */
 
 .companyCard {
-  margin-top: 16px;
-  padding: 20px;
+  margin-top: 0;
+  padding: 1.4rem 1.6rem;
   border: 1px solid #e5e7eb;
-  border-radius: 12px;
+  border-radius: 1.2rem;
   background: #ffffff;
 }
 
@@ -285,23 +279,24 @@
 .companyTop {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.8rem;
+
+  margin-bottom: 0.8rem;
 }
 
 .typeBadge,
 .monthBadge {
-  height: 3rem;
-
-  padding: 0 1.2rem;
-
+  height: 2.8rem;
+  padding: 0 1.1rem;
   border-radius: 999px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-size: 1.1rem;
+  font-weight: 700;
+  background: #f1f5f9;
+  border: 1px solid #dbe5ef;
+  color: #334155;
 }
 
 /* CONTEÚDO */
@@ -321,11 +316,14 @@
 .companyName {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 20px;
-  font-weight: bold;
-  margin-top: 2.5px;
-  margin-bottom: 10px;
+  gap: 0.8rem;
+
+  font-size: 1.7rem;
+  font-weight: 700;
+
+  color: #1e293b;
+
+  margin-bottom: 0.5rem;
 }
 
 .dot {
@@ -336,8 +334,8 @@
 }
 
 .limitText {
-  font-size: 12px;
-  color: #6b7280;
+  font-size: 1.15rem;
+  margin: 0;
 }
 
 /* DIREITA */
@@ -350,18 +348,15 @@
 
 .progressArea {
   display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
+  align-items: center;
+  gap: 1rem;
 }
 
 .progressBar {
-  width: 100%;
+  flex: 1;
   height: 1rem;
-
   border-radius: 999px;
-
   background: #d9edf5;
-
   overflow: hidden;
 }
 
@@ -375,8 +370,6 @@
     #06b6d4,
     #22c1dc
   );
-
-  transition: width 0.3s ease;
 }
 
 /* TEXTO ABAIXO */
@@ -387,22 +380,20 @@
 }
 
 .percent {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
-  color: #06b6d4;
+  color: #0891b2;
+  min-width: 4.5rem;
+  text-align: right;
 }
 
 .statusBadge {
-  align-self: flex-start;
-
-  padding: 0.5rem 1.2rem;
-
+  padding: 0.4rem 1rem;
   border-radius: 999px;
-
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 600;
+  white-space: nowrap;
 }
-
 /* ===== EMPTY ===== */
 .emptyTable {
   text-align: center;
@@ -426,10 +417,7 @@
   font-size: 1.8rem;
 }
 
-.companyRow td {
-  padding: 1.4rem 1rem;
-  vertical-align: middle;
-}
+
 
 .companyInfo {
   display: flex;
@@ -479,9 +467,11 @@
 
 .actionsCell {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  gap: 0.8rem;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 100%;
+  gap: 1.6rem;
 }
 
 .companyLinkedCell {
@@ -492,8 +482,9 @@
 
 .editButton,
 .deleteButton {
-  padding: 0.8rem 1.4rem;
-  border-radius: 0.9rem;
+  min-width: 9.5rem;
+  padding: 0.85rem 1.5rem;
+  border-radius: 1rem;
   font-size: 1.2rem;
   font-weight: 700;
   cursor: pointer;
@@ -502,28 +493,44 @@
 
 .editButton {
   background: #ffffff;
+
   color: #06b6d4;
+
   border: 1px solid #06b6d4;
 }
 
 .editButton:hover {
   background: #ecfeff;
+
+  transform: translateY(-1px);
+
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.12);
 }
 
+/* EXCLUIR */
 .deleteButton {
-  background: linear-gradient(135deg, #06b6d4, #0ea5b7);
+  background: linear-gradient(
+    135deg,
+    #ef4444,
+    #dc2626
+  );
+
   color: white;
+
   border: none;
 }
 
 .deleteButton:hover {
-  filter: brightness(1.05);
+  filter: brightness(1.08);
+
   transform: translateY(-1px);
+
+  box-shadow: 0 6px 16px rgba(239, 68, 68, 0.22);
 }
 
-.userRow td {
-  padding: 1.4rem 1rem;
-  vertical-align: middle;
+.deleteButton:active,
+.editButton:active {
+  transform: scale(0.97);
 }
 
 .userInfo {
@@ -578,11 +585,12 @@
   font-size: 1.25rem;
 }
 
-.noteRow td {
+.noteRow td,
+.userRow td,
+.companyRow td {
   padding: 1.4rem 1rem;
   vertical-align: middle;
 }
-
 .noteCompanyInfo,
 .noteDocumentInfo {
   display: flex;
@@ -627,6 +635,98 @@
   background: #dcfce7;
   color: #047857;
   border: 1px solid #86efac;
+}
+
+.feedbackOverlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  background: rgba(15, 23, 42, 0.55);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  backdrop-filter: blur(3px);
+}
+
+.feedbackModal {
+  width: min(42rem, calc(100% - 3rem));
+
+  background: #ffffff;
+
+  border-radius: 1.8rem;
+
+  padding: 2.4rem;
+
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+
+  text-align: center;
+
+  animation: feedbackShow 0.18s ease;
+}
+
+.feedbackModal h3 {
+  font-size: 2rem;
+  font-weight: 800;
+
+  color: #0f172a;
+
+  margin-bottom: 0.8rem;
+}
+
+.feedbackModal p {
+  font-size: 1.35rem;
+
+  color: #64748b;
+
+  line-height: 1.6;
+
+  margin-bottom: 2rem;
+}
+
+.feedbackButton {
+  width: 100%;
+
+  padding: 1.2rem 1.6rem;
+
+  border: none;
+  border-radius: 1rem;
+
+  background: linear-gradient(
+    135deg,
+    #06b6d4,
+    #0891b2
+  );
+
+  color: white;
+
+  font-size: 1.3rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: all 0.18s ease;
+}
+
+.feedbackButton:hover {
+  filter: brightness(1.05);
+
+  transform: translateY(-1px);
+}
+
+@keyframes feedbackShow {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 /* ===== RESPONSIVO ===== */

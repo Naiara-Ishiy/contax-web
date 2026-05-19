@@ -83,6 +83,7 @@ function Login() {
           <label>Email</label>
           <input
             type="email"
+            autoComplete="email"
             placeholder="seuemail@contax.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -92,6 +93,7 @@ function Login() {
           <label>Senha</label>
           <input
             type={mostrarSenha ? 'text' : 'password'}
+            autoComplete="current-password"
             placeholder="••••••••"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
@@ -108,8 +110,12 @@ function Login() {
             <span>Mostrar senha</span>
           </div>
 
-          {/* ERRO */}
-          {erro && <span style={{ color: 'red' }}>{erro}</span>}
+          <button
+            type="button"
+            className={styles.forgotPassword}
+          >
+            Esqueci minha senha
+          </button>
 
           {/* BOTÃO */}
           <button

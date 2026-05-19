@@ -1,57 +1,18 @@
-/* PÁGINA */
 .pagina {
-    min-height: 100vh;
+  min-height: 100vh;
 
-    background: linear-gradient(
-        135deg,
-        #0a6c77 0%,
-        #078da5 50%,
-        #22d3ee 100%
-    );
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(255,255,255,0.12), transparent 30%),
+    linear-gradient(135deg, #075f69 0%, #078da5 50%, #22d3ee 100%);
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    position: relative;
-    overflow: hidden;
+  position: relative;
+  overflow: hidden;
 }
-
-/* HEADER 
-.header {
-    width: 100%;
-    height: 7rem;
-    padding: 5rem;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
-    border-bottom: 1px solid #e5e7eb;
-}
-
-.logoArea {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    height: 10rem;
-}
-
-.logoTopo {
-    width: 7rem;
-}
-
-.logoArea strong {
-    font-size: 2.5rem;
-    color: #fefcf5;
-    font-weight: 550;
-}
-
-.logoArea span {
-    display: block;
-    font-size: 1.25rem;
-    color: #fefcf5;
-}
-*/
 
 /* CENTRALIZAÇÃO */
 .container {
@@ -63,21 +24,29 @@
 
 /* CARD */
 .card {
-    width: 100%;
-    max-width: 44rem;
-    padding: 6rem 5.5rem;
+  width: 100%;
+  max-width: 40rem;
+  padding: 5rem 4.5rem;
 
-    background: #ffffff;
-    border-radius: 1.6rem;
-  
-    box-shadow: 
-      0 30px 60px rgba(0, 0, 0, 0.18),
-      0 10px 20px rgba(0, 0, 0, 0.08),
-      0 0 40px rgba(14, 165, 183, 0.15);
+  background: #ffffff;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+  backdrop-filter: blur(8px);
+
+  border-radius: 1.8rem;
+
+  border: 1px solid rgba(255,255,255,0.35);
+  border-top: 1px solid rgba(255,255,255,0.7);
+
+  box-shadow:
+    0 30px 60px rgba(0, 0, 0, 0.2),
+    0 10px 20px rgba(0, 0, 0, 0.08),
+    0 0 40px rgba(14, 165, 183, 0.18);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  animation: loginShow 0.25s ease;
 }
 
 /* LOGO */
@@ -95,7 +64,7 @@
 
 .subtitulo {
     font-size: 1.5rem;
-    color: #9ca3af;
+    color: #64748b;
     margin-bottom: 1.8rem;
 }
 
@@ -125,13 +94,19 @@
 /* INPUTS */
 .card select,
 .card input {
-    width: 95%;
-    padding: 1.1rem;
-    border-radius: 0.8rem;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    font-size: 1.4rem;
-    transition: 0.2s;
+  width: 95%;
+  padding: 1.1rem;
+
+  border-radius: 0.9rem;
+  border: 1px solid #dbe5ef;
+
+  background: #f8fbfd;
+
+  font-size: 1.4rem;
+
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+
+  transition: all 0.2s ease;
 }
 
 .card input:hover,
@@ -142,19 +117,21 @@
 
 .card input:focus,
 .card select:focus {
-    border-color: #0ea5b7;
-    outline: none;
-    background: #fff;
+  border-color: #0ea5b7;
+  outline: none;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(6,182,212,0.10);
 }
 
 /* CHECKBOX */
 .opcoes {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0.4rem 0 1rem; 
-    font-size: 1.25rem;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.4rem 0 1rem;
+  font-size: 1.3rem;
+  color: #475569;
+  gap: 1rem;
 }
 
 .opcoes span {
@@ -163,19 +140,24 @@
 
 /* BOTÃO LOGIN */
 .botaoLogin {
-    width: 100%;
-    padding: 1.2rem;
-    border-radius: 1rem;
-    border: none;
+  width: 100%;
+  padding: 1.2rem;
 
-    background: linear-gradient(135deg, #06b6d4, #0ea5b7);
-    color: white;
+  border-radius: 1rem;
+  border: none;
 
-    font-size: 1.5rem;
-    font-weight: 600;
+  background: linear-gradient(135deg, #06b6d4, #0ea5b7);
+  color: white;
 
-    cursor: pointer;
-    transition: 0.2s;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+
+  cursor: pointer;
+
+  box-shadow: 0 10px 24px rgba(6,182,212,0.28);
+
+  transition: all 0.2s ease;
 }
 
 
@@ -194,4 +176,61 @@
     margin-top: 2rem;
     font-size: 1.1rem;
     color: #9ca3af;
+}
+
+.forgotPassword {
+  margin-top: 0.2rem;
+  margin-bottom: 1.4rem;
+
+  background: transparent;
+  border: none;
+
+  color: #0ea5b7;
+
+  font-size: 1.25rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+
+.forgotPassword:hover {
+  text-decoration: underline;
+}
+
+.pagina::after {
+  content: "";
+
+  position: absolute;
+
+  width: 40rem;
+  height: 40rem;
+
+  background: rgba(255,255,255,0.08);
+
+  border-radius: 999px;
+
+  filter: blur(80px);
+
+  bottom: -10rem;
+  right: -10rem;
+
+  pointer-events: none;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes loginShow {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
