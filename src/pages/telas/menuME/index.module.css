@@ -13,7 +13,6 @@
   border-bottom: 2px solid #e5e7eb;
 }
 
-/* NOVA DIV CENTRAL */
 .topbarInner {
   max-width: 110rem;
   margin: 0 auto;
@@ -25,7 +24,7 @@
   gap: 2rem;
 }
 
-/* LOGO */
+/* ===== LOGO ===== */
 .logoArea {
   display: flex;
   align-items: center;
@@ -59,7 +58,7 @@
   flex: 1;
   display: flex;
   justify-content: center;
-  gap: 1.6rem; /* antes 0.8rem */
+  gap: 1.6rem;
 }
 
 .navButton {
@@ -70,7 +69,6 @@
   color: #374151;
   border: 1px solid #e5e7eb;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .navButton:hover {
@@ -99,310 +97,447 @@
 .content {
   max-width: 110rem;
   margin: 0 auto;
-  padding: 3rem 2rem;
+  padding: 4rem 2rem;
 }
 
-/* ===== GRID DASHBOARD ===== */
-.dashboardGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1.6rem;
-  margin-bottom: 2rem;
-}
-
-/* ===== CARD ===== */
+/* ===== CARD BASE ===== */
 .card {
   background: #ffffff;
-  border-radius: 1.4rem;
-  padding: 2rem;
+  border-radius: 1.6rem;
+  padding: 2.5rem;
   margin-bottom: 2rem;
-
   border: 1px solid #e5e7eb;
-
-  box-shadow:
-    0 8px 20px rgba(0,0,0,0.04),
-    0 2px 6px rgba(0,0,0,0.03);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .cardHeader {
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.4rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .cardHeader h2 {
-  font-size: 1.6rem;
-  color: #374151;
+  font-size: 1.8rem;
+  color: #0f172a;
 }
 
-/* ===== STAT CARDS ===== */
-.statCard {
-  background: linear-gradient(135deg, #ffffff, #f8fbfd);
-  border-radius: 1.2rem;
-  padding: 1.6rem;
-  border: 1px solid #e5e7eb;
+/* ===== DASHBOARD ===== */
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+/* ===== HERO EMPRESA ===== */
+.companyHeroCard {
+  min-height: 10.5rem;
+  padding: 1.5rem 2.2rem;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(6, 182, 212, 0.2),
+      transparent 34%
+    ),
+    linear-gradient(135deg, #ffffff, #f8fbfd);
 
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-
-  transition: 0.2s;
-  box-shadow:
-    0 8px 20px rgba(0,0,0,0.04),
-    0 2px 6px rgba(0,0,0,0.03);
+  align-items: center;
 }
 
-.statCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
-  border-color: #cfe8ef;
+.companyHeroContent {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24rem;
+  align-items: center;
+  gap: 3.2rem;
 }
 
-.statLabel {
+.companyHeroLeft {
+  min-width: 0;
+}
+
+.companyHeroRight {
+  min-width: 24rem;
+  text-align: right;
+}
+
+.companyHeroRight span {
+  display: block;
   font-size: 1.2rem;
-  color: #9ca3af;
+  color: #475569;
+  margin-bottom: 0.35rem;
 }
 
-.statValue {
-  font-size: 2.2rem;
+.companyHeroRight strong {
+  display: block;
+  font-size: 3.5rem;
   font-weight: 700;
   color: #0ea5b7;
+  line-height: 1;
+}
+
+.companyHeroRight small {
+  display: block;
+  margin-top: 0.55rem;
+  font-size: 1.12rem;
+  color: #94a3b8;
+}
+
+/* ===== EMPRESA ===== */
+.companyTop {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  margin-bottom: 0.7rem;
+}
+
+.typeBadge,
+.monthBadge {
+  height: 2.8rem;
+  padding: 0 1.1rem;
+  border-radius: 999px;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1.1rem;
+  font-weight: 700;
+
+  background: #f1f5f9;
+  border: 1px solid #dbe5ef;
+  color: #334155;
+}
+
+.companyName {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  color: #1e293b;
+  margin-bottom: 0.3rem;
+}
+
+.companyName strong {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.dot {
+  width: 11px;
+  height: 11px;
+  background: #06b6d4;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.companyCnpj {
+  margin: 0.35rem 0 1.3rem;
+  font-size: 1.35rem;
+  color: #64748b;
+}
+
+.limitText {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 0.8rem;
+
+  font-size: 1.18rem;
+  color: #475569;
+
+  margin: 0 0 1.1rem;
+  white-space: nowrap;
+}
+
+.limitText strong {
+  color: #0f172a;
+}
+
+.positiveValue {
+  color: #059669 !important;
+}
+
+/* ===== PROGRESSO ===== */
+.heroProgressArea {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.progressBar {
+  width: 100%;
+  height: 0.85rem;
+  border-radius: 999px;
+  background: #d9edf5;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #06b6d4, #22c1dc);
+}
+
+.percent {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0891b2;
+  text-align: right;
+  min-width: 4.8rem;
+}
+
+.statusBadge {
+  justify-self: start;
+
+  padding: 0.38rem 1.05rem;
+  border-radius: 999px;
+
+  font-size: 0.95rem;
+  font-weight: 700;
+
+  background: #d9f8e8;
+  color: #047857;
+  border: 1px solid #b7efcf;
 }
 
 /* ===== FILTRO ===== */
-.filterBox {
+.filterCard {
+  height: fit-content;
+}
+
+.filterBody {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
 }
 
-.filterRow {
+/* ===== FORM ===== */
+.form {
   display: flex;
-  gap: 1rem;
-  flex-wrap: wrap;
+  flex-direction: column;
 }
 
-/* INPUT */
+.field {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1.4rem;
+}
+
+.field label {
+  font-size: 1.3rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
 .input {
   width: 100%;
-  padding: 1rem;
+  padding: 1.1rem;
   border-radius: 0.8rem;
   border: 1px solid #e5e7eb;
   background: #f9fafb;
   font-size: 1.3rem;
+  color: #374151;
 }
 
 .input:focus {
-  border-color: #0ea5b7;
+  border-color: #0cbddd;
   background: #fff;
   outline: none;
 }
 
-/* BOTÃO FILTRO */
-.primaryButton {
-  padding: 1rem;
-  border-radius: 0.8rem;
+/* ===== BOTÕES ===== */
+.primaryButton,
+.applyButton {
+  margin-top: 1rem;
+  padding: 1.2rem;
+  border-radius: 1rem;
   border: none;
 
   background: linear-gradient(135deg, #06b6d4, #0ea5b7);
   color: white;
 
-  font-size: 1.3rem;
+  font-size: 1.4rem;
   font-weight: 600;
   cursor: pointer;
+
+  transition: all 0.18s ease;
 }
 
-.primaryButton:hover {
+.primaryButton:hover,
+.applyButton:hover {
+  transform: translateY(-1px);
   filter: brightness(1.05);
+}
+
+.primaryButton:active,
+.applyButton:active {
+  transform: scale(0.96);
+  filter: brightness(0.95);
+}
+
+/* ===== MÉTRICAS ===== */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: #ffffff;
+  border-radius: 1.6rem;
+  padding: 2rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.statLabel {
+  font-size: 1.2rem;
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.statValue {
+  display: block;
+  margin-top: 0.8rem;
+  font-size: 2rem;
+  color: #0f172a;
+  font-weight: 700;
 }
 
 /* ===== TABELA ===== */
 .tableWrapper {
-  margin-top: 1rem;
-  overflow-x: auto;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
 }
 
 .table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
 }
 
-.table thead th {
+.table th {
   text-align: left;
   padding: 1rem;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   color: #9ca3af;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.table tbody td {
+.table td {
   padding: 1rem;
   font-size: 1.3rem;
   color: #374151;
   border-bottom: 1px solid #f1f5f9;
 }
 
+.valueCell {
+  font-weight: 700;
+  color: #101a34;
+}
+
+.documentType {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 5.8rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+
+  font-size: 1.15rem;
+  font-weight: 700;
+
+  background: #e0fafa;
+  color: #075352;
+  border: 1px solid #1fdddd;
+}
+
+.noteStatusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 6.5rem;
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+
+  font-size: 1.15rem;
+  font-weight: 700;
+
+  background: #dcfce7;
+  color: #047857;
+  border: 1px solid #86efac;
+}
+
+.statusPending {
+  background: #fff7dc;
+  color: #b7791f;
+  border: 1px solid #f6d365;
+}
+
+.emptyTable,
+.emptyTableText {
+  text-align: center;
+  padding: 2rem !important;
+  color: #9ca3af;
+}
+
 /* ===== EMPTY ===== */
 .emptyBox {
-  font-size: 1.5rem;
   text-align: center;
   padding: 2rem;
   color: #9ca3af;
-}
-
-/* ===== RESUMO FINANCEIRO ===== */
-.summaryBox {
-  display: flex;
-  gap: 3rem;
-  flex-wrap: wrap;
-}
-
-.summaryItem {
-  display: flex;
-  flex-direction: column;
-}
-
-.summaryItem span {
-  font-size: 1.2rem;
-  color: #9ca3af;
-}
-
-.summaryItem strong {
-  font-size: 2rem;
-  color: #0ea5b7;
-}
-
-/* STATUS */
-.statusOk {
-  color: #10b981;
+  font-size: 1.5rem;
 }
 
 /* ===== RESPONSIVO ===== */
 @media (max-width: 900px) {
-  .topbar {
-    flex-direction: column;
-    height: auto;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
-
-  .nav {
-    justify-content: center;
-  }
-
-  .dashboardGrid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.dashboardLayout {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.companyCard {
-  margin: 16px;
-  padding: 18px;
-  border: 1px solid #dce5ee;
-  border-radius: 14px;
-  background: #ffffff;
-}
-
-.companyTop {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.typeBadge,
-.monthBadge {
-  background: #eef3f8;
-  border: 1px solid #d9e3ee;
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #172033;
-}
-
-.companyContent {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.companyName {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 22px;
-  color: #111827;
-}
-
-.dot {
-  width: 12px;
-  height: 12px;
-  background: #12b8cf;
-  border-radius: 50%;
-}
-
-.limitText {
-  margin: 8px 0 0;
-  font-size: 14px;
-  color: #60708a;
-}
-
-.progressArea {
-  width: 240px;
-  display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  gap: 8px 14px;
-}
-
-.progressBar {
-  height: 12px;
-  background: #e2f7fa;
-  border: 1px solid #c9edf2;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.progressFill {
-  height: 100%;
-  width: 0%;
-  background: #12b8cf;
-}
-
-.percent {
-  font-size: 14px;
-  color: #111827;
-}
-
-.statusBadge {
-  justify-self: end;
-  grid-column: 2;
-  background: #d9f8e8;
-  color: #047857;
-  border: 1px solid #b7efcf;
-  padding: 7px 14px;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-@media (max-width: 900px) {
-  .dashboardLayout {
-    grid-template-columns: 1fr;
-  }
-
-  .companyContent {
+  .topbarInner {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .progressArea {
+  .nav {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
+  .dashboardLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .companyHeroContent {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .companyHeroRight {
+    text-align: left;
+    min-width: auto;
+  }
+
+  .limitText {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+
+  .heroProgressArea {
     width: 100%;
+    grid-template-columns: 1fr;
+  }
+
+  .progressBar {
+    width: 100%;
+  }
+
+  .metricsGrid {
+    grid-template-columns: 1fr;
   }
 }

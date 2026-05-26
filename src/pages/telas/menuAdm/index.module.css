@@ -187,13 +187,16 @@
 }
 
 /* ===== TABELA ===== */
-.tableWrapper {
-  margin-top: 1rem;
-  overflow-x: auto;
+.tableWrapper{
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
 }
+
 
 .table {
   width: 100%;
+  min-width: 700px;
   border-collapse: collapse;
 }
 
@@ -215,6 +218,18 @@
 .table td:last-child {
   width: 26rem;
   min-width: 26rem;
+}
+
+.subText{
+  display: block;
+  margin-top: 3px;
+  font-size: 12px;
+  color: #8a94a6;
+}
+
+.valueCell{
+  font-weight: 700;
+  color: #101a34;
 }
 
 /* ===== DASHBOARD ===== */

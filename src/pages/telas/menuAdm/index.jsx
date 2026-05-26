@@ -540,31 +540,43 @@ const buscarNotas = async () => {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>DATA</th>
-              <th>EMPRESA</th>
-              <th>DESCRIÇÃO</th>
-              <th>VALOR</th>
+             <th>DATA</th>
+             <th>EMPRESA</th>
+             <th>DOCUMENTO</th>
+             <th>VALOR</th>
             </tr>
           </thead>
 
-          <tbody>
-            {notas.length === 0 ? (
-              <tr>
-                <td colSpan="4" className={styles.emptyTable}>
-                  Nenhuma nota cadastrada.
-                </td>
-              </tr>
-            ) : (
-              notas.map((nota) => (
-                <tr key={nota.doc_id}>
-                  <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
-                  <td>{nota.emp_nome_fantasia}</td>
-                  <td>{nota.tpd_descricao || nota.doc_arquivo_nome}</td>
-                  <td>{formatCurrency(nota.doc_valor)}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
+<tbody>
+  {notas.length === 0 ? (
+    <tr>
+      <td colSpan="4" className={styles.emptyTable}>
+        Nenhuma nota emitida recentemente.
+      </td>
+    </tr>
+  ) : (
+    notas.map((nota) => (
+      <tr key={nota.doc_id}>
+        <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
+
+        <td>
+          <strong>{nota.emp_nome_fantasia}</strong>
+        </td>
+
+        <td>
+          <strong>{nota.doc_arquivo_nome}</strong>
+          <span className={styles.subText}>
+            {nota.tpd_descricao || "Documento fiscal"}
+          </span>
+        </td>
+
+        <td className={styles.valueCell}>
+          {formatCurrency(nota.doc_valor)}
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
         </table>
       </div>
     </section>

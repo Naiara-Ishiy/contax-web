@@ -4,25 +4,78 @@ import logo from "../../../assets/logoContaxCor.png";
 
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [filtroMes, setFiltroMes] = useState("");
+  const [filtroMes, setFiltroMes] = useState("2026-05");
 
-  const [notas] = useState([]);
+  const empresa = {
+    nome: "Empresa ME",
+    tipo: "ME",
+    cnpj: "12.345.678/0001-90",
+    limiteMensal: 30000,
+    caixaAtual: 12450,
+  };
 
-  const notasFiltradas = useMemo(() => {
-    if (!filtroMes) return notas;
+  const [documentos] = useState([
+    {
+      id: 1,
+      data: "2026-05-04",
+      documento: "nf-servico-001.pdf",
+      tipo: "NF-e",
+      referencia: "Serviço mensal",
+      valor: 5200,
+      status: "Emitida",
+    },
+    {
+      id: 2,
+      data: "2026-05-11",
+      documento: "recibo-002.pdf",
+      tipo: "Recibo",
+      referencia: "Pagamento recebido",
+      valor: 1800,
+      status: "Pago",
+    },
+    {
+      id: 3,
+      data: "2026-05-18",
+      documento: "das-maio.pdf",
+      tipo: "DAS",
+      referencia: "Imposto mensal",
+      valor: 620,
+      status: "Pendente",
+    },
+  ]);
 
-    return notas.filter((nota) => nota.data?.includes(filtroMes));
-  }, [notas, filtroMes]);
+  const documentosFiltrados = useMemo(() => {
+    if (!filtroMes) return documentos;
+    return documentos.filter((doc) => doc.data?.startsWith(filtroMes));
+  }, [documentos, filtroMes]);
 
-  const totalNotas = notasFiltradas.length;
+  const totalDocumentos = documentosFiltrados.length;
 
   const totalFaturado = useMemo(() => {
-    return notasFiltradas.reduce((acc, nota) => acc + Number(nota.valor || 0), 0);
-  }, [notasFiltradas]);
+    return documentosFiltrados
+      .filter((doc) => doc.tipo !== "DAS")
+      .reduce((acc, doc) => acc + Number(doc.valor || 0), 0);
+  }, [documentosFiltrados]);
 
-  const tituloMes = filtroMes
-    ? `Visão Geral — ${formatMonthBR(filtroMes)}`
-    : "Visão Geral";
+  const totalDespesas = useMemo(() => {
+    return documentosFiltrados
+      .filter((doc) => doc.tipo === "DAS")
+      .reduce((acc, doc) => acc + Number(doc.valor || 0), 0);
+  }, [documentosFiltrados]);
+
+  const impostoEstimado = totalFaturado * 0.06;
+  const percentualLimite = Math.min(
+    (totalFaturado / empresa.limiteMensal) * 100,
+    100
+  );
+  const limiteRestante = Math.max(empresa.limiteMensal - totalFaturado, 0);
+
+  const statusLimite =
+    percentualLimite >= 90
+      ? "Risco"
+      : percentualLimite >= 70
+      ? "Atenção"
+      : "Saudável";
 
   return (
     <div className={styles.page}>
@@ -33,64 +86,26 @@ export default function MenuME() {
 
             <div className={styles.logoText}>
               <h1 className={styles.brand}>CONTAX</h1>
-              <span className={styles.brandSubtitle}>ME &amp; MEI - Dashboard</span>
+              <span className={styles.brandSubtitle}>
+                ME &amp; MEI - Dashboard
+              </span>
             </div>
           </div>
 
           <nav className={styles.nav}>
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "dashboard" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("dashboard")}
-            >
-              Dashboard
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "caixa" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("caixa")}
-            >
-              Caixa
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "despesas" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("despesas")}
-            >
-              Despesas
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "faturamento" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("faturamento")}
-            >
-              Faturamento
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "imposto" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("imposto")}
-            >
-              Imposto
-            </button>
-
-            <button
-              className={`${styles.navButton} ${
-                activeTab === "notas" ? styles.navButtonActive : ""
-              }`}
-              onClick={() => setActiveTab("notas")}
-            >
-              Notas Emitidas
-            </button>
+            {["dashboard", "caixa", "despesas", "faturamento", "imposto", "notas"].map(
+              (tab) => (
+                <button
+                  key={tab}
+                  className={`${styles.navButton} ${
+                    activeTab === tab ? styles.navButtonActive : ""
+                  }`}
+                  onClick={() => setActiveTab(tab)}
+                >
+                  {getTabLabel(tab)}
+                </button>
+              )
+            )}
           </nav>
 
           <div className={styles.userArea}>
@@ -103,52 +118,53 @@ export default function MenuME() {
         {activeTab === "dashboard" && (
           <>
             <div className={styles.dashboardLayout}>
-              <section className={styles.card}>
-                <div className={styles.cardHeader}>
-                  <h2>{tituloMes}</h2>
-                </div>
+              <section className={`${styles.card} ${styles.companyHeroCard}`}>
+  <div className={styles.companyHeroContent}>
+    <div className={styles.companyHeroLeft}>
+      <div className={styles.companyTop}>
+        <span className={styles.typeBadge}>{empresa.tipo}</span>
+      </div>
+        <div className={styles.companyName}>
+          <span className={styles.dot}></span>
+          <strong>{empresa.nome}</strong>
+        </div>
 
-                <div className={styles.companyCard}>
-                  <div className={styles.companyTop}>
-                    <span className={styles.typeBadge}>ME</span>
-                    <span className={styles.monthBadge}>
-                      {filtroMes ? formatMonthBR(filtroMes) : "Mês atual"}
-                    </span>
-                  </div>
+      <p className={styles.companyCnpj}>{empresa.cnpj}</p>
 
-                  <div className={styles.companyContent}>
-                    <div>
-                      <div className={styles.companyName}>
-                        <span className={styles.dot}></span>
-                        <strong>Empresa ME</strong>
-                      </div>
+      <p className={styles.limitText}>
+        Limite: <strong>{formatCurrency(empresa.limiteMensal)}</strong>
+        <span>•</span>
+        Utilizado: <strong>{formatCurrency(totalFaturado)}</strong>
+        <span>•</span>
+        Restante:{" "}
+        <strong className={styles.positiveValue}>
+          {formatCurrency(limiteRestante)}
+        </strong>
+      </p>
 
-                      <p className={styles.limitText}>
-                        Limite: <strong>R$ 30.000,00</strong> • Utilizado:{" "}
-                        <strong>{formatCurrency(totalFaturado)}</strong> • Restante:{" "}
-                        <strong>{formatCurrency(30000 - totalFaturado)}</strong>
-                      </p>
-                    </div>
+      <div className={styles.heroProgressArea}>
+        <div className={styles.progressBar}>
+          <div
+            className={styles.progressFill}
+            style={{ width: `${percentualLimite}%` }}
+          />
+        </div>
 
-                    <div className={styles.progressArea}>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{
-                            width: `${Math.min((totalFaturado / 30000) * 100, 100)}%`,
-                          }}
-                        ></div>
-                      </div>
+        <strong className={styles.percent}>
+          {percentualLimite.toFixed(1)}%
+        </strong>
 
-                      <strong className={styles.percent}>
-                        {((totalFaturado / 30000) * 100).toFixed(1)}%
-                      </strong>
+        <span className={styles.statusBadge}>{statusLimite}</span>
+      </div>
+    </div>
 
-                      <span className={styles.statusBadge}>Saudável</span>
-                    </div>
-                  </div>
-                </div>
-              </section>
+    <div className={styles.companyHeroRight}>
+      <span>Faturamento do mês</span>
+      <strong>{formatCurrency(totalFaturado)}</strong>
+      <small>{formatMonthBR(filtroMes)}</small>
+    </div>
+  </div>
+</section>
 
               <section className={`${styles.card} ${styles.filterCard}`}>
                 <div className={styles.cardHeader}>
@@ -166,47 +182,45 @@ export default function MenuME() {
                     />
                   </div>
 
-                  <button className={styles.applyButton}>Aplicar</button>
+                  <button className={styles.primaryButton}>Aplicar</button>
                 </div>
               </section>
             </div>
 
+            <div className={styles.metricsGrid}>
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Caixa atual</span>
+                <strong className={styles.statValue}>
+                  {formatCurrency(empresa.caixaAtual)}
+                </strong>
+              </div>
+
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Documentos</span>
+                <strong className={styles.statValue}>{totalDocumentos}</strong>
+              </div>
+
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Despesas</span>
+                <strong className={styles.statValue}>
+                  {formatCurrency(totalDespesas)}
+                </strong>
+              </div>
+
+              <div className={styles.statCard}>
+                <span className={styles.statLabel}>Imposto estimado</span>
+                <strong className={styles.statValue}>
+                  {formatCurrency(impostoEstimado)}
+                </strong>
+              </div>
+            </div>
+
             <section className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2>Notas Fiscais do período</h2>
+                <h2>Documentos do período</h2>
               </div>
 
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>DATA</th>
-                      <th>EMPRESA</th>
-                      <th>DESCRIÇÃO</th>
-                      <th className={styles.valueHeader}>VALOR (R$)</th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {notasFiltradas.length === 0 ? (
-                      <tr>
-                        <td colSpan="4" className={styles.emptyTableText}>
-                          Sem notas neste período.
-                        </td>
-                      </tr>
-                    ) : (
-                      notasFiltradas.map((nota) => (
-                        <tr key={nota.id}>
-                          <td>{nota.data}</td>
-                          <td>{nota.empresa}</td>
-                          <td>{nota.descricao}</td>
-                          <td>{formatCurrency(nota.valor)}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
+              <TabelaDocumentos documentos={documentosFiltrados} />
             </section>
           </>
         )}
@@ -217,7 +231,7 @@ export default function MenuME() {
               <h2>Caixa</h2>
             </div>
             <div className={styles.emptyBox}>
-              Área de caixa pronta para integrar entradas, saídas e saldo atual.
+              Saldo atual: {formatCurrency(empresa.caixaAtual)}
             </div>
           </section>
         )}
@@ -228,7 +242,7 @@ export default function MenuME() {
               <h2>Despesas</h2>
             </div>
             <div className={styles.emptyBox}>
-              Área de despesas pronta para cadastro e listagem.
+              Despesas do período: {formatCurrency(totalDespesas)}
             </div>
           </section>
         )}
@@ -239,7 +253,7 @@ export default function MenuME() {
               <h2>Faturamento</h2>
             </div>
             <div className={styles.emptyBox}>
-              Área de faturamento pronta para gráficos, totais e metas.
+              Faturamento do mês: {formatCurrency(totalFaturado)}
             </div>
           </section>
         )}
@@ -250,7 +264,7 @@ export default function MenuME() {
               <h2>Imposto</h2>
             </div>
             <div className={styles.emptyBox}>
-              Área de impostos pronta para cálculos e acompanhamento.
+              Estimativa: {formatCurrency(impostoEstimado)}
             </div>
           </section>
         )}
@@ -261,42 +275,79 @@ export default function MenuME() {
               <h2>Notas Emitidas</h2>
             </div>
 
-            <div className={styles.tableWrapper}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Data</th>
-                    <th>Empresa</th>
-                    <th>Descrição</th>
-                    <th>Valor (R$)</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {notasFiltradas.length === 0 ? (
-                    <tr>
-                      <td colSpan="4" className={styles.emptyTableText}>
-                        Nenhuma nota fiscal encontrada.
-                      </td>
-                    </tr>
-                  ) : (
-                    notasFiltradas.map((nota) => (
-                      <tr key={nota.id}>
-                        <td>{nota.data}</td>
-                        <td>{nota.empresa}</td>
-                        <td>{nota.descricao}</td>
-                        <td>{formatCurrency(nota.valor)}</td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <TabelaDocumentos documentos={documentosFiltrados} />
           </section>
         )}
       </main>
     </div>
   );
+}
+
+function TabelaDocumentos({ documentos }) {
+  return (
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>DOCUMENTO</th>
+            <th>TIPO</th>
+            <th>REFERÊNCIA</th>
+            <th>DATA</th>
+            <th>VALOR</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {documentos.length === 0 ? (
+            <tr>
+              <td colSpan="6" className={styles.emptyTableText}>
+                Nenhum documento encontrado neste período.
+              </td>
+            </tr>
+          ) : (
+            documentos.map((doc) => (
+              <tr key={doc.id}>
+                <td>
+                  <strong>{doc.documento}</strong>
+                </td>
+                <td>
+                  <span className={styles.documentType}>{doc.tipo}</span>
+                </td>
+                <td>{doc.referencia}</td>
+                <td>{formatDateBR(doc.data)}</td>
+                <td className={styles.valueCell}>
+                  {formatCurrency(doc.valor)}
+                </td>
+                <td>
+                  <span
+                    className={`${styles.noteStatusBadge} ${
+                      doc.status === "Pendente" ? styles.statusPending : ""
+                    }`}
+                  >
+                    {doc.status}
+                  </span>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function getTabLabel(tab) {
+  const labels = {
+    dashboard: "Dashboard",
+    caixa: "Caixa",
+    despesas: "Despesas",
+    faturamento: "Faturamento",
+    imposto: "Imposto",
+    notas: "Notas Emitidas",
+  };
+
+  return labels[tab];
 }
 
 function formatCurrency(value) {
@@ -306,8 +357,13 @@ function formatCurrency(value) {
   });
 }
 
+function formatDateBR(value) {
+  const [year, month, day] = value.split("-");
+  return `${day}/${month}/${year}`;
+}
+
 function formatMonthBR(value) {
-  if (!value) return "";
+  if (!value) return "Mês atual";
 
   const [year, month] = value.split("-");
 
