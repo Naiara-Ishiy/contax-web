@@ -245,7 +245,7 @@
   flex-wrap: nowrap;
   gap: 0.8rem;
 
-  font-size: 1.18rem;
+  font-size: 1.3rem;
   color: #475569;
 
   margin: 0 0 1.1rem;
@@ -393,12 +393,14 @@
   padding: 2rem;
   border: 1px solid #e5e7eb;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  text-align: center;
 }
 
 .statLabel {
   font-size: 1.2rem;
   color: #9ca3af;
   font-weight: 600;
+  
 }
 
 .statValue {
@@ -407,6 +409,7 @@
   font-size: 2rem;
   color: #0f172a;
   font-weight: 700;
+  
 }
 
 /* ===== TABELA ===== */

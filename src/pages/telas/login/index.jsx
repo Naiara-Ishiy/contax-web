@@ -99,16 +99,7 @@ function Login() {
             onChange={(e) => setSenha(e.target.value)}
           />
 
-          {/* CHECK */}
-          <div className={styles.opcoes}>
-            <input
-              type="checkbox"
-              id="mostrarSenha"
-              checked={mostrarSenha}
-              onChange={() => setMostrarSenha(!mostrarSenha)}
-            />
-            <span>Mostrar senha</span>
-          </div>
+          
 
           <button
             type="button"
