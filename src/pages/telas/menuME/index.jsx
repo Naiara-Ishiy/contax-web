@@ -226,15 +226,48 @@ export default function MenuME() {
         )}
 
         {activeTab === "caixa" && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Caixa</h2>
-            </div>
-            <div className={styles.emptyBox}>
-              Saldo atual: {formatCurrency(empresa.caixaAtual)}
-            </div>
-          </section>
-        )}
+  <>
+    <section className={`${styles.card} ${styles.cashHeroCard}`}>
+      <div className={styles.cashHeroHeader}>
+        <div className={styles.cashIconBox}>💼</div>
+
+        <div>
+          <h2>Saldo atual</h2>
+          <strong>{formatCurrency(empresa.caixaAtual)}</strong>
+          <p>Saldo disponível em caixa</p>
+        </div>
+      </div>
+    </section>
+
+    <div className={styles.cashGrid}>
+      <section className={`${styles.card} ${styles.cashMovementCard}`}>
+        <div className={styles.cashMovementHeader}>
+          <div className={styles.cashIconBoxGreen}>↓</div>
+
+          <div>
+            <h3>Entradas do Mês</h3>
+            <strong>{formatCurrency(totalFaturado)}</strong>
+            <p>Total de entradas no período</p>
+          </div>
+        </div>
+      </section>
+
+      <section className={`${styles.card} ${styles.cashMovementCard}`}>
+        <div className={styles.cashMovementHeader}>
+          <div className={styles.cashIconBoxRed}>↑</div>
+
+          <div>
+            <h3>Saídas do Mês</h3>
+            <strong className={styles.cashRedValue}>
+              {formatCurrency(totalDespesas)}
+            </strong>
+            <p>Total de saídas no período</p>
+          </div>
+        </div>
+      </section>
+    </div>
+  </>
+)}
 
         {activeTab === "despesas" && (
           <section className={styles.card}>
