@@ -1,4 +1,5 @@
 import React, { useMemo, useState, useEffect } from "react";
+import { Users, Building2, FileText, DollarSign, User } from "lucide-react";
 import styles from "./index.module.css";
 import api from "../../../services/apis";
 
@@ -8,6 +9,12 @@ export default function MenuAdm() {
   const [activeTab, setActiveTab] = useState("notas");
   const [isAdmin] = useState(true);
 
+  const [adminResumo, setAdminResumo] = useState(null);
+  const [financeiroMensal, setFinanceiroMensal] = useState(null);
+  const [empresasRisco, setEmpresasRisco] = useState([]);
+  const [notasRecentes, setNotasRecentes] = useState([]);
+  const [prazosPendentes, setPrazosPendentes] = useState([]);
+  const [auditoriaRecente, setAuditoriaRecente] = useState([]);
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
   const [notas, setNotas] = useState([]);
@@ -18,7 +25,41 @@ export default function MenuAdm() {
   titulo: "",
   mensagem: "",
 });
-  
+
+const buscarDashboardAdmin = async () => {
+  try {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = hoje.getMonth() + 1;
+
+    const [
+      resumoResponse,
+      financeiroResponse,
+      empresasRiscoResponse,
+      ultimosDocumentosResponse,
+      prazosResponse,
+      auditoriaResponse,
+    ] = await Promise.all([
+      api.get("/admin/resumo"),
+      api.get(`/admin/financeiro-mensal?ano=${ano}&mes=${mes}`),
+      api.get("/admin/empresas-risco"),
+      api.get("/admin/ultimos-documentos?limit=10"),
+      api.get("/admin/prazos-pendentes"),
+      api.get("/admin/auditoria-recente?limit=5"),
+    ]);
+
+    setAdminResumo(resumoResponse.data.dados || null);
+    setFinanceiroMensal(financeiroResponse.data.dados || null);
+    setEmpresasRisco(empresasRiscoResponse.data.dados || []);
+    setNotasRecentes(ultimosDocumentosResponse.data.dados || []);
+    setPrazosPendentes(prazosResponse.data.dados || []);
+    setAuditoriaRecente(auditoriaResponse.data.dados || []);
+  } catch (err) {
+    console.log(err);
+    setError("Erro ao carregar dados do dashboard administrativo");
+  }
+};
+
   const buscarEmpresas = async () => {
     try {
       setLoading(true);
@@ -76,6 +117,7 @@ const buscarNotas = async () => {
     buscarEmpresas();
     buscarUsuarios();
     buscarNotas();
+    buscarDashboardAdmin();
   }, []);
 
   const mostrarFeedback = (titulo, mensagem) => {
@@ -116,11 +158,11 @@ const buscarNotas = async () => {
   });
 
 
-  const totalEmpresas = empresas?.length || 0;
-  const totalNotas = notas.length;
-  const totalUsuarios = usuarios.length;
+  const totalEmpresasLocal = empresas?.length || 0;
+  const totalNotasLocal = notas.length;
+  const totalUsuariosLocal = usuarios.length;
 
-  const totalFaturado = useMemo(() => {
+  const totalFaturadoLocal = useMemo(() => {
     return notas.reduce((acc, item) => acc + Number(item.valor || 0), 0);
   }, [notas]);
 
@@ -289,6 +331,15 @@ const buscarNotas = async () => {
     setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
   };
 
+  const totalUsuarios = adminResumo?.totalUsuarios ?? 0;
+  const totalEmpresas = adminResumo?.totalEmpresas ?? 0;
+  const totalDocumentos = adminResumo?.totalDocumentos ?? 0;
+
+  const faturamentoMensal = financeiroMensal?.faturamento ?? 0;
+  const impostosMensais = financeiroMensal?.impostos ?? 0;
+  const despesasMensais = financeiroMensal?.despesas ?? 0;
+  const saldoMensal = financeiroMensal?.saldo ?? 0;
+
   if (loading && empresas.length === 0) {
   return <p>Carregando empresas...</p>;
   }
@@ -388,6 +439,46 @@ const buscarNotas = async () => {
       <main className={styles.content}>
         {activeTab === "dashboard" && (
         <>
+        
+        <div className={styles.statsGrid}>
+  <div className={`${styles.statCard} ${styles.statCardUsuarios}`}>
+    <Users className={styles.statIcon} />
+
+    <div className={styles.statContent}>
+      <span className={styles.statLabel}>Usuários</span>
+      <div className={styles.statValue}>{totalUsuarios}</div>
+    </div>
+  </div>
+
+  <div className={`${styles.statCard} ${styles.statCardEmpresas}`}>
+    <Building2 className={styles.statIcon} />
+
+    <div className={styles.statContent}>
+      <span className={styles.statLabel}>Empresas</span>
+      <div className={styles.statValue}>{totalEmpresas}</div>
+    </div>
+  </div>
+
+  <div className={`${styles.statCard} ${styles.statCardDocumentos}`}>
+    <FileText className={styles.statIcon} />
+
+    <div className={styles.statContent}>
+      <span className={styles.statLabel}>Documentos</span>
+      <div className={styles.statValue}>{totalDocumentos}</div>
+    </div>
+  </div>
+
+  <div className={`${styles.statCard} ${styles.statCardFaturamento}`}>
+    <DollarSign className={styles.statIcon} />
+
+    <div className={styles.statContent}>
+      <span className={styles.statLabel}>Faturamento Geral Mensal</span>
+      <div className={styles.statValue}>
+        {formatCurrency(faturamentoMensal)}
+      </div>
+    </div>
+  </div>
+</div>
       <div className={styles.dashboardLayout}>
 
       {/* ESQUERDA */}
@@ -432,7 +523,13 @@ const buscarNotas = async () => {
         <div key={empresa.emp_id} className={styles.companyCard}>
           
           <div className={styles.companyTop}>
-            <span className={styles.typeBadge}>
+            <span
+              className={`${styles.typeBadge} ${
+                Number(empresa.emp_tipo) === 0
+                  ? styles.badgeME
+                  : styles.badgeMEI
+              }`}
+            >
               {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
             </span>
 

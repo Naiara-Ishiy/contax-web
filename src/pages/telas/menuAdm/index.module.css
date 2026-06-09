@@ -732,6 +732,93 @@
   transform: translateY(-1px);
 }
 
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.6rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 1.8rem;
+
+  padding: 1.8rem;
+  min-height: 9rem;
+
+  border-radius: 18px;
+  border: 1px solid #e2e8f0;
+
+  transition: all .2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+}
+
+.statIcon {
+  width: 4.4rem;
+  height: 4.4rem;
+  flex-shrink: 0;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.statLabel {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.statValue {
+  font-size: 2.3rem;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.statCardUsuarios {
+  background: linear-gradient(135deg, #ffffff 0%, #ecfeff 100%);
+  color: #06b6d4;
+}
+
+.statCardEmpresas {
+  background: linear-gradient(135deg, #ffffff 0%, #fff7dc 100%);
+  color: #f59e0b;
+}
+
+.statCardDocumentos {
+  background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%);
+  color: #2563eb;
+}
+
+.statCardFaturamento {
+  background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+  color: #16a34a;
+}
+
+.statCard .statValue,
+.statCard .statLabel {
+  color: #0f172a;
+}
+
+@media (max-width: 1200px) {
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @keyframes feedbackShow {
   from {
     opacity: 0;
@@ -772,4 +859,5 @@
   .nav {
     flex-wrap: wrap;
   }
+
 }
