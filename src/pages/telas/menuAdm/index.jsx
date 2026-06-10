@@ -490,7 +490,7 @@ export default function MenuAdm() {
                         0
                       );
 
-                      const limite = 20000;
+                      const limite = 2000;
                       const percentual = Math.min((total / limite) * 100, 100);
 
                       const status =
@@ -499,34 +499,50 @@ export default function MenuAdm() {
                       return (
                         <div key={empresa.emp_id} className={styles.companyCard}>
                           <div className={styles.companyTop}>
-                            <span
-                              className={`${styles.typeBadge} ${
-                                Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
-                              }`}
-                            >
-                              {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
-                            </span>
-
-                            <span className={styles.monthBadge}>
-                              {new Date().toLocaleDateString('pt-BR', {
-                                month: 'long',
-                                year: 'numeric',
-                              })}
-                            </span>
+                            
                           </div>
 
                           <div className={styles.companyContent}>
                             <div>
                               <div className={styles.companyName}>
-                                <span className={styles.dot}></span>
+                                <span
+                                  className={`${styles.typeBadge} ${
+                                  Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
+                                }`}
+                                >
+                                  {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
+                                </span>
                                 <strong>{empresa.emp_nome_fantasia}</strong>
                               </div>
+                              <div className={styles.companyInfoRow}>
+                                <p className={styles.limitText}>
+                                Limite: <strong>{formatCurrency(limite)}</strong> • 
+                                Utilizado:{' '} <strong>{formatCurrency(total)}</strong> • 
+                                Restante:{' '} <strong>{formatCurrency(limite - total)}</strong>                    
+                                </p>
 
-                              <p className={styles.limitText}>
-                                Limite: <strong>{formatCurrency(limite)}</strong> • Utilizado:{' '}
-                                <strong>{formatCurrency(total)}</strong> • Restante:{' '}
-                                <strong>{formatCurrency(limite - total)}</strong>
-                              </p>
+                                <span
+                                  className={styles.statusBadge}
+                                  style={{
+                                    background:
+                                      status === "Saudável"
+                                        ? "#d9f8e8"
+                                        : status === "Atenção"
+                                        ? "#fff4d6"
+                                        : "#ffe4e6",
+                                    color:
+                                      status === "Saudável"
+                                        ? "#047857"
+                                        : status === "Atenção"
+                                        ? "#b45309"
+                                        : "#b91c1c",
+                                  }}
+                                >
+                                  {status}
+                                </span>
+                              </div>
+                              
+                              
                             </div>
 
                             <div className={styles.progressArea}>
@@ -537,27 +553,11 @@ export default function MenuAdm() {
                                 />
                               </div>
 
-                              <strong className={styles.percent}>{percentual.toFixed(1)}%</strong>
-
-                              <span
-                                className={styles.statusBadge}
-                                style={{
-                                  background:
-                                    status === 'Saudável'
-                                      ? '#d9f8e8'
-                                      : status === 'Atenção'
-                                        ? '#fff4d6'
-                                        : '#ffe4e6',
-                                  color:
-                                    status === 'Saudável'
-                                      ? '#047857'
-                                      : status === 'Atenção'
-                                        ? '#b45309'
-                                        : '#b91c1c',
-                                }}
-                              >
-                                {status}
-                              </span>
+                              <div className={styles.progressInfo}>
+                                <strong className={styles.percent}>{
+                                  percentual.toFixed(1)}%
+                                </strong>
+                              </div>
                             </div>
                           </div>
                         </div>

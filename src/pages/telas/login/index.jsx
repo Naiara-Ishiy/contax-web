@@ -20,7 +20,7 @@ function Login() {
 
     let tipo = '';
 
-    // 🔹 REGRA DE NEGÓCIO (exemplo)
+    // REGRA DE NEGÓCIO (exemplo)
     if (email === 'admin@contax.com') {
       tipo = 'admin';
     } else if (email === 'gerente@contax.com') {
@@ -29,7 +29,7 @@ function Login() {
       tipo = 'usuario';
     }
 
-    // 🔐 validação de senha (exemplo simples)
+    // validação de senha (exemplo simples)
     if (senha !== '1234') {
       setErro('Senha inválida');
       return;
