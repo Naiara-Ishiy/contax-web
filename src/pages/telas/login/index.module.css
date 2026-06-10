@@ -2,8 +2,8 @@
   min-height: 100vh;
 
   background:
-    radial-gradient(circle at top left, rgba(255,255,255,0.14), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(255,255,255,0.12), transparent 30%),
+    radial-gradient(circle at top left, rgba(255, 255, 255, 0.14), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.12), transparent 30%),
     linear-gradient(135deg, #075f69 0%, #078da5 50%, #22d3ee 100%);
 
   display: flex;
@@ -16,10 +16,10 @@
 
 /* CENTRALIZAÇÃO */
 .container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* CARD */
@@ -34,8 +34,8 @@
 
   border-radius: 1.8rem;
 
-  border: 1px solid rgba(255,255,255,0.35);
-  border-top: 1px solid rgba(255,255,255,0.7);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.7);
 
   box-shadow:
     0 30px 60px rgba(0, 0, 0, 0.2),
@@ -51,44 +51,44 @@
 
 /* LOGO */
 .logoCard {
-    width: 8.5rem;
-    margin-bottom: 0.5rem;
+  width: 8.5rem;
+  margin-bottom: 0.5rem;
 }
 
 /* TEXTOS */
 .card h2 {
-    font-size: 3rem;
-    color: #0cbddd;
-    margin-bottom: 0.5rem;
+  font-size: 3rem;
+  color: #0cbddd;
+  margin-bottom: 0.5rem;
 }
 
 .subtitulo {
-    font-size: 1.5rem;
-    color: #64748b;
-    margin-bottom: 1.8rem;
+  font-size: 1.5rem;
+  color: #64748b;
+  margin-bottom: 1.8rem;
 }
 
 .titulo {
-    font-size: 2rem;
-    font-weight: 600;
-    color: #374151;
-    margin-bottom: 0.6rem;
+  font-size: 2rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.6rem;
 }
 
 .descricao {
-    font-size: 1.4rem;
-    color: #9ca3af;
-    text-align: center;
-    margin-bottom: 2rem;
+  font-size: 1.4rem;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 2rem;
 }
 
 /* FORM */
 .card label {
-    width: 95%;
-    font-size: 1.4rem;
-    color: #6b7280;
-    margin: 0.8rem 0 0.4rem;
-    font-weight: bold;
+  width: 95%;
+  font-size: 1.4rem;
+  color: #6b7280;
+  margin: 0.8rem 0 0.4rem;
+  font-weight: bold;
 }
 
 /* INPUTS */
@@ -104,15 +104,15 @@
 
   font-size: 1.4rem;
 
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
 
   transition: all 0.2s ease;
 }
 
 .card input:hover,
 .card select:hover {
-    border-color: #0ea5b7;
-    outline: none;
+  border-color: #0ea5b7;
+  outline: none;
 }
 
 .card input:focus,
@@ -120,7 +120,7 @@
   border-color: #0ea5b7;
   outline: none;
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(6,182,212,0.10);
+  box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
 }
 
 /* CHECKBOX */
@@ -135,7 +135,7 @@
 }
 
 .opcoes span {
-    white-space: nowrap; 
+  white-space: nowrap;
 }
 
 /* BOTÃO LOGIN */
@@ -155,27 +155,25 @@
 
   cursor: pointer;
 
-  box-shadow: 0 10px 24px rgba(6,182,212,0.28);
+  box-shadow: 0 10px 24px rgba(6, 182, 212, 0.28);
 
   transition: all 0.2s ease;
 }
 
-
 .botaoLogin:hover {
-    filter: brightness(1.05);
-    transform: translateY(-1px);
+  filter: brightness(1.05);
+  transform: translateY(-1px);
 }
 
-
 .botaoLogin:active {
-    transform: scale(0.98);
+  transform: scale(0.98);
 }
 
 /* RODAPÉ */
 .rodape {
-    margin-top: 2rem;
-    font-size: 1.1rem;
-    color: #9ca3af;
+  margin-top: 2rem;
+  font-size: 1.1rem;
+  color: #9ca3af;
 }
 
 .forgotPassword {
@@ -193,20 +191,19 @@
   cursor: pointer;
 }
 
-
 .forgotPassword:hover {
   text-decoration: underline;
 }
 
 .pagina::after {
-  content: "";
+  content: '';
 
   position: absolute;
 
   width: 40rem;
   height: 40rem;
 
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 
   border-radius: 999px;
 

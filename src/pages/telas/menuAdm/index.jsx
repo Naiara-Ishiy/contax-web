@@ -1,13 +1,13 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { Users, Building2, FileText, DollarSign, User } from "lucide-react";
-import styles from "./index.module.css";
-import api from "../../../services/apis";
+import React, { useMemo, useState, useEffect } from 'react';
+import { Users, Building2, FileText, DollarSign, User } from 'lucide-react';
+import styles from './index.module.css';
+import api from '../../../services/apis';
 
 import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuAdm() {
-  const [activeTab, setActiveTab] = useState("notas");
-  const [isAdmin] = useState(true);
+  const [activeTab, setActiveTab] = useState('notas');
+  const isAdmin = true;
 
   const [adminResumo, setAdminResumo] = useState(null);
   const [financeiroMensal, setFinanceiroMensal] = useState(null);
@@ -21,97 +21,97 @@ export default function MenuAdm() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [feedback, setFeedback] = useState({
-  ativo: false,
-  titulo: "",
-  mensagem: "",
-});
+    ativo: false,
+    titulo: '',
+    mensagem: '',
+  });
 
-const buscarDashboardAdmin = async () => {
-  try {
-    const hoje = new Date();
-    const ano = hoje.getFullYear();
-    const mes = hoje.getMonth() + 1;
+  const buscarDashboardAdmin = async () => {
+    try {
+      const hoje = new Date();
+      const ano = hoje.getFullYear();
+      const mes = hoje.getMonth() + 1;
 
-    const [
-      resumoResponse,
-      financeiroResponse,
-      empresasRiscoResponse,
-      ultimosDocumentosResponse,
-      prazosResponse,
-      auditoriaResponse,
-    ] = await Promise.all([
-      api.get("/admin/resumo"),
-      api.get(`/admin/financeiro-mensal?ano=${ano}&mes=${mes}`),
-      api.get("/admin/empresas-risco"),
-      api.get("/admin/ultimos-documentos?limit=10"),
-      api.get("/admin/prazos-pendentes"),
-      api.get("/admin/auditoria-recente?limit=5"),
-    ]);
+      const [
+        resumoResponse,
+        financeiroResponse,
+        empresasRiscoResponse,
+        ultimosDocumentosResponse,
+        prazosResponse,
+        auditoriaResponse,
+      ] = await Promise.all([
+        api.get('/admin/resumo'),
+        api.get(`/admin/financeiro-mensal?ano=${ano}&mes=${mes}`),
+        api.get('/admin/empresas-risco'),
+        api.get('/admin/ultimos-documentos?limit=10'),
+        api.get('/admin/prazos-pendentes'),
+        api.get('/admin/auditoria-recente?limit=5'),
+      ]);
 
-    setAdminResumo(resumoResponse.data.dados || null);
-    setFinanceiroMensal(financeiroResponse.data.dados || null);
-    setEmpresasRisco(empresasRiscoResponse.data.dados || []);
-    setNotasRecentes(ultimosDocumentosResponse.data.dados || []);
-    setPrazosPendentes(prazosResponse.data.dados || []);
-    setAuditoriaRecente(auditoriaResponse.data.dados || []);
-  } catch (err) {
-    console.log(err);
-    setError("Erro ao carregar dados do dashboard administrativo");
-  }
-};
+      setAdminResumo(resumoResponse.data.dados || null);
+      setFinanceiroMensal(financeiroResponse.data.dados || null);
+      setEmpresasRisco(empresasRiscoResponse.data.dados || []);
+      setNotasRecentes(ultimosDocumentosResponse.data.dados || []);
+      setPrazosPendentes(prazosResponse.data.dados || []);
+      setAuditoriaRecente(auditoriaResponse.data.dados || []);
+    } catch (err) {
+      console.log(err);
+      setError('Erro ao carregar dados do dashboard administrativo');
+    }
+  };
 
   const buscarEmpresas = async () => {
     try {
       setLoading(true);
       const response = await api.get(`/empresas`);
 
-      console.log("RESPOSTA:", response.data);
+      console.log('RESPOSTA:', response.data);
 
       setEmpresas(response.data.dados || []);
     } catch (err) {
       console.log(err);
       setEmpresas([]);
-      setError("Erro ao carregar empresas");
+      setError('Erro ao carregar empresas');
     } finally {
       setLoading(false);
     }
   };
 
   const buscarUsuarios = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const response = await api.get(`/usuarios`);
+      const response = await api.get(`/usuarios`);
 
-    console.log("USUÁRIOS:", response.data);
+      console.log('USUÁRIOS:', response.data);
 
-    setUsuarios(response.data.dados || []);
-  } catch (err) {
-    console.log(err);
-    setUsuarios([]);
-    setError("Erro ao carregar usuários");
-  } finally {
-    setLoading(false);
-  }
-};
+      setUsuarios(response.data.dados || []);
+    } catch (err) {
+      console.log(err);
+      setUsuarios([]);
+      setError('Erro ao carregar usuários');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-const buscarNotas = async () => {
-  try {
-    setLoading(true);
+  const buscarNotas = async () => {
+    try {
+      setLoading(true);
 
-    const response = await api.get(`/documentos`);
+      const response = await api.get(`/documentos`);
 
-    console.log("DOCUMENTOS:", response.data);
+      console.log('DOCUMENTOS:', response.data);
 
-    setNotas(response.data.dados || []);
-  } catch (err) {
-    console.log(err);
-    setNotas([]);
-    setError("Erro ao carregar notas fiscais");
-  } finally {
-    setLoading(false);
-  }
-};
+      setNotas(response.data.dados || []);
+    } catch (err) {
+      console.log(err);
+      setNotas([]);
+      setError('Erro ao carregar notas fiscais');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     buscarEmpresas();
@@ -129,38 +129,35 @@ const buscarNotas = async () => {
   };
 
   const [empresaForm, setEmpresaForm] = useState({
-    emp_nome_fantasia: "",
-    emp_razao_social: "",
-    emp_cnpj: "",
-    emp_endereco: "",
-    emp_municipio: "",
-    emp_telefone: "",
-    emp_email: "",
-    emp_senha: "",
+    emp_nome_fantasia: '',
+    emp_razao_social: '',
+    emp_cnpj: '',
+    emp_endereco: '',
+    emp_municipio: '',
+    emp_telefone: '',
+    emp_email: '',
+    emp_senha: '',
     emp_tipo: 0,
   });
 
   const [notaForm, setNotaForm] = useState({
-    empresa: "",
-    data: "",
-    valor: "",
-    descricao: "",
+    empresa: '',
+    data: '',
+    valor: '',
+    descricao: '',
   });
 
   const [usuarioForm, setUsuarioForm] = useState({
-    usu_nome: "",
-    usu_email: "",
-    usu_cpf: "",
-    usu_senha: "",
-    usu_telefone: "",
+    usu_nome: '',
+    usu_email: '',
+    usu_cpf: '',
+    usu_senha: '',
+    usu_telefone: '',
     usu_status: 1,
     usu_alterar_senha: 0,
+    tipo_acesso: '',
+    empresa_vinculada: '',
   });
-
-
-  const totalEmpresasLocal = empresas?.length || 0;
-  const totalNotasLocal = notas.length;
-  const totalUsuariosLocal = usuarios.length;
 
   const totalFaturadoLocal = useMemo(() => {
     return notas.reduce((acc, item) => acc + Number(item.valor || 0), 0);
@@ -170,7 +167,7 @@ const buscarNotas = async () => {
     const { name, value } = e.target;
     setEmpresaForm((prev) => ({
       ...prev,
-      [name]: name === "emp_tipo" ? Number(value) : value,
+      [name]: name === 'emp_tipo' ? Number(value) : value,
     }));
   };
 
@@ -186,26 +183,20 @@ const buscarNotas = async () => {
     const { name, value } = e.target;
     setUsuarioForm((prev) => ({
       ...prev,
-      [name]: 
-        name === "usu_status"
-          ? Number(value)
-          : value,
+      [name]: name === 'usu_status' ? Number(value) : value,
     }));
   };
 
   const cadastrarEmpresa = (e) => {
     e.preventDefault();
 
-    if (
-      !empresaForm.emp_nome_fantasia.trim() ||
-      !empresaForm.emp_cnpj.trim()
-    ) {
+    if (!empresaForm.emp_nome_fantasia.trim() || !empresaForm.emp_cnpj.trim()) {
       mostrarFeedback(
-        "Campos obrigatórios",
-        "Preencha todos os campos antes de cadastrar a empresa."
-    );
-    return;
-  }
+        'Campos obrigatórios',
+        'Preencha todos os campos antes de cadastrar a empresa.'
+      );
+      return;
+    }
 
     const novaEmpresa = {
       emp_id: Date.now(),
@@ -216,18 +207,18 @@ const buscarNotas = async () => {
 
     setEmpresas((prev) => [...prev, novaEmpresa]);
 
-  setEmpresaForm({
-     emp_nome_fantasia: "",
-     emp_razao_social: "",
-     emp_cnpj: "",
-     emp_endereco: "",
-     emp_municipio: "",
-     emp_telefone: "",
-     emp_email: "",
-     emp_senha: "",
-     emp_tipo: 0,
-  });
-};
+    setEmpresaForm({
+      emp_nome_fantasia: '',
+      emp_razao_social: '',
+      emp_cnpj: '',
+      emp_endereco: '',
+      emp_municipio: '',
+      emp_telefone: '',
+      emp_email: '',
+      emp_senha: '',
+      emp_tipo: 0,
+    });
+  };
 
   const cadastrarUsuario = (e) => {
     e.preventDefault();
@@ -242,11 +233,15 @@ const buscarNotas = async () => {
       !usuarioForm.empresa_vinculada
     ) {
       mostrarFeedback(
-        "Campos obrigatórios",
-        "Preencha todos os campos antes de cadastrar o usuário."
+        'Campos obrigatórios',
+        'Preencha todos os campos antes de cadastrar o usuário.'
       );
       return;
     }
+
+    const empresaVinculada = empresas.find(
+      (empresa) => String(empresa.emp_id) === String(usuarioForm.empresa_vinculada)
+    );
 
     const novoUsuario = {
       usu_id: Date.now(),
@@ -257,32 +252,33 @@ const buscarNotas = async () => {
       usu_telefone: usuarioForm.usu_telefone.trim(),
       usu_status: usuarioForm.usu_status,
       usu_alterar_senha: 0,
+      tipo_acesso: usuarioForm.tipo_acesso,
+      empresa_vinculada: usuarioForm.empresa_vinculada,
+      empresa_nome: empresaVinculada?.emp_nome_fantasia || '',
     };
 
     setUsuarios((prev) => [...prev, novoUsuario]);
 
     setUsuarioForm({
-      nome: "",
-      email: "",
-      documento: "",
-      senha: "",
-      tipo: "Contabilista",
-      status: "Ativo",
+      usu_nome: '',
+      usu_email: '',
+      usu_cpf: '',
+      usu_senha: '',
+      usu_telefone: '',
+      usu_status: 1,
+      usu_alterar_senha: 0,
+      tipo_acesso: '',
+      empresa_vinculada: '',
     });
   };
 
   const lancarNota = (e) => {
     e.preventDefault();
 
-    if (
-      !notaForm.empresa ||
-      !notaForm.data ||
-      !notaForm.valor ||
-      !notaForm.descricao.trim()
-    ) {
+    if (!notaForm.empresa || !notaForm.data || !notaForm.valor || !notaForm.descricao.trim()) {
       mostrarFeedback(
-        "Campos obrigatórios",
-        "Preencha todos os campos antes de lançar a nota fiscal."
+        'Campos obrigatórios',
+        'Preencha todos os campos antes de lançar a nota fiscal.'
       );
       return;
     }
@@ -293,10 +289,10 @@ const buscarNotas = async () => {
 
     const novaNota = {
       id: Date.now(),
-      data: formatDateBR(notaForm.data),
-      empresa_id: empresaSelecionada?.emp_id || null,
-      empresa_nome: empresaSelecionada?.emp_nome_fantasia || "",
-      emp_cnpj: empresaSelecionada?.emp_cnpj || "",
+      doc_id: Date.now(),
+      doc_arquivo_nome: 'Nota Fiscal',
+      empresa_nome: empresaSelecionada?.emp_nome_fantasia || '',
+      emp_cnpj: empresaSelecionada?.emp_cnpj || '',
       descricao: notaForm.descricao.trim(),
       valor: Number(notaForm.valor),
     };
@@ -304,10 +300,10 @@ const buscarNotas = async () => {
     setNotas((prev) => [novaNota, ...prev]);
 
     setNotaForm({
-      empresa: "",
-      data: "",
-      valor: "",
-      descricao: "",
+      empresa: '',
+      data: '',
+      valor: '',
+      descricao: '',
     });
   };
 
@@ -321,14 +317,12 @@ const buscarNotas = async () => {
     setEmpresas((prev) => prev.filter((empresa) => empresa.emp_id !== id));
 
     if (empresaRemovida) {
-      setNotas((prev) =>
-        prev.filter((nota) => nota.empresa !== empresaRemovida.emp_nome_fantasia)
-      );
+      setNotas((prev) => prev.filter((nota) => nota.empresa_id !== empresaRemovida.emp_id));
     }
   };
 
   const excluirUsuario = (id) => {
-    setUsuarios((prev) => prev.filter((usuario) => usuario.id !== id));
+    setUsuarios((prev) => prev.filter((usuario) => usuario.usu_id !== id));
   };
 
   const totalUsuarios = adminResumo?.totalUsuarios ?? 0;
@@ -341,487 +335,454 @@ const buscarNotas = async () => {
   const saldoMensal = financeiroMensal?.saldo ?? 0;
 
   if (loading && empresas.length === 0) {
-  return <p>Carregando empresas...</p>;
+    return <p>Carregando empresas...</p>;
   }
 
   if (error) {
-    return <p style={{ color: "red" }}>{error}</p>;
+    return <p style={{ color: 'red' }}>{error}</p>;
   }
 
   return (
     <div className={styles.page}>
-
       {feedback.ativo && (
-  <div className={styles.feedbackOverlay}>
-    <div className={styles.feedbackModal}>
-      <h3>{feedback.titulo}</h3>
+        <div className={styles.feedbackOverlay}>
+          <div className={styles.feedbackModal}>
+            <h3>{feedback.titulo}</h3>
 
-      <p>{feedback.mensagem}</p>
+            <p>{feedback.mensagem}</p>
 
-      <button
-        type="button"
-        className={styles.feedbackButton}
-        onClick={() =>
-          setFeedback({
-            ativo: false,
-            titulo: "",
-            mensagem: "",
-          })
-        }
-      >
-        Entendi
-      </button>
-    </div>
-  </div>
-)}
+            <button
+              type="button"
+              className={styles.feedbackButton}
+              onClick={() =>
+                setFeedback({
+                  ativo: false,
+                  titulo: '',
+                  mensagem: '',
+                })
+              }
+            >
+              Entendi
+            </button>
+          </div>
+        </div>
+      )}
       <header className={styles.topbar}>
-  <div className={styles.topbarInner}>
+        <div className={styles.topbarInner}>
+          {/* LOGO */}
+          <div className={styles.logoArea}>
+            <img src={logo} alt="Contax" className={styles.logoImg} />
 
-    {/* LOGO */}
-    <div className={styles.logoArea}>
-      <img src={logo} alt="Contax" className={styles.logoImg} />
+            <div className={styles.logoText}>
+              <h1 className={styles.brand}>CONTAX</h1>
+              <span className={styles.brandSubtitle}>ME & MEI - Dashboard</span>
+            </div>
+          </div>
 
-      <div className={styles.logoText}>
-        <h1 className={styles.brand}>CONTAX</h1>
-        <span className={styles.brandSubtitle}>
-          ME & MEI - Dashboard
-        </span>
-      </div>
-    </div>
+          {/* NAV */}
+          <nav className={styles.nav}>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === 'dashboard' ? styles.navButtonActive : ''
+              }`}
+              onClick={() => setActiveTab('dashboard')}
+            >
+              Dashboard
+            </button>
 
-    {/* NAV */}
-    <nav className={styles.nav}>
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "dashboard" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("dashboard")}
-      >
-        Dashboard
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === 'empresas' ? styles.navButtonActive : ''
+              }`}
+              onClick={() => setActiveTab('empresas')}
+            >
+              Empresas
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "empresas" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("empresas")}
-      >
-        Empresas
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === 'usuarios' ? styles.navButtonActive : ''
+              }`}
+              onClick={() => setActiveTab('usuarios')}
+            >
+              Usuários
+            </button>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "usuarios" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("usuarios")}
-      >
-        Usuários
-      </button>
+            <button
+              className={`${styles.navButton} ${
+                activeTab === 'notas' ? styles.navButtonActive : ''
+              }`}
+              onClick={() => setActiveTab('notas')}
+            >
+              Notas Fiscais
+            </button>
+          </nav>
 
-      <button
-        className={`${styles.navButton} ${
-          activeTab === "notas" ? styles.navButtonActive : ""
-        }`}
-        onClick={() => setActiveTab("notas")}
-      >
-        Notas Fiscais
-      </button>
-    </nav>
-
-    {/* USER */}
-    <div className={styles.userArea}>
-      <span className={styles.userText}>Acesso: Administrador</span>
-    </div>
-
-  </div>
-</header>
+          {/* USER */}
+          <div className={styles.userArea}>
+            <span className={styles.userText}>Acesso: Administrador</span>
+          </div>
+        </div>
+      </header>
 
       <main className={styles.content}>
-        {activeTab === "dashboard" && (
-        <>
-        
-        <div className={styles.statsGrid}>
-  <div className={`${styles.statCard} ${styles.statCardUsuarios}`}>
-    <Users className={styles.statIcon} />
+        {activeTab === 'dashboard' && (
+          <>
+            <div className={styles.statsGrid}>
+              <div className={`${styles.statCard} ${styles.statCardUsuarios}`}>
+                <Users className={styles.statIcon} />
 
-    <div className={styles.statContent}>
-      <span className={styles.statLabel}>Usuários</span>
-      <div className={styles.statValue}>{totalUsuarios}</div>
-    </div>
-  </div>
-
-  <div className={`${styles.statCard} ${styles.statCardEmpresas}`}>
-    <Building2 className={styles.statIcon} />
-
-    <div className={styles.statContent}>
-      <span className={styles.statLabel}>Empresas</span>
-      <div className={styles.statValue}>{totalEmpresas}</div>
-    </div>
-  </div>
-
-  <div className={`${styles.statCard} ${styles.statCardDocumentos}`}>
-    <FileText className={styles.statIcon} />
-
-    <div className={styles.statContent}>
-      <span className={styles.statLabel}>Documentos</span>
-      <div className={styles.statValue}>{totalDocumentos}</div>
-    </div>
-  </div>
-
-  <div className={`${styles.statCard} ${styles.statCardFaturamento}`}>
-    <DollarSign className={styles.statIcon} />
-
-    <div className={styles.statContent}>
-      <span className={styles.statLabel}>Faturamento Geral Mensal</span>
-      <div className={styles.statValue}>
-        {formatCurrency(faturamentoMensal)}
-      </div>
-    </div>
-  </div>
-</div>
-      <div className={styles.dashboardLayout}>
-
-      {/* ESQUERDA */}
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2>
-            Visão Geral —{" "}
-            {new Date().toLocaleDateString("pt-BR", {
-              month: "long",
-              year: "numeric",
-            })}
-        </h2>
-        </div>
-
-        {empresas.length === 0 ? (
-          <div className={styles.emptyBox}>
-            Nenhuma empresa cadastrada.
-          </div>
-        ) : (
-  <div className={styles.dashboardCompanies}>
-    {empresas.map((empresa) => {
-      const notasEmpresa = notas.filter(
-        (n) => n.emp_id === empresa.emp_id
-      );
-
-      const total = notasEmpresa.reduce(
-        (acc, n) => acc + Number(n.doc_valor || 0),
-        0
-      );
-
-      const limite = 20000;
-      const percentual = Math.min((total / limite) * 100, 100);
-
-      const status =
-        percentual < 50
-          ? "Saudável"
-          : percentual < 80
-          ? "Atenção"
-          : "Risco";
-
-      return (
-        <div key={empresa.emp_id} className={styles.companyCard}>
-          
-          <div className={styles.companyTop}>
-            <span
-              className={`${styles.typeBadge} ${
-                Number(empresa.emp_tipo) === 0
-                  ? styles.badgeME
-                  : styles.badgeMEI
-              }`}
-            >
-              {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
-            </span>
-
-            <span className={styles.monthBadge}>
-              {new Date().toLocaleDateString("pt-BR", {
-                month: "long",
-                year: "numeric",
-              })}
-            </span>
-          </div>
-
-          <div className={styles.companyContent}>
-            
-            <div>
-              <div className={styles.companyName}>
-                <span className={styles.dot}></span>
-                <strong>{empresa.emp_nome_fantasia}</strong>
+                <div className={styles.statContent}>
+                  <span className={styles.statLabel}>Usuários</span>
+                  <div className={styles.statValue}>{totalUsuarios}</div>
+                </div>
               </div>
 
-              <p className={styles.limitText}>
-                Limite: <strong>{formatCurrency(limite)}</strong> •
-                Utilizado: <strong>{formatCurrency(total)}</strong> •
-                Restante:{" "}
-                <strong>{formatCurrency(limite - total)}</strong>
-              </p>
-            </div>
+              <div className={`${styles.statCard} ${styles.statCardEmpresas}`}>
+                <Building2 className={styles.statIcon} />
 
-            <div className={styles.progressArea}>
-              <div className={styles.progressBar}>
-                <div
-                  className={styles.progressFill}
-                  style={{ width: `${percentual}%` }}
-                />
+                <div className={styles.statContent}>
+                  <span className={styles.statLabel}>Empresas</span>
+                  <div className={styles.statValue}>{totalEmpresas}</div>
+                </div>
               </div>
 
-              <strong className={styles.percent}>
-                {percentual.toFixed(1)}%
-              </strong>
+              <div className={`${styles.statCard} ${styles.statCardDocumentos}`}>
+                <FileText className={styles.statIcon} />
 
-              <span
-                className={styles.statusBadge}
-                style={{
-                  background:
-                    status === "Saudável"
-                      ? "#d9f8e8"
-                      : status === "Atenção"
-                      ? "#fff4d6"
-                      : "#ffe4e6",
-                  color:
-                    status === "Saudável"
-                      ? "#047857"
-                      : status === "Atenção"
-                      ? "#b45309"
-                      : "#b91c1c",
-                }}
-              >
-                {status}
-              </span>
+                <div className={styles.statContent}>
+                  <span className={styles.statLabel}>Documentos</span>
+                  <div className={styles.statValue}>{totalDocumentos}</div>
+                </div>
+              </div>
+
+              <div className={`${styles.statCard} ${styles.statCardFaturamento}`}>
+                <DollarSign className={styles.statIcon} />
+
+                <div className={styles.statContent}>
+                  <span className={styles.statLabel}>Faturamento Geral Mensal</span>
+                  <div className={styles.statValue}>{formatCurrency(faturamentoMensal)}</div>
+                </div>
+              </div>
+            </div>
+            <div className={styles.dashboardLayout}>
+              {/* ESQUERDA */}
+              <section className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>
+                    Visão Geral —{' '}
+                    {new Date().toLocaleDateString('pt-BR', {
+                      month: 'long',
+                      year: 'numeric',
+                    })}
+                  </h2>
+                </div>
+
+                {empresas.length === 0 ? (
+                  <div className={styles.emptyBox}>Nenhuma empresa cadastrada.</div>
+                ) : (
+                  <div className={styles.dashboardCompanies}>
+                    {empresas.map((empresa) => {
+                      const notasEmpresa = notas.filter((n) => n.emp_id === empresa.emp_id);
+
+                      const total = notasEmpresa.reduce(
+                        (acc, n) => acc + Number(n.doc_valor || 0),
+                        0
+                      );
+
+                      const limite = 20000;
+                      const percentual = Math.min((total / limite) * 100, 100);
+
+                      const status =
+                        percentual < 50 ? 'Saudável' : percentual < 80 ? 'Atenção' : 'Risco';
+
+                      return (
+                        <div key={empresa.emp_id} className={styles.companyCard}>
+                          <div className={styles.companyTop}>
+                            <span
+                              className={`${styles.typeBadge} ${
+                                Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
+                              }`}
+                            >
+                              {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
+                            </span>
+
+                            <span className={styles.monthBadge}>
+                              {new Date().toLocaleDateString('pt-BR', {
+                                month: 'long',
+                                year: 'numeric',
+                              })}
+                            </span>
+                          </div>
+
+                          <div className={styles.companyContent}>
+                            <div>
+                              <div className={styles.companyName}>
+                                <span className={styles.dot}></span>
+                                <strong>{empresa.emp_nome_fantasia}</strong>
+                              </div>
+
+                              <p className={styles.limitText}>
+                                Limite: <strong>{formatCurrency(limite)}</strong> • Utilizado:{' '}
+                                <strong>{formatCurrency(total)}</strong> • Restante:{' '}
+                                <strong>{formatCurrency(limite - total)}</strong>
+                              </p>
+                            </div>
+
+                            <div className={styles.progressArea}>
+                              <div className={styles.progressBar}>
+                                <div
+                                  className={styles.progressFill}
+                                  style={{ width: `${percentual}%` }}
+                                />
+                              </div>
+
+                              <strong className={styles.percent}>{percentual.toFixed(1)}%</strong>
+
+                              <span
+                                className={styles.statusBadge}
+                                style={{
+                                  background:
+                                    status === 'Saudável'
+                                      ? '#d9f8e8'
+                                      : status === 'Atenção'
+                                        ? '#fff4d6'
+                                        : '#ffe4e6',
+                                  color:
+                                    status === 'Saudável'
+                                      ? '#047857'
+                                      : status === 'Atenção'
+                                        ? '#b45309'
+                                        : '#b91c1c',
+                                }}
+                              >
+                                {status}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
+
+              {/* DIREITA */}
+              <section className={`${styles.card} ${styles.filterCard}`}>
+                <div className={styles.cardHeader}>
+                  <h2>Filtro</h2>
+                </div>
+
+                <div className={styles.filterBody}>
+                  <div className={styles.field}>
+                    <label>Mês</label>
+                    <input type="month" className={styles.input} />
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>Empresa</label>
+                    <select className={styles.input}>
+                      <option value="">Todas</option>
+                      {empresas.map((e) => (
+                        <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <button className={styles.primaryButton}>Aplicar</button>
+                </div>
+              </section>
             </div>
 
-          </div>
-        </div>
-      );
-    })}
-  </div>
-)}
-      </section>
+            {/* TABELA */}
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Notas Fiscais</h2>
+              </div>
 
-      {/* DIREITA */}
-      <section className={`${styles.card} ${styles.filterCard}`}>
-        <div className={styles.cardHeader}>
-          <h2>Filtro</h2>
-        </div>
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>DATA</th>
+                      <th>EMPRESA</th>
+                      <th>DOCUMENTO</th>
+                      <th>VALOR</th>
+                    </tr>
+                  </thead>
 
-        <div className={styles.filterBody}>
-          <div className={styles.field}>
-            <label>Mês</label>
-            <input type="month" className={styles.input} />
-          </div>
+                  <tbody>
+                    {notas.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className={styles.emptyTable}>
+                          Nenhuma nota emitida recentemente.
+                        </td>
+                      </tr>
+                    ) : (
+                      notas.map((nota) => (
+                        <tr key={nota.doc_id || nota.id}>
+                          <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
 
-          <div className={styles.field}>
-            <label>Empresa</label>
-            <select className={styles.input}>
-              <option value="">Todas</option>
-              {empresas.map((e) => (
-                <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
-              ))}
-            </select>
-          </div>
+                          <td>
+                            <strong>{nota.emp_nome_fantasia}</strong>
+                          </td>
 
-          <button className={styles.primaryButton}>
-            Aplicar
-          </button>
-        </div>
-      </section>
-    </div>
+                          <td>
+                            <strong>{nota.doc_arquivo_nome}</strong>
+                            <span className={styles.subText}>
+                              {nota.tpd_descricao || 'Documento fiscal'}
+                            </span>
+                          </td>
 
-    {/* TABELA */}
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Notas Fiscais</h2>
-      </div>
+                          <td className={styles.valueCell}>{formatCurrency(nota.doc_valor)}</td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
+        {activeTab === 'empresas' && (
+          <>
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Cadastrar Empresa</h2>
+              </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-             <th>DATA</th>
-             <th>EMPRESA</th>
-             <th>DOCUMENTO</th>
-             <th>VALOR</th>
-            </tr>
-          </thead>
+              <form className={styles.form} onSubmit={cadastrarEmpresa}>
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>Nome da empresa</label>
 
-<tbody>
-  {notas.length === 0 ? (
-    <tr>
-      <td colSpan="4" className={styles.emptyTable}>
-        Nenhuma nota emitida recentemente.
-      </td>
-    </tr>
-  ) : (
-    notas.map((nota) => (
-      <tr key={nota.doc_id}>
-        <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
+                    <input
+                      type="text"
+                      name="emp_nome_fantasia"
+                      value={empresaForm.emp_nome_fantasia}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Ex.: Acme LTDA"
+                    />
+                  </div>
 
-        <td>
-          <strong>{nota.emp_nome_fantasia}</strong>
-        </td>
+                  <div className={styles.field}>
+                    <label>CNPJ</label>
 
-        <td>
-          <strong>{nota.doc_arquivo_nome}</strong>
-          <span className={styles.subText}>
-            {nota.tpd_descricao || "Documento fiscal"}
-          </span>
-        </td>
+                    <input
+                      type="text"
+                      name="emp_cnpj"
+                      value={empresaForm.emp_cnpj}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="00.000.000/0000-00"
+                    />
+                  </div>
+                </div>
 
-        <td className={styles.valueCell}>
-          {formatCurrency(nota.doc_valor)}
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
-        </table>
-      </div>
-    </section>
-  </>
-)}
-        {activeTab === "empresas" && (
-  <>
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Cadastrar Empresa</h2>
-      </div>
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>Tipo</label>
 
-      <form className={styles.form} onSubmit={cadastrarEmpresa}>
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label>Nome da empresa</label>
-
-            <input
-              type="text"
-              name="emp_nome_fantasia"
-              value={empresaForm.emp_nome_fantasia}
-              onChange={handleEmpresaChange}
-              className={styles.input}
-              placeholder="Ex.: Acme LTDA"
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label>CNPJ</label>
-
-            <input
-              type="text"
-              name="emp_cnpj"
-              value={empresaForm.emp_cnpj}
-              onChange={handleEmpresaChange}
-              className={styles.input}
-              placeholder="00.000.000/0000-00"
-            />
-          </div>
-        </div>
-
-        <div className={styles.row}>
-          <div className={styles.field}>
-            <label>Tipo</label>
-
-            <select
-              name="emp_tipo"
-              value={empresaForm.emp_tipo}
-              onChange={handleEmpresaChange}
-              className={styles.input}
-            >
-              <option value={0}>ME</option>
-              <option value={1}>MEI</option>
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label>Limite mensal (R$)</label>
-
-            <input
-              type="number"
-              name="emp_limite"
-              value={empresaForm.emp_limite || ""}
-              onChange={handleEmpresaChange}
-              className={styles.input}
-              placeholder="Ex.: 20000"
-            />
-          </div>
-        </div>
-
-        <button type="submit" className={styles.primaryButton}>
-          Salvar Empresa
-        </button>
-      </form>
-    </section>
-
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Empresas cadastradas</h2>
-      </div>
-
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>NOME</th>
-              <th>TIPO</th>
-              <th>LIMITE MENSAL</th>
-              <th></th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {empresas.length === 0 ? (
-              <tr>
-                <td colSpan="4" className={styles.emptyTable}>
-                  Nenhuma empresa cadastrada.
-                </td>
-              </tr>
-            ) : (
-              empresas.map((empresa) => (
-                <tr key={empresa.emp_id} className={styles.companyRow}>
-                  <td>
-                    <div className={styles.companyInfo}>
-                      <strong>{empresa.emp_nome_fantasia}</strong>
-                      <span>{empresa.emp_cnpj || "00.000.000/0000-00"}</span>
-                    </div>
-                  </td>
-
-                  <td>
-                    <span
-                      className={`${styles.companyBadge} ${
-                        Number(empresa.emp_tipo) === 0
-                          ? styles.badgeME
-                          : styles.badgeMEI
-                      }`}
+                    <select
+                      name="emp_tipo"
+                      value={empresaForm.emp_tipo}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
                     >
-                      {Number(empresa.emp_tipo) === 0 ? "ME" : "MEI"}
-                    </span>
-                  </td>
+                      <option value={0}>ME</option>
+                      <option value={1}>MEI</option>
+                    </select>
+                  </div>
 
-                  <td className={styles.limitCell}>
-                    {formatCurrency(empresa.emp_limite || 20000)}
-                  </td>
+                  <div className={styles.field}>
+                    <label>Limite mensal (R$)</label>
 
-                  <td className={styles.actionsCell}>
-                    <button className={styles.editButton}>
-                      Editar
-                    </button>
+                    <input
+                      type="number"
+                      name="emp_limite"
+                      value={empresaForm.emp_limite || ''}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Ex.: 20000"
+                    />
+                  </div>
+                </div>
 
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => excluirEmpresa(empresa.emp_id)}
-                    >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </>
-)}
+                <button type="submit" className={styles.primaryButton}>
+                  Salvar Empresa
+                </button>
+              </form>
+            </section>
 
-        {activeTab === "usuarios" && (
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Empresas cadastradas</h2>
+              </div>
+
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>NOME</th>
+                      <th>TIPO</th>
+                      <th>LIMITE MENSAL</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {empresas.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className={styles.emptyTable}>
+                          Nenhuma empresa cadastrada.
+                        </td>
+                      </tr>
+                    ) : (
+                      empresas.map((empresa) => (
+                        <tr key={empresa.emp_id} className={styles.companyRow}>
+                          <td>
+                            <div className={styles.companyInfo}>
+                              <strong>{empresa.emp_nome_fantasia}</strong>
+                              <span>{empresa.emp_cnpj || '00.000.000/0000-00'}</span>
+                            </div>
+                          </td>
+
+                          <td>
+                            <span
+                              className={`${styles.companyBadge} ${
+                                Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
+                              }`}
+                            >
+                              {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
+                            </span>
+                          </td>
+
+                          <td className={styles.limitCell}>
+                            {formatCurrency(empresa.emp_limite || 20000)}
+                          </td>
+
+                          <td className={styles.actionsCell}>
+                            <button className={styles.editButton}>Editar</button>
+
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => excluirEmpresa(empresa.emp_id)}
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeTab === 'usuarios' && (
           <>
             <section className={styles.card}>
               <div className={styles.cardHeader}>
@@ -829,107 +790,107 @@ const buscarNotas = async () => {
               </div>
 
               <form className={styles.form} onSubmit={cadastrarUsuario}>
-  <div className={styles.field}>
-    <label>Nome completo</label>
-    <input
-      type="text"
-      name="usu_nome"
-      value={usuarioForm.usu_nome}
-      onChange={handleUsuarioChange}
-      className={styles.input}
-      placeholder="Digite o nome completo"
-    />
-  </div>
+                <div className={styles.field}>
+                  <label>Nome completo</label>
+                  <input
+                    type="text"
+                    name="usu_nome"
+                    value={usuarioForm.usu_nome}
+                    onChange={handleUsuarioChange}
+                    className={styles.input}
+                    placeholder="Digite o nome completo"
+                  />
+                </div>
 
-  <div className={styles.rowThree}>
-    <div className={styles.field}>
-      <label>E-mail</label>
-      <input
-        type="email"
-        name="usu_email"
-        value={usuarioForm.usu_email}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-        placeholder="email@exemplo.com"
-      />
-    </div>
+                <div className={styles.rowThree}>
+                  <div className={styles.field}>
+                    <label>E-mail</label>
+                    <input
+                      type="email"
+                      name="usu_email"
+                      value={usuarioForm.usu_email}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
 
-    <div className={styles.field}>
-      <label>CPF ou CRC</label>
-      <input
-        type="text"
-        name="usu_cpf"
-        value={usuarioForm.usu_cpf}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-        placeholder="Digite o documento"
-      />
-    </div>
+                  <div className={styles.field}>
+                    <label>CPF ou CRC</label>
+                    <input
+                      type="text"
+                      name="usu_cpf"
+                      value={usuarioForm.usu_cpf}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite o documento"
+                    />
+                  </div>
 
-    <div className={styles.field}>
-      <label>Telefone</label>
-      <input
-        type="text"
-        name="usu_telefone"
-        value={usuarioForm.usu_telefone}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-        placeholder="(00) 00000-0000"
-      />
-    </div>
-  </div>
+                  <div className={styles.field}>
+                    <label>Telefone</label>
+                    <input
+                      type="text"
+                      name="usu_telefone"
+                      value={usuarioForm.usu_telefone}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+                </div>
 
-  <div className={styles.rowThree}>
-    <div className={styles.field}>
-      <label>Senha</label>
-      <input
-        type="password"
-        name="usu_senha"
-        value={usuarioForm.usu_senha}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-        placeholder="Digite a senha"
-      />
-    </div>
+                <div className={styles.rowThree}>
+                  <div className={styles.field}>
+                    <label>Senha</label>
+                    <input
+                      type="password"
+                      name="usu_senha"
+                      value={usuarioForm.usu_senha}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite a senha"
+                    />
+                  </div>
 
-    <div className={styles.field}>
-      <label>Tipo de acesso</label>
-      <select
-        name="tipo_acesso"
-        value={usuarioForm.tipo_acesso || ""}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-      >
-        <option value="">Selecione</option>
-        <option value="0">Visualizador</option>
-        <option value="1">Gerente</option>
-        <option value="2">Administrador</option>
-      </select>
-    </div>
+                  <div className={styles.field}>
+                    <label>Tipo de acesso</label>
+                    <select
+                      name="tipo_acesso"
+                      value={usuarioForm.tipo_acesso || ''}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                    >
+                      <option value="">Selecione</option>
+                      <option value="0">Visualizador</option>
+                      <option value="1">Gerente</option>
+                      <option value="2">Administrador</option>
+                    </select>
+                  </div>
 
-    <div className={styles.field}>
-      <label>Empresa vinculada</label>
-      <select
-        name="empresa_vinculada"
-        value={usuarioForm.empresa_vinculada || ""}
-        onChange={handleUsuarioChange}
-        className={styles.input}
-      >
-        <option value="">Selecione uma empresa</option>
+                  <div className={styles.field}>
+                    <label>Empresa vinculada</label>
+                    <select
+                      name="empresa_vinculada"
+                      value={usuarioForm.empresa_vinculada || ''}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                    >
+                      <option value="">Selecione uma empresa</option>
 
-        {empresas.map((empresa) => (
-          <option key={empresa.emp_id} value={empresa.emp_id}>
-            {empresa.emp_nome_fantasia}
-          </option>
-        ))}
-      </select>
-    </div>
-  </div>
+                      {empresas.map((empresa) => (
+                        <option key={empresa.emp_id} value={empresa.emp_id}>
+                          {empresa.emp_nome_fantasia}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
 
-  <button type="submit" className={styles.primaryButton}>
-    Cadastrar Usuário
-  </button>
-</form>
+                <button type="submit" className={styles.primaryButton}>
+                  Cadastrar Usuário
+                </button>
+              </form>
             </section>
 
             <section className={styles.card}>
@@ -940,69 +901,67 @@ const buscarNotas = async () => {
               <div className={styles.tableWrapper}>
                 <table className={styles.table}>
                   <thead>
-  <tr>
-    <th>NOME</th>
-    <th>EMPRESA VINCULADA</th>
-    <th>TIPO DE ACESSO</th>
-    <th>STATUS</th>
-    <th></th>
-  </tr>
-</thead>
+                    <tr>
+                      <th>NOME</th>
+                      <th>EMPRESA VINCULADA</th>
+                      <th>TIPO DE ACESSO</th>
+                      <th>STATUS</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
-<tbody>
-  {usuarios.length === 0 ? (
-    <tr>
-      <td colSpan="5" className={styles.emptyTable}>
-        Nenhum usuário cadastrado.
-      </td>
-    </tr>
-  ) : (
-    usuarios.map((usuario) => (
-      <tr key={usuario.usu_id} className={styles.userRow}>
-        <td>
-          <div className={styles.userInfo}>
-            <strong>{usuario.usu_nome}</strong>
-            <span>{usuario.usu_cpf || "000.000.000-00"}</span>
-          </div>
-        </td>
+                  <tbody>
+                    {usuarios.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className={styles.emptyTable}>
+                          Nenhum usuário cadastrado.
+                        </td>
+                      </tr>
+                    ) : (
+                      usuarios.map((usuario) => (
+                        <tr key={usuario.usu_id} className={styles.userRow}>
+                          <td>
+                            <div className={styles.userInfo}>
+                              <strong>{usuario.usu_nome}</strong>
+                              <span>{usuario.usu_cpf || '000.000.000-00'}</span>
+                            </div>
+                          </td>
 
-        <td className={styles.companyLinkedCell}>
-          {usuario.empresa_nome || "Nenhuma empresa vinculada"}
-        </td>
+                          <td className={styles.companyLinkedCell}>
+                            {usuario.empresa_nome || 'Nenhuma empresa vinculada'}
+                          </td>
 
-        <td>
-          <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
-            Visualizador
-          </span>
-        </td>
+                          <td>
+                            <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
+                              Visualizador
+                            </span>
+                          </td>
 
-        <td className={styles.statusCell}>
-          {Number(usuario.usu_status) === 1 ? "Ativo" : "Inativo"}
-        </td>
+                          <td className={styles.statusCell}>
+                            {Number(usuario.usu_status) === 1 ? 'Ativo' : 'Inativo'}
+                          </td>
 
-        <td className={styles.actionsCell}>
-          <button className={styles.editButton}>
-            Editar
-          </button>
+                          <td className={styles.actionsCell}>
+                            <button className={styles.editButton}>Editar</button>
 
-          <button
-            className={styles.deleteButton}
-            onClick={() => excluirUsuario(usuario.usu_id)}
-          >
-            Excluir
-          </button>
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => excluirUsuario(usuario.usu_id)}
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
                 </table>
               </div>
             </section>
           </>
         )}
 
-        {activeTab === "notas" && (
+        {activeTab === 'notas' && (
           <>
             <section className={styles.card}>
               <div className={styles.cardHeader}>
@@ -1089,69 +1048,65 @@ const buscarNotas = async () => {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                     <th>EMPRESA</th>
-                     <th>DOCUMENTO</th>
-                     <th>DATA</th>
-                     <th>VALOR</th>
-                     <th>STATUS</th>
-                     <th></th>
-                  </tr>
-                </thead>
+                      <th>EMPRESA</th>
+                      <th>DOCUMENTO</th>
+                      <th>DATA</th>
+                      <th>VALOR</th>
+                      <th>STATUS</th>
+                      <th></th>
+                    </tr>
+                  </thead>
 
                   <tbody>
-  {notas.length === 0 ? (
-    <tr>
-      <td colSpan="6" className={styles.emptyTable}>
-        Nenhuma nota fiscal lançada.
-      </td>
-    </tr>
-  ) : (
-    notas.map((nota) => (
-      <tr key={nota.id} className={styles.noteRow}>
-        <td>
-          <div className={styles.noteCompanyInfo}>
-            <strong>{nota.emp_nome_fantasia || nota.empresa || "Empresa não informada"}</strong>
-            <span>{nota.emp_cnpj || "CNPJ não informado"}</span>
-          </div>
-        </td>
+                    {notas.length === 0 ? (
+                      <tr>
+                        <td colSpan="6" className={styles.emptyTable}>
+                          Nenhuma nota fiscal lançada.
+                        </td>
+                      </tr>
+                    ) : (
+                      notas.map((nota) => (
+                        <tr key={nota.id} className={styles.noteRow}>
+                          <td>
+                            <div className={styles.noteCompanyInfo}>
+                              <strong>
+                                {nota.emp_nome_fantasia || nota.empresa || 'Empresa não informada'}
+                              </strong>
+                              <span>{nota.emp_cnpj || 'CNPJ não informado'}</span>
+                            </div>
+                          </td>
 
-        <td>
-          <div className={styles.noteDocumentInfo}>
-            <strong>{nota.doc_arquivo_nome || "Nota Fiscal"}</strong>
-            <span>{nota.tpd_descricao || "Documento fiscal"}</span>
-          </div>
-        </td>
+                          <td>
+                            <div className={styles.noteDocumentInfo}>
+                              <strong>{nota.doc_arquivo_nome || 'Nota Fiscal'}</strong>
+                              <span>{nota.tpd_descricao || 'Documento fiscal'}</span>
+                            </div>
+                          </td>
 
-        <td className={styles.noteDateCell}>
-          {formatDateBRFromAPI(nota.doc_data_emissao)}
-        </td>
+                          <td className={styles.noteDateCell}>
+                            {formatDateBRFromAPI(nota.doc_data_emissao)}
+                          </td>
 
-        <td className={styles.noteValueCell}>
-          {formatCurrency(nota.doc_valor)}
-        </td>
+                          <td className={styles.noteValueCell}>{formatCurrency(nota.doc_valor)}</td>
 
-        <td>
-          <span className={styles.noteStatusBadge}>
-            Ativo
-          </span>
-        </td>
+                          <td>
+                            <span className={styles.noteStatusBadge}>Ativo</span>
+                          </td>
 
-        <td className={styles.actionsCell}>
-          <button className={styles.editButton}>
-            Editar
-          </button>
+                          <td className={styles.actionsCell}>
+                            <button className={styles.editButton}>Editar</button>
 
-          <button
-            className={styles.deleteButton}
-            onClick={() => excluirNota(nota.id)}
-          >
-            Excluir
-          </button>
-        </td>
-      </tr>
-    ))
-  )}
-</tbody>
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => excluirNota(nota.id)}
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
                 </table>
               </div>
             </section>
@@ -1163,23 +1118,23 @@ const buscarNotas = async () => {
 }
 
 function formatCurrency(value) {
-  return Number(value).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  return Number(value).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   });
 }
 
 function formatDateBR(dateString) {
-  const [year, month, day] = dateString.split("-");
+  const [year, month, day] = dateString.split('-');
   return `${day}/${month}/${year}`;
 }
 
 function formatDateBRFromAPI(dateString) {
-  if (!dateString) return "-";
+  if (!dateString) return '-';
 
   const date = new Date(dateString);
 
-  return date.toLocaleDateString("pt-BR", {
-    timeZone: "UTC",
+  return date.toLocaleDateString('pt-BR', {
+    timeZone: 'UTC',
   });
 }

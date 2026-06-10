@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from "react";
-import styles from "./index.module.css";
-import logo from "../../../assets/logoContaxCor.png";
+import React, { useMemo, useState } from 'react';
+import styles from './index.module.css';
+import logo from '../../../assets/logoContaxCor.png';
 
 export default function MenuMEI() {
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [filtroMes, setFiltroMes] = useState("");
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [filtroMes, setFiltroMes] = useState('');
 
   const [notas] = useState([]);
   const [impostosDas] = useState([]);
@@ -21,9 +21,7 @@ export default function MenuMEI() {
     return notasFiltradas.reduce((acc, nota) => acc + Number(nota.valor || 0), 0);
   }, [notasFiltradas]);
 
-  const tituloMes = filtroMes
-    ? `Visão Geral — ${formatMonthBR(filtroMes)}`
-    : "Visão Geral";
+  const tituloMes = filtroMes ? `Visão Geral — ${formatMonthBR(filtroMes)}` : 'Visão Geral';
 
   return (
     <div className={styles.page}>
@@ -41,36 +39,36 @@ export default function MenuMEI() {
           <nav className={styles.nav}>
             <button
               className={`${styles.navButton} ${
-                activeTab === "dashboard" ? styles.navButtonActive : ""
+                activeTab === 'dashboard' ? styles.navButtonActive : ''
               }`}
-              onClick={() => setActiveTab("dashboard")}
+              onClick={() => setActiveTab('dashboard')}
             >
               Dashboard
             </button>
 
             <button
               className={`${styles.navButton} ${
-                activeTab === "imposto" ? styles.navButtonActive : ""
+                activeTab === 'imposto' ? styles.navButtonActive : ''
               }`}
-              onClick={() => setActiveTab("imposto")}
+              onClick={() => setActiveTab('imposto')}
             >
               Imposto (DAS)
             </button>
 
             <button
               className={`${styles.navButton} ${
-                activeTab === "notas" ? styles.navButtonActive : ""
+                activeTab === 'notas' ? styles.navButtonActive : ''
               }`}
-              onClick={() => setActiveTab("notas")}
+              onClick={() => setActiveTab('notas')}
             >
               Notas Emitidas
             </button>
 
             <button
               className={`${styles.navButton} ${
-                activeTab === "controle" ? styles.navButtonActive : ""
+                activeTab === 'controle' ? styles.navButtonActive : ''
               }`}
-              onClick={() => setActiveTab("controle")}
+              onClick={() => setActiveTab('controle')}
             >
               Controle Mensal
             </button>
@@ -83,7 +81,7 @@ export default function MenuMEI() {
       </header>
 
       <main className={styles.content}>
-        {activeTab === "dashboard" && (
+        {activeTab === 'dashboard' && (
           <>
             <div className={styles.dashboardLayout}>
               <section className={styles.card}>
@@ -95,7 +93,7 @@ export default function MenuMEI() {
                   <div className={styles.companyTop}>
                     <span className={styles.typeBadge}>MEI</span>
                     <span className={styles.monthBadge}>
-                      {filtroMes ? formatMonthBR(filtroMes) : "Mês atual"}
+                      {filtroMes ? formatMonthBR(filtroMes) : 'Mês atual'}
                     </span>
                   </div>
 
@@ -107,8 +105,8 @@ export default function MenuMEI() {
                       </div>
 
                       <p className={styles.limitText}>
-                        Limite: <strong>R$ 6.750,00</strong> • Utilizado:{" "}
-                        <strong>{formatCurrency(totalFaturado)}</strong> • Restante:{" "}
+                        Limite: <strong>R$ 6.750,00</strong> • Utilizado:{' '}
+                        <strong>{formatCurrency(totalFaturado)}</strong> • Restante:{' '}
                         <strong>{formatCurrency(6750 - totalFaturado)}</strong>
                       </p>
                     </div>
@@ -194,7 +192,7 @@ export default function MenuMEI() {
           </>
         )}
 
-        {activeTab === "imposto" && (
+        {activeTab === 'imposto' && (
           <section className={styles.card}>
             <div className={styles.cardHeader}>
               <h2>Imposto (DAS)</h2>
@@ -234,7 +232,7 @@ export default function MenuMEI() {
           </section>
         )}
 
-        {activeTab === "notas" && (
+        {activeTab === 'notas' && (
           <section className={styles.card}>
             <div className={styles.cardHeader}>
               <h2>Notas Emitidas</h2>
@@ -274,7 +272,7 @@ export default function MenuMEI() {
           </section>
         )}
 
-        {activeTab === "controle" && (
+        {activeTab === 'controle' && (
           <section className={styles.card}>
             <div className={styles.cardHeader}>
               <h2>Controle Mensal</h2>
@@ -304,7 +302,7 @@ export default function MenuMEI() {
                         <td>{item.mes}</td>
                         <td>{formatCurrency(item.receita)}</td>
                         <td>{item.notas}</td>
-                        <td>{item.observacao || "-"}</td>
+                        <td>{item.observacao || '-'}</td>
                       </tr>
                     ))
                   )}
@@ -319,30 +317,30 @@ export default function MenuMEI() {
 }
 
 function formatCurrency(value) {
-  return Number(value).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
+  return Number(value).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
   });
 }
 
 function formatMonthBR(value) {
-  if (!value) return "";
+  if (!value) return '';
 
-  const [year, month] = value.split("-");
+  const [year, month] = value.split('-');
 
   const months = [
-    "janeiro",
-    "fevereiro",
-    "março",
-    "abril",
-    "maio",
-    "junho",
-    "julho",
-    "agosto",
-    "setembro",
-    "outubro",
-    "novembro",
-    "dezembro",
+    'janeiro',
+    'fevereiro',
+    'março',
+    'abril',
+    'maio',
+    'junho',
+    'julho',
+    'agosto',
+    'setembro',
+    'outubro',
+    'novembro',
+    'dezembro',
   ];
 
   return `${months[Number(month) - 1]} de ${year}`;

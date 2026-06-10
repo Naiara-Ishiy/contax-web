@@ -10,7 +10,7 @@
 .topbar {
   width: 100%;
   background: #f0f4f8;
-  border-bottom: 2px solid #e5e7eb;;
+  border-bottom: 2px solid #e5e7eb;
 }
 
 /* NOVA DIV CENTRAL */
@@ -73,7 +73,6 @@
   transition: 0.2s;
 }
 
-
 .navButton:hover {
   background: #e2e8f0;
 }
@@ -121,8 +120,8 @@
   border: 1px solid #e5e7eb;
 
   box-shadow:
-    0 8px 20px rgba(0,0,0,0.04),
-    0 2px 6px rgba(0,0,0,0.03);
+    0 8px 20px rgba(0, 0, 0, 0.04),
+    0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
 .cardHeader {
@@ -150,7 +149,7 @@
 
 .statCard:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 18px rgba(0,0,0,0.05);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.05);
   border-color: #cfe8ef;
 }
 

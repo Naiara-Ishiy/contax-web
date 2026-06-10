@@ -8,21 +8,17 @@ import MenuAdm from './pages/telas/menuAdm';
 import MenuME from './pages/telas/menuME';
 import MenuMEI from './pages/telas/menuMEI';
 
-
 function App() {
-
   return (
-
     <Routes>
-      <Route path='/' element={<Home />} />
-      <Route path='/tela/inicial' element={<Inicial />} />
-      <Route path='/tela/login' element={<Login />} />
-      <Route path='/tela/menuAdm' element={<MenuAdm />} />
-      <Route path='/tela/menuME' element={<MenuME />} />
-      <Route path='/tela/menuMEI' element={<MenuMEI />} />
+      <Route path="/" element={<Home />} />
+      <Route path="/tela/inicial" element={<Inicial />} />
+      <Route path="/tela/login" element={<Login />} />
+      <Route path="/tela/menuAdm" element={<MenuAdm />} />
+      <Route path="/tela/menuME" element={<MenuME />} />
+      <Route path="/tela/menuMEI" element={<MenuMEI />} />
     </Routes>
-
-  )
+  );
 }
 
 export default App;

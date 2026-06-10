@@ -1,22 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
-import logo from '../../../assets/logoContax.png';
 import logoAlt from '../../../assets/logoContaxCor.png';
 
 function Login() {
-
   const navigate = useNavigate();
 
   // STATES
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [erro, setErro] = useState('');
 
   // LOGIN
   function handleLogin() {
-
     if (!email || !senha) {
       setErro('Preencha todos os campos');
       return;
@@ -50,7 +46,6 @@ function Login() {
 
   return (
     <div className={styles.pagina}>
-
       {/* HEADER */}
       {/*  <header className={styles.header}>
         <div className={styles.logoArea}>
@@ -65,19 +60,14 @@ function Login() {
       {/* CONTEÚDO */}
       <main className={styles.container}>
         <div className={styles.card}>
-
           <img src={logoAlt} alt="logoAlt" className={styles.logoCard} />
 
           <h2>CONTAX</h2>
           <span className={styles.subtitulo}>Gestão ME & MEI</span>
 
-          <h3 className={styles.titulo}>
-            Bem-vindo(a)
-          </h3>
+          <h3 className={styles.titulo}>Bem-vindo(a)</h3>
 
-          <p className={styles.descricao}>
-            Acesse o sistema com suas credenciais abaixo.
-          </p>
+          <p className={styles.descricao}>Acesse o sistema com suas credenciais abaixo.</p>
 
           {/* EMAIL */}
           <label>Email</label>
@@ -92,34 +82,23 @@ function Login() {
           {/* SENHA */}
           <label>Senha</label>
           <input
-            type={mostrarSenha ? 'text' : 'password'}
+            type="password"
             autoComplete="current-password"
             placeholder="••••••••"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
           />
 
-          
-
-          <button
-            type="button"
-            className={styles.forgotPassword}
-          >
+          <button type="button" className={styles.forgotPassword}>
             Esqueci minha senha
           </button>
 
           {/* BOTÃO */}
-          <button
-            className={styles.botaoLogin}
-            onClick={handleLogin}
-          >
+          <button className={styles.botaoLogin} onClick={handleLogin}>
             Entrar no sistema
           </button>
 
-          <small className={styles.rodape}>
-            © CONTAX
-          </small>
-
+          <small className={styles.rodape}>© CONTAX</small>
         </div>
       </main>
     </div>

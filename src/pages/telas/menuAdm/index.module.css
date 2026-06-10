@@ -101,7 +101,7 @@
   padding: 2.5rem;
   margin-bottom: 2rem;
   border: 1px solid #e5e7eb;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
 }
 
 .cardHeader {
@@ -187,12 +187,11 @@
 }
 
 /* ===== TABELA ===== */
-.tableWrapper{
-    width: 100%;
-    max-height: 400px;
-    overflow-y: auto;
+.tableWrapper {
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
 }
-
 
 .table {
   width: 100%;
@@ -220,14 +219,14 @@
   min-width: 26rem;
 }
 
-.subText{
+.subText {
   display: block;
   margin-top: 3px;
   font-size: 12px;
   color: #8a94a6;
 }
 
-.valueCell{
+.valueCell {
   font-weight: 700;
   color: #101a34;
 }
@@ -250,7 +249,6 @@
 
   padding-right: 0.6rem;
 }
-
 
 .dashboardCompanies::-webkit-scrollbar {
   width: 0.8rem;
@@ -380,11 +378,7 @@
 
   border-radius: 999px;
 
-  background: linear-gradient(
-    90deg,
-    #06b6d4,
-    #22c1dc
-  );
+  background: linear-gradient(90deg, #06b6d4, #22c1dc);
 }
 
 /* TEXTO ABAIXO */
@@ -431,8 +425,6 @@
 .cardHeader h2 {
   font-size: 1.8rem;
 }
-
-
 
 .companyInfo {
   display: flex;
@@ -524,11 +516,7 @@
 
 /* EXCLUIR */
 .deleteButton {
-  background: linear-gradient(
-    135deg,
-    #ef4444,
-    #dc2626
-  );
+  background: linear-gradient(135deg, #ef4444, #dc2626);
 
   color: white;
 
@@ -710,11 +698,7 @@
   border: none;
   border-radius: 1rem;
 
-  background: linear-gradient(
-    135deg,
-    #06b6d4,
-    #0891b2
-  );
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
 
   color: white;
 
@@ -750,12 +734,12 @@
   border-radius: 18px;
   border: 1px solid #e2e8f0;
 
-  transition: all .2s ease;
+  transition: all 0.2s ease;
 }
 
 .statCard:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
 }
 
 .statIcon {
@@ -859,5 +843,4 @@
   .nav {
     flex-wrap: wrap;
   }
-
 }

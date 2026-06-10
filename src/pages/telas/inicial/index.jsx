@@ -7,12 +7,10 @@ import icone2 from '../../../assets/passo2.png';
 import icone3 from '../../../assets/passo3.png';
 
 export default function Inicial() {
-
   const navigate = useNavigate();
 
   return (
     <div className={styles.container}>
-
       {/* CABEÇALHO */}
       <header className={styles.cabecalho}>
         <div className={styles.areaLogo}>
@@ -30,20 +28,15 @@ export default function Inicial() {
         <nav className={styles.navegacao}>
           <button className={styles.botaoNav}>Benefícios</button>
           <button className={styles.botaoNav}>Como funciona</button>
-          
-          <button
-          className={styles.botaoPrimario}
-          onClick={() => navigate('/tela/login')}
-          >
+
+          <button className={styles.botaoPrimario} onClick={() => navigate('/tela/login')}>
             Acessar o Sistema
           </button>
-
         </nav>
       </header>
 
       {/* HERO */}
       <section className={styles.hero}>
-
         <div className={styles.ladoEsquerdo}>
           <span className={styles.selo}>Para ME & MEI</span>
 
@@ -52,10 +45,9 @@ export default function Inicial() {
           </h2>
 
           <p className={styles.descricao}>
-            Organize notas fiscais, acompanhe limites mensais, gere histórico de DAS e visualize tudo em uma interface leve.
+            Organize notas fiscais, acompanhe limites mensais, gere histórico de DAS e visualize
+            tudo em uma interface leve.
           </p>
-
-          
 
           <div className={styles.tags}>
             <span>Rápido</span>
@@ -81,12 +73,10 @@ export default function Inicial() {
           <div className={styles.previewHeader}></div>
           <div className={styles.previewBody}></div>
         </div>
-
       </section>
 
       {/* PASSOS */}
       <section className={styles.secaoCards}>
-
         <div className={styles.card}>
           <small>Passo 1</small>
           <h3>Cadastre sua empresa</h3>
@@ -104,19 +94,16 @@ export default function Inicial() {
           <h3>Acompanhe tudo</h3>
           <p>Painel limpo, dados sempre atualizados.</p>
         </div>
-
       </section>
 
       {/* FUNCIONALIDADES */}
       <section className={styles.funcionalidades}>
-
         <h3 className={styles.tituloSecao}>O que o CONTAX faz</h3>
 
         <div className={styles.listaFuncionalidades}>
-
           <div className={styles.itemFuncao}>
             <div>
-            <img src={icone1} alt="passo1" className={styles.icone}></img>
+              <img src={icone1} alt="passo1" className={styles.icone}></img>
             </div>
             <div>
               <h4>Gestão de Notas</h4>
@@ -126,7 +113,7 @@ export default function Inicial() {
 
           <div className={styles.itemFuncao}>
             <div>
-            <img src={icone2} alt="passo2" className={styles.icone}></img>
+              <img src={icone2} alt="passo2" className={styles.icone}></img>
             </div>
             <div>
               <h4>Controle de DAS</h4>
@@ -136,27 +123,22 @@ export default function Inicial() {
 
           <div className={styles.itemFuncao}>
             <div>
-            <img src={icone3} alt="passo3" className={styles.icone}></img>
+              <img src={icone3} alt="passo3" className={styles.icone}></img>
             </div>
             <div>
               <h4>Painel Intuitivo</h4>
               <p>Resumo financeiro por período, total por empresa e tabelas organizadas.</p>
             </div>
           </div>
-
         </div>
-
       </section>
 
       {/* RODAPÉ */}
       <footer className={styles.rodape}>
         <p>
-          ©CONTAX — Versão clara da apresentação • 
-          <span> Entrar no sistema</span>
+          ©CONTAX — Versão clara da apresentação •<span> Entrar no sistema</span>
         </p>
       </footer>
-
     </div>
   );
 }
-

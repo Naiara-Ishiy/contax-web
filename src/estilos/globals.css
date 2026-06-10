@@ -65,7 +65,9 @@ a {
 }
 
 /* FORMULÁRIOS (ok manter) */
-input, select, textarea {
+input,
+select,
+textarea {
   width: 100%;
   padding: 1rem;
   margin: 0.8rem 0;
@@ -89,7 +91,8 @@ table {
   margin: 2rem 0;
 }
 
-th, td {
+th,
+td {
   border: 0.1rem solid #ddd;
   padding: 1.2rem;
   text-align: left;
