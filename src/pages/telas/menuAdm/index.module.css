@@ -244,7 +244,7 @@
   flex-direction: column;
   gap: 1.2rem;
 
-  max-height: 46rem;
+  max-height: 30rem;
   overflow-y: auto;
 
   padding-right: 0.6rem;
@@ -337,6 +337,65 @@
   color: #1e293b;
 
   margin-bottom: 0.5rem;
+}
+
+.companyNameClickable {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.companyNameClickable:hover {
+  color: #0ea5b7;
+  text-decoration: underline;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.companyModal {
+  width: min(620px, calc(100% - 32px));
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  position: relative;
+  animation: modalExpand 0.22s ease;
+}
+
+.modalClose {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.modalInfoGrid {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modalInfoGrid p {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: #0f172a;
 }
 
 .dot {
@@ -433,7 +492,7 @@
 }
 
 .cardHeader h2 {
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 
 .companyInfo {
@@ -822,6 +881,18 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+@keyframes modalExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 

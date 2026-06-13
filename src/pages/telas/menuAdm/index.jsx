@@ -11,6 +11,7 @@ export default function MenuAdm() {
 
   const [adminResumo, setAdminResumo] = useState(null);
   const [financeiroMensal, setFinanceiroMensal] = useState(null);
+  const [empresaModal, setEmpresaModal] = useState(null)
   const [empresasRisco, setEmpresasRisco] = useState([]);
   const [notasRecentes, setNotasRecentes] = useState([]);
   const [prazosPendentes, setPrazosPendentes] = useState([]);
@@ -101,7 +102,7 @@ export default function MenuAdm() {
 
       const response = await api.get(`/documentos`);
 
-      console.log('DOCUMENTOS:', response.data);
+      console.log('DOCUMENTOS:', JSON.stringify(response.data));
 
       setNotas(response.data.dados || []);
     } catch (err) {
@@ -160,7 +161,7 @@ export default function MenuAdm() {
   });
 
   const totalFaturadoLocal = useMemo(() => {
-    return notas.reduce((acc, item) => acc + Number(item.valor || 0), 0);
+    return notas.reduce((acc, item) => acc + Number(item.fin_valor_total || 0), 0);
   }, [notas]);
 
   const handleEmpresaChange = (e) => {
@@ -290,7 +291,7 @@ export default function MenuAdm() {
     const novaNota = {
       id: Date.now(),
       doc_id: Date.now(),
-      doc_arquivo_nome: 'Nota Fiscal',
+      doc_nome_original: 'Nota Fiscal',
       empresa_nome: empresaSelecionada?.emp_nome_fantasia || '',
       emp_cnpj: empresaSelecionada?.emp_cnpj || '',
       descricao: notaForm.descricao.trim(),
@@ -486,7 +487,7 @@ export default function MenuAdm() {
                       const notasEmpresa = notas.filter((n) => n.emp_id === empresa.emp_id);
 
                       const total = notasEmpresa.reduce(
-                        (acc, n) => acc + Number(n.doc_valor || 0),
+                        (acc, n) => acc + Number(n.fin_valor_total || 0),
                         0
                       );
 
@@ -512,7 +513,12 @@ export default function MenuAdm() {
                                 >
                                   {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
                                 </span>
-                                <strong>{empresa.emp_nome_fantasia}</strong>
+                                <strong
+                                  className={styles.companyNameClickable}
+                                  onClick={() => setEmpresaModal(empresa)}
+                                >
+                                  {empresa.emp_nome_fantasia}
+                                </strong>
                               </div>
                               <div className={styles.companyInfoRow}>
                                 <p className={styles.limitText}>
@@ -621,20 +627,20 @@ export default function MenuAdm() {
                     ) : (
                       notas.map((nota) => (
                         <tr key={nota.doc_id || nota.id}>
-                          <td>{formatDateBRFromAPI(nota.doc_data_emissao)}</td>
+                          <td>{formatDateBRFromAPI(nota.fin_data_emissao)}</td>
 
                           <td>
                             <strong>{nota.emp_nome_fantasia}</strong>
                           </td>
 
                           <td>
-                            <strong>{nota.doc_arquivo_nome}</strong>
+                            <strong>{nota.doc_nome_original}</strong>
                             <span className={styles.subText}>
                               {nota.tpd_descricao || 'Documento fiscal'}
                             </span>
                           </td>
 
-                          <td className={styles.valueCell}>{formatCurrency(nota.doc_valor)}</td>
+                          <td className={styles.valueCell}>{formatCurrency(nota.fin_valor_total)}</td>
                         </tr>
                       ))
                     )}
@@ -1066,7 +1072,7 @@ export default function MenuAdm() {
                       </tr>
                     ) : (
                       notas.map((nota) => (
-                        <tr key={nota.id} className={styles.noteRow}>
+                        <tr key={nota.doc_id} className={styles.noteRow}>
                           <td>
                             <div className={styles.noteCompanyInfo}>
                               <strong>
@@ -1078,16 +1084,16 @@ export default function MenuAdm() {
 
                           <td>
                             <div className={styles.noteDocumentInfo}>
-                              <strong>{nota.doc_arquivo_nome || 'Nota Fiscal'}</strong>
+                              <strong>{nota.doc_nome_original || 'Nota Fiscal'}</strong>
                               <span>{nota.tpd_descricao || 'Documento fiscal'}</span>
                             </div>
                           </td>
 
                           <td className={styles.noteDateCell}>
-                            {formatDateBRFromAPI(nota.doc_data_emissao)}
+                            {formatDateBRFromAPI(nota.fin_data_emissao)}
                           </td>
 
-                          <td className={styles.noteValueCell}>{formatCurrency(nota.doc_valor)}</td>
+                          <td className={styles.noteValueCell}>{formatCurrency(nota.fin_valor_total)}</td>
 
                           <td>
                             <span className={styles.noteStatusBadge}>Ativo</span>
@@ -1098,7 +1104,7 @@ export default function MenuAdm() {
 
                             <button
                               className={styles.deleteButton}
-                              onClick={() => excluirNota(nota.id)}
+                              onClick={() => excluirNota(nota.doc_id)}
                             >
                               Excluir
                             </button>
@@ -1113,12 +1119,42 @@ export default function MenuAdm() {
           </>
         )}
       </main>
+
+      {empresaModal && (
+  <div className={styles.modalOverlay} onClick={() => setEmpresaModal(null)}>
+    <div className={styles.companyModal} onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        className={styles.modalClose}
+        onClick={() => setEmpresaModal(null)}
+      >
+        ×
+      </button>
+
+      <h2>{empresaModal.emp_nome_fantasia}</h2>
+
+      <div className={styles.modalInfoGrid}>
+        <p><strong>Razão Social:</strong> {empresaModal.emp_razao_social || 'Não informado'}</p>
+        <p><strong>CNPJ:</strong> {empresaModal.emp_cnpj || 'Não informado'}</p>
+        <p><strong>E-mail:</strong> {empresaModal.emp_email || 'Não informado'}</p>
+        <p><strong>Telefone:</strong> {empresaModal.emp_telefone || 'Não informado'}</p>
+        <p><strong>Município:</strong> {empresaModal.emp_municipio || 'Não informado'}</p>
+        <p>
+          <strong>Tipo:</strong>{' '}
+          {Number(empresaModal.emp_tipo) === 0 ? 'ME' : 'MEI'}
+        </p>
+      </div>
+    </div>
+  </div>
+)}
     </div>
   );
 }
 
 function formatCurrency(value) {
-  return Number(value).toLocaleString('pt-BR', {
+  const numero = Number(value || 0);
+
+  return numero.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   });
