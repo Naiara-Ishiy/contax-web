@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import {Calculator,Hourglass,CheckCircle,CalendarDays,Download,Info,ChevronDown} from 'lucide-react';
+import {Calculator, Hourglass, CheckCircle, CalendarDays, Download,Info, ChevronDown, BarChart3, FileText} from 'lucide-react';
 import styles from './index.module.css';
 import logo from '../../../assets/logoContaxCor.png';
 
@@ -153,99 +153,112 @@ const proximoImposto = impostosPendentes[0];
       </header>
 
       <main className={styles.content}>
-        {activeTab === 'dashboard' && (
-          <>
-            <div className={styles.dashboardLayout}>
-              <section className={`${styles.card} ${styles.companyHeroCard}`}>
-                <div className={styles.companyHeroContent}>
-                  <div className={styles.companyHeroLeft}>
-                    <div className={styles.companyTop}>
-                    <div className={styles.companyHeroTop}>
-                      <span className={styles.typeBadge}>{empresa.tipo}</span>
-                    </div>
-                    <div className={styles.companyName}>
-                      <span className={styles.dot}></span>
-                      <strong>{empresa.nome}</strong>
-                    </div>
-                      <div className={styles.companyHeroPeriod}>
-  <div className={styles.periodBox}>
-    <span>Período:</span>
+  {activeTab === 'dashboard' && (
+    <>
+      <div className={styles.dashboardLayout}>
+        <section className={`${styles.card} ${styles.companyHeroCard}`}>
+          <div className={styles.companyHeroPeriod}>
+            <div className={styles.periodBox}>
+              <span>Período:</span>
 
-    <button type="button" className={styles.periodInput}>
-      <CalendarDays size={18} />
-      <span>Maio/2026</span>
-      <ChevronDown size={16} />
-    </button>
-  </div>
-</div>
-</div>
-                    <p className={styles.companyCnpj}>{empresa.cnpj}</p>
+              <button type="button" className={styles.periodInput}>
+                <CalendarDays size={18} />
+                <span>Maio/2026</span>
+                <ChevronDown size={16} />
+              </button>
+            </div>
+          </div>
 
-                    <p className={styles.limitText}>
-                      Limite: <strong>{formatCurrency(empresa.limiteMensal)}</strong>
-                      <span>•</span>
-                      Utilizado: <strong>{formatCurrency(totalFaturado)}</strong>
-                      <span>•</span>
-                      Restante:{' '}
-                      <strong className={styles.positiveValue}>
-                        {formatCurrency(limiteRestante)}
-                      </strong>
-                    </p>
-
-                    <div className={styles.heroProgressArea}>
-                      <div className={styles.progressBar}>
-                        <div
-                          className={styles.progressFill}
-                          style={{ width: `${percentualLimite}%` }}
-                        />
-                      </div>
-
-                      <strong className={styles.percent}>{percentualLimite.toFixed(1)}%</strong>
-
-                      <span className={styles.statusBadge}>{statusLimite}</span>
-                    </div>
-                  </div>
-
-                  <div className={styles.companyHeroRight}>
-                    <span>Faturamento do mês</span>
-                    <strong>{formatCurrency(totalFaturado)}</strong>
-                    <small>{formatMonthBR(filtroMes)}</small>
-                  </div>
-                </div>
-              </section>
+          <div className={styles.companyHeader}>
+            <div className={styles.companyBadge}>
+              {empresa.tipo}
             </div>
 
-            <div className={styles.metricsGrid}>
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Caixa atual</span>
-                <strong className={styles.statValue}>{formatCurrency(empresa.caixaAtual)}</strong>
+            <h1 className={styles.companyTitle}>
+              {empresa.nome}
+            </h1>
+          </div>
+
+          <p className={styles.companyCnpj}>
+            {empresa.cnpj}
+          </p>
+
+          <div className={styles.heroMetrics}>
+            <div className={styles.metricCard}>
+              <div className={styles.metricIcon}>
+                <BarChart3 size={28} />
               </div>
 
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Documentos</span>
-                <strong className={styles.statValue}>{totalDocumentos}</strong>
-              </div>
-
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Despesas</span>
-                <strong className={styles.statValue}>{formatCurrency(totalDespesas)}</strong>
-              </div>
-
-              <div className={styles.statCard}>
-                <span className={styles.statLabel}>Imposto estimado</span>
-                <strong className={styles.statValue}>{formatCurrency(impostoEstimado)}</strong>
+              <div className={styles.metricContent}>
+                <span>Faturamento do mês</span>
+                <strong>{formatCurrency(totalFaturado)}</strong>
               </div>
             </div>
 
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Documentos do período</h2>
+            <div className={styles.metricCard}>
+              <div className={styles.metricIcon}>
+                <Calculator size={28} />
               </div>
 
-              <TabelaDocumentos documentos={documentosFiltrados}/>
-            </section>
-          </>
-        )}
+              <div className={styles.metricContent}>
+                <span>Imposto estimado</span>
+                <strong>{formatCurrency(impostoEstimado)}</strong>
+              </div>
+            </div>
+
+            <div className={styles.metricCard}>
+              <div className={styles.metricIcon}>
+                <FileText size={28} />
+              </div>
+
+              <div className={styles.metricContent}>
+                <span>Documentos</span>
+                <strong>{documentosFiltrados.length}</strong>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.limitCard}>
+            <div className={styles.limitHeader}>
+              <h3>Situação do limite mensal</h3>
+
+              <span>
+                Utilizado: {formatCurrency(totalFaturado)} de{' '}
+                {formatCurrency(empresa.limiteMensal)}
+              </span>
+            </div>
+
+            <div className={styles.progressBar}>
+              <div
+                className={styles.progressFill}
+                style={{ width: `${percentualLimite}%` }}
+              />
+            </div>
+
+            <div className={styles.limitFooter}>
+              <div>
+                <span>Restante</span>
+                <strong>{formatCurrency(limiteRestante)}</strong>
+              </div>
+
+              <div className={styles.limitStatus}>
+                <strong>{percentualLimite.toFixed(1)}%</strong>
+                <span className={styles.healthBadge}>{statusLimite}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <section className={styles.card}>
+        <div className={styles.cardHeader}>
+          <h2>Documentos do período</h2>
+        </div>
+
+        <TabelaDocumentos documentos={documentosFiltrados} />
+      </section>
+    </>
+  )}
 
         {activeTab === 'caixa' && (
           <>

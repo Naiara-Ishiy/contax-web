@@ -139,6 +139,141 @@
   position: relative;
 }
 
+.companyHeader {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.6rem;
+}
+
+.companyBadge {
+  height: 3rem;
+  padding: 0 1.2rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid #dbe5ef;
+  color: #334155;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.companyTitle {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.heroMetrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6rem;
+  margin: 2.4rem 0;
+}
+
+.metricCard {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+  padding: 1.8rem;
+  border-radius: 1.6rem;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+}
+
+.metricIcon {
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 1.4rem;
+  background: #e0f7fd;
+  color: #0891b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metricContent span {
+  display: block;
+  font-size: 1.2rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.metricContent strong {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 2.2rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.limitCard {
+  padding: 2rem;
+  border-radius: 1.6rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.limitHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.4rem;
+}
+
+.limitHeader h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+.limitHeader span {
+  font-size: 1.25rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.limitFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.4rem;
+}
+
+.limitFooter span {
+  display: block;
+  font-size: 1.2rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.limitFooter strong {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 1.8rem;
+  color: #059669;
+}
+
+.limitStatus {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.limitStatus strong {
+  margin: 0;
+  color: #0891b2;
+}
+
+.healthBadge {
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: #d9f8e8;
+  color: #047857;
+  border: 1px solid #b7efcf;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
 
 .companyHeroTop {
   display: flex;
@@ -147,32 +282,6 @@
   margin-bottom: 1.4rem;
 }
 
-.companyHeroContent {
-  grid-template-columns: minmax(0, 1fr) 34rem;
-  align-items: center;
-  gap: 4rem;
-}
-
-.companyHeroLeft {
-  min-width: 0;
-}
-
-.companyHeroRight {
-  min-width: 24rem;
-  text-align: right;
-}
-
-.companyHeroRight span {
-  font-size: 1.35rem;
-}
-
-.companyHeroRight strong {
-  font-size: 4.8rem;
-}
-
-.companyHeroRight small {
-  font-size: 1.25rem;
-}
 
 .companyHeroPeriod {
   position: absolute;
@@ -180,12 +289,6 @@
   right: 3rem;
 }
 /* ===== EMPRESA ===== */
-.companyTop {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.7rem;
-}
 
 .typeBadge,
 .monthBadge {
@@ -205,19 +308,6 @@
   color: #334155;
 }
 
-.companyName {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-
-  color: #1e293b;
-  margin-bottom: 0.3rem;
-}
-
-.companyName strong {
-  font-size: 3.2rem;
-}
-
 .dot {
   width: 11px;
   height: 11px;
@@ -231,57 +321,31 @@
   margin-bottom: 1.6rem;
 }
 
-.limitText {
-  font-size: 1.45rem;
-  margin-bottom: 1.5rem;
-}
-
-.limitText strong {
-  color: #0f172a;
-}
-
 .positiveValue {
   color: #059669 !important;
 }
 
 /* ===== PROGRESSO ===== */
-.heroProgressArea {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 0.8rem;
-}
 
 .progressBar {
-  height: 1.1rem;
+  width: 100%;
+  height: 1rem;
+  background: #d8eaf2;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 1rem;
 }
 
 .progressFill {
   height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    #1cb5d0,
+    #17a8c2
+  );
   border-radius: 999px;
-  background: linear-gradient(90deg, #06b6d4, #22c1dc);
-}
-
-.percent {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #0891b2;
-  text-align: right;
-  min-width: 4.8rem;
-}
-
-.statusBadge {
-  justify-self: start;
-
-  padding: 0.38rem 1.05rem;
-  border-radius: 999px;
-
-  font-size: 0.95rem;
-  font-weight: 700;
-
-  background: #d9f8e8;
-  color: #047857;
-  border: 1px solid #b7efcf;
+  transition: width 0.3s ease;
 }
 
 /* ===== FILTRO ===== */
@@ -907,7 +971,7 @@
   border-radius: 1.2rem;
 
   background: #eff6ff;
-  color: #2563eb;
+  color: #06b6d4;
 
   font-size: 1.35rem;
   font-weight: 600;
