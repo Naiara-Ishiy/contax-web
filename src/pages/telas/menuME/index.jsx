@@ -170,9 +170,7 @@ const proximoImposto = impostosPendentes[0];
           </div>
 
           <div className={styles.companyHeader}>
-            <div className={styles.companyBadge}>
-              {empresa.tipo}
-            </div>
+            <div className={styles.dot}></div>
 
             <h1 className={styles.companyTitle}>
               {empresa.nome}
@@ -201,8 +199,8 @@ const proximoImposto = impostosPendentes[0];
               </div>
 
               <div className={styles.metricContent}>
-                <span>Imposto estimado</span>
-                <strong>{formatCurrency(impostoEstimado)}</strong>
+                <span>Impostos lançados</span>
+                <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
               </div>
             </div>
 
@@ -317,8 +315,8 @@ const proximoImposto = impostosPendentes[0];
   <div className={styles.tabContent}>
     <div className={styles.taxHeader}>
       <div>
-        <h1>Impostos</h1>
-        <p>Acompanhe guias, vencimentos e pagamentos de impostos.</p>
+        <h1>Impostos lançados</h1>
+        <p>Acompanhe guias, vencimentos e pagamentos informados pela contabilidade.</p>
       </div>
 
       <div className={styles.periodBox}>
@@ -339,9 +337,9 @@ const proximoImposto = impostosPendentes[0];
         </div>
 
         <div>
-          <h3>Imposto estimado do mês</h3>
-          <strong>{formatCurrency(impostoEstimado)}</strong>
-          <span>Base calculada sobre faturamento</span>
+          <h3>Total de impostos</h3>
+          <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
+          <span>Valores lançados no período</span>
         </div>
       </div>
 
@@ -393,7 +391,7 @@ const proximoImposto = impostosPendentes[0];
         </div>
 
         <button type="button" className={styles.downloadGuideButton}>
-          <Download size={18} />
+          <Download size={20} />
           Baixar guia
         </button>
       </section>
@@ -449,7 +447,7 @@ const proximoImposto = impostosPendentes[0];
 
     <div className={styles.taxInfoBox}>
       <Info size={18} />
-      <span>Os valores são estimativas com base no Simples Nacional (ME).</span>
+      <span>Os valores exibidos são baseados nos lançamentos financeiros informados no sistema.</span>
     </div>
   </div>
 )}
