@@ -206,13 +206,14 @@ export default function MenuMEI() {
                     <th>Ano</th>
                     <th>Status</th>
                     <th>Valor</th>
+                    <th>Documento</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {impostosDas.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className={styles.emptyTableText}>
+                      <td colSpan="5" className={styles.emptyTableText}>
                         Nenhum imposto cadastrado.
                       </td>
                     </tr>
@@ -223,6 +224,19 @@ export default function MenuMEI() {
                         <td>{item.ano}</td>
                         <td>{item.status}</td>
                         <td>{formatCurrency(item.valor)}</td>
+                        <td>
+                          {item.arquivo || item.url ? (
+                            <button
+                              type="button"
+                              className={styles.documentTitleButton}
+                              onClick={() => window.open(item.url || item.arquivo, '_blank')}
+                            >
+                              {item.arquivo ? item.arquivo : 'Baixar'}
+                            </button>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -246,13 +260,14 @@ export default function MenuMEI() {
                     <th>Empresa</th>
                     <th>Descrição</th>
                     <th>Valor (R$)</th>
+                    <th>Documento</th>
                   </tr>
                 </thead>
 
                 <tbody>
                   {notas.length === 0 ? (
                     <tr>
-                      <td colSpan="4" className={styles.emptyTableText}>
+                      <td colSpan="5" className={styles.emptyTableText}>
                         Nenhuma nota emitida cadastrada.
                       </td>
                     </tr>
@@ -263,6 +278,19 @@ export default function MenuMEI() {
                         <td>{nota.empresa}</td>
                         <td>{nota.descricao}</td>
                         <td>{formatCurrency(nota.valor)}</td>
+                        <td>
+                          {nota.url || nota.arquivo ? (
+                            <button
+                              type="button"
+                              className={styles.documentTitleButton}
+                              onClick={() => window.open(nota.url || nota.arquivo, '_blank')}
+                            >
+                              {nota.arquivo || nota.documento || 'Arquivo'}
+                            </button>
+                          ) : (
+                            '-'
+                          )}
+                        </td>
                       </tr>
                     ))
                   )}

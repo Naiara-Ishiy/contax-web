@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './index.module.css';
 import logoAlt from '../../../assets/logoContaxCor.png';
+import api from '../../../services/apis';
 
 function Login() {
   const navigate = useNavigate();
@@ -12,36 +13,63 @@ function Login() {
   const [erro, setErro] = useState('');
 
   // LOGIN
-  function handleLogin() {
+  const [empresas, setEmpresas] = useState([]);
+  const [selecionada, setSelecionada] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleLogin() {
+    setErro('');
+
     if (!email || !senha) {
       setErro('Preencha todos os campos');
       return;
     }
 
-    let tipo = '';
+    setLoading(true);
 
-    // REGRA DE NEGÓCIO (exemplo)
-    if (email === 'admin@contax.com') {
-      tipo = 'admin';
-    } else if (email === 'gerente@contax.com') {
-      tipo = 'gerente';
-    } else {
-      tipo = 'usuario';
+    try {
+      const res = await api.post('/login', { email, senha });
+      const data = res.data || {};
+
+      const token = data.token || data.accessToken || null;
+      const user = data.user || data.usuario || data;
+
+      if (token) localStorage.setItem('token', token);
+      if (user) localStorage.setItem('user', JSON.stringify(user));
+
+      const empresasResp = user?.empresas || user?.empresas_vinculadas || [];
+
+      if (empresasResp && empresasResp.length > 1) {
+        setEmpresas(empresasResp);
+        // wait for user to select company
+        return;
+      }
+
+      const empresa = empresasResp && empresasResp.length === 1 ? empresasResp[0] : null;
+
+      // decide rota baseada no tipo do usuário ou da empresa
+      const tipo = user?.tipo_acesso || user?.tipo || (empresa && empresa.emp_tipo) || 'usuario';
+
+      if (tipo?.toLowerCase().includes('admin')) navigate('/tela/menuAdm');
+      else if (tipo?.toLowerCase().includes('mei')) navigate('/tela/menuMEI');
+      else navigate('/tela/menuME');
+    } catch (err) {
+      // fallback: manter comportamento local caso a API não esteja disponível
+      console.error(err);
+      setErro('Falha ao autenticar — verifique suas credenciais ou a API.');
+    } finally {
+      setLoading(false);
     }
+  }
 
-    // validação de senha (exemplo simples)
-    if (senha !== '1234') {
-      setErro('Senha inválida');
-      return;
-    }
+  function confirmarEmpresa(empresa) {
+    setSelecionada(empresa);
+    localStorage.setItem('empresa', JSON.stringify(empresa));
 
-    // salvar sessão
-    localStorage.setItem('user', JSON.stringify({ email, tipo }));
+    const tipo = empresa?.emp_tipo || empresa?.tipo || '';
 
-    // redirecionamento por tipo
-    if (tipo === 'admin') navigate('/tela/menuAdm');
-    if (tipo === 'gerente') navigate('/tela/menuMEI');
-    if (tipo === 'usuario') navigate('/tela/menuME');
+    if (tipo?.toLowerCase().includes('mei')) navigate('/tela/menuMEI');
+    else navigate('/tela/menuME');
   }
 
   return (
@@ -93,9 +121,28 @@ function Login() {
             Esqueci minha senha
           </button>
 
+          {empresas.length > 1 && (
+            <div className={styles.companySelect}>
+              <h4>Selecione a empresa</h4>
+              <ul className={styles.companyList}>
+                {empresas.map((emp) => (
+                  <li key={emp.emp_id || emp.id || emp.nome}>
+                    <button
+                      type="button"
+                      className={styles.companyButton}
+                      onClick={() => confirmarEmpresa(emp)}
+                    >
+                      {emp.emp_nome_fantasia || emp.nome || emp.empresa || emp.emp_razao_social}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* BOTÃO */}
-          <button className={styles.botaoLogin} onClick={handleLogin}>
-            Entrar no sistema
+          <button className={styles.botaoLogin} onClick={handleLogin} disabled={loading}>
+            {loading ? 'Entrando...' : 'Entrar no sistema'}
           </button>
 
           <small className={styles.rodape}>© CONTAX</small>
