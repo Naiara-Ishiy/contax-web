@@ -220,6 +220,17 @@
   z-index: 1;
 }
 
+.errorMessage {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 14px;
+}
+
 @keyframes loginShow {
   from {
     opacity: 0;
