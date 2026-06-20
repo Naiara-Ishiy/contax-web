@@ -1,12 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import {Calculator, Hourglass, CheckCircle, CalendarDays, Download,Info, ChevronDown, BarChart3, FileText} from 'lucide-react';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Calculator, Hourglass, CheckCircle, CalendarDays, Download, Info, ChevronDown, BarChart3, FileText } from 'lucide-react';
 import styles from './index.module.css';
 import logo from '../../../assets/logoContaxCor.png';
+import api from '../../../services/apis';
 
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [filtroMes, setFiltroMes] = useState('2026-05');
+  const [filtroMes, setFiltroMes] = useState('2026-06');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const [resumoDashboard, setResumoDashboard] = useState(null);
+  const [impostos, setImpostos] = useState([]);
+  const [faturamento, setFaturamento] = useState(null);
+  const [caixa, setCaixa] = useState(null);
+  const [prazos, setPrazos] = useState(null);
+  const [documentos, setDocumentos] = useState([]);
+
+  // Dado base local para fallback de limites/CNPJ caso necessário
   const empresa = {
     nome: 'Empresa ME',
     tipo: 'ME',
@@ -15,72 +26,106 @@ export default function MenuME() {
     caixaAtual: 12450,
   };
 
-  const [documentos] = useState([
-    {
-      id: 1,
-      data: '2026-05-04',
-      documento: 'nf-servico-001.pdf',
-      tipo: 'NF-e',
-      referencia: 'Serviço mensal',
-      valor: 5200,
-      status: 'Emitida',
-    },
-    {
-      id: 2,
-      data: '2026-05-11',
-      documento: 'recibo-002.pdf',
-      tipo: 'Recibo',
-      referencia: 'Pagamento recebido',
-      valor: 1800,
-      status: 'Pago',
-    },
-    {
-      id: 3,
-      data: '2026-05-18',
-      documento: 'das-maio.pdf',
-      tipo: 'DAS',
-      referencia: 'Imposto mensal',
-      valor: 620,
-      status: 'Pendente',
-    },
-  ]);
+  const buscarDashboardME = async () => {
+    try {
+      const response = await api.get('/dashboard/resumo');
+      setResumoDashboard(response.data.dados || null);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-  const [impostos] = useState([
-  {
-    id: 1,
-    tipo: 'DAS',
-    referencia: 'Maio/2026',
-    vencimento: '2026-05-20',
-    valor: 312,
-    status: 'Pendente',
-    arquivo: 'das-maio-2026.pdf',
-  },
-  {
-    id: 2,
-    tipo: 'DAS',
-    referencia: 'Abril/2026',
-    vencimento: '2026-04-20',
-    valor: 312,
-    status: 'Pago',
-    arquivo: 'das-abril-2026.pdf',
-  },
-  {
-    id: 3,
-    tipo: 'DAS',
-    referencia: 'Março/2026',
-    vencimento: '2026-03-20',
-    valor: 312,
-    status: 'Pago',
-    arquivo: 'das-marco-2026.pdf',
-  },
-]);
+  const buscarImpostos = async () => {
+    try {
+      const response = await api.get('/dashboard/impostos');
+      setImpostos(response.data.dados?.impostos || []);
+    } catch (err) {
+      console.error(err);
+      setImpostos([]);
+    }
+  };
+
+  const buscarFaturamento = async () => {
+    try {
+      const response = await api.get('/dashboard/faturamento');
+      setFaturamento(response.data.dados || null);
+    } catch (err) {
+      console.error(err);
+      setFaturamento(null);
+    }
+  };
+
+  const buscarCaixa = async () => {
+    try {
+      const response = await api.get('/dashboard/caixa');
+      setCaixa(response.data.dados || null);
+    } catch (err) {
+      console.error(err);
+      setCaixa(null);
+    }
+  };
+
+  const buscarPrazos = async () => {
+    try {
+      const response = await api.get('/dashboard/prazos');
+      setPrazos(response.data.dados || null);
+    } catch (err) {
+      console.error(err);
+      setPrazos(null);
+    }
+  };
+
+  const buscarDocumentosLegados = async () => {
+    try {
+      const dadosEmpresa = JSON.parse(localStorage.getItem('empresa')) || {};
+      const empId = dadosEmpresa.emp_id || dadosEmpresa.id || 1;
+      const resposta = await api.get(`/documentos?emp_id=${empId}`);
+      
+      if (resposta.data && resposta.data.sucesso) {
+        const dadosFormatados = resposta.data.dados.map(item => ({
+          id: item.doc_id,
+          documento: item.doc_nome_original || 'documento.pdf',
+          tipo: item.tpd_descricao || 'NF-e',
+          referencia: item.fin_categoria || 'Serviço',
+          data: item.fin_data_emissao ? item.fin_data_emissao.split('T')[0] : item.doc_data_upload?.split('T')[0],
+          valor: Number(item.fin_valor_total || 0),
+          status: item.doc_status === 1 ? 'Emitida' : 'Pago'
+        }));
+        setDocumentos(dadosFormatados);
+      }
+    } catch (erro) {
+      console.error("Erro ao carregar documentos gerais:", erro);
+    }
+  };
+
+  // Carregamento unificado com tratamento de loading limpo
+  useEffect(() => {
+    const carregarTudo = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        await Promise.all([
+          buscarDashboardME(),
+          buscarImpostos(),
+          buscarFaturamento(),
+          buscarCaixa(),
+          buscarPrazos(),
+          buscarDocumentosLegados()
+        ]);
+      } catch (err) {
+        setError("Não foi possível sincronizar os dados do painel.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarTudo();
+  }, []);
 
   const documentosFiltrados = useMemo(() => {
     if (!filtroMes) return documentos;
     return documentos.filter((doc) => doc.data?.startsWith(filtroMes));
   }, [documentos, filtroMes]);
-
-  const totalDocumentos = documentosFiltrados.length;
 
   const totalFaturado = useMemo(() => {
     return documentosFiltrados
@@ -94,32 +139,20 @@ export default function MenuME() {
       .reduce((acc, doc) => acc + Number(doc.valor || 0), 0);
   }, [documentosFiltrados]);
 
-  const impostosPendentes = impostos.filter(
-    (item) => item.status === 'Pendente'
-  );
+  const impostosPendentes = impostos.filter((item) => item.status === 'Pendente');
+  const impostosPagos = impostos.filter((item) => item.status === 'Pago');
 
-  const impostosPagos = impostos.filter(
-    (item) => item.status === 'Pago'
-  );
+  const totalImpostosPendentes = impostosPendentes.reduce((acc, item) => acc + item.valor, 0);
+  const totalImpostosPagos = impostosPagos.reduce((acc, item) => acc + item.valor, 0);
+  const proximoImposto = impostosPendentes[0];
 
-  const totalImpostosPendentes = impostosPendentes.reduce(
-    (acc, item) => acc + item.valor,
-    0
-  );
-
-  const totalImpostosPagos = impostosPagos.reduce(
-    (acc, item) => acc + item.valor,
-    0
-  );
-
-const proximoImposto = impostosPendentes[0];
-
-  const impostoEstimado = totalFaturado * 0.06;
   const percentualLimite = Math.min((totalFaturado / empresa.limiteMensal) * 100, 100);
   const limiteRestante = Math.max(empresa.limiteMensal - totalFaturado, 0);
+  const statusLimite = percentualLimite >= 90 ? 'Risco' : percentualLimite >= 70 ? 'Atenção' : 'Saudável';
 
-  const statusLimite =
-    percentualLimite >= 90 ? 'Risco' : percentualLimite >= 70 ? 'Atenção' : 'Saudável';
+  if (loading) {
+    return <div className={styles.loadingContainer}>Carregando informações do painel...</div>;
+  }
 
   return (
     <div className={styles.page}>
@@ -127,7 +160,6 @@ const proximoImposto = impostosPendentes[0];
         <div className={styles.topbarInner}>
           <div className={styles.logoArea}>
             <img src={logo} alt="Contax" className={styles.logoImg} />
-
             <div className={styles.logoText}>
               <h1 className={styles.brand}>CONTAX</h1>
               <span className={styles.brandSubtitle}>ME &amp; MEI - Dashboard</span>
@@ -153,120 +185,94 @@ const proximoImposto = impostosPendentes[0];
       </header>
 
       <main className={styles.content}>
-  {activeTab === 'dashboard' && (
-    <>
-      <div className={styles.dashboardLayout}>
-        <section className={`${styles.card} ${styles.companyHeroCard}`}>
-          <div className={styles.companyHeroPeriod}>
-            <div className={styles.periodBox}>
-              <span>Período:</span>
+        {error && <div className={styles.errorBanner}>{error}</div>}
 
-              <button type="button" className={styles.periodInput}>
-                <CalendarDays size={18} />
-                <span>Maio/2026</span>
-                <ChevronDown size={16} />
-              </button>
-            </div>
-          </div>
+        {activeTab === 'dashboard' && (
+          <>
+            <div className={styles.dashboardLayout}>
+              <section className={`${styles.card} ${styles.companyHeroCard}`}>
+                <div className={styles.companyHeroPeriod}>
+                  <div className={styles.periodBox}>
+                    <span>Período:</span>
+                    <button type="button" className={styles.periodInput}>
+                      <CalendarDays size={18} />
+                      <span>{formatMonthBR(filtroMes)}</span>
+                      <ChevronDown size={16} />
+                    </button>
+                  </div>
+                </div>
 
-          <div className={styles.companyHeader}>
-            <div className={styles.dot}></div>
+                <div className={styles.companyHeader}>
+                  <div className={styles.dot}></div>
+                  <h1 className={styles.companyTitle}>{empresa.nome}</h1>
+                </div>
+                <p className={styles.companyCnpj}>{empresa.cnpj}</p>
 
-            <h1 className={styles.companyTitle}>
-              {empresa.nome}
-            </h1>
-          </div>
+                <div className={styles.heroMetrics}>
+                  <div className={styles.metricCard}>
+                    <div className={styles.metricIcon}><BarChart3 size={28} /></div>
+                    <div className={styles.metricContent}>
+                      <span>Faturamento do mês</span>
+                      <strong>{formatCurrency(totalFaturado)}</strong>
+                    </div>
+                  </div>
 
-          <p className={styles.companyCnpj}>
-            {empresa.cnpj}
-          </p>
+                  <div className={styles.metricCard}>
+                    <div className={styles.metricIcon}><Calculator size={28} /></div>
+                    <div className={styles.metricContent}>
+                      <span>Impostos lançados</span>
+                      <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
+                    </div>
+                  </div>
 
-          <div className={styles.heroMetrics}>
-            <div className={styles.metricCard}>
-              <div className={styles.metricIcon}>
-                <BarChart3 size={28} />
-              </div>
+                  <div className={styles.metricCard}>
+                    <div className={styles.metricIcon}><FileText size={28} /></div>
+                    <div className={styles.metricContent}>
+                      <span>Documentos</span>
+                      <strong>{documentosFiltrados.length}</strong>
+                    </div>
+                  </div>
+                </div>
 
-              <div className={styles.metricContent}>
-                <span>Faturamento do mês</span>
-                <strong>{formatCurrency(totalFaturado)}</strong>
-              </div>
-            </div>
-
-            <div className={styles.metricCard}>
-              <div className={styles.metricIcon}>
-                <Calculator size={28} />
-              </div>
-
-              <div className={styles.metricContent}>
-                <span>Impostos lançados</span>
-                <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
-              </div>
-            </div>
-
-            <div className={styles.metricCard}>
-              <div className={styles.metricIcon}>
-                <FileText size={28} />
-              </div>
-
-              <div className={styles.metricContent}>
-                <span>Documentos</span>
-                <strong>{documentosFiltrados.length}</strong>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.limitCard}>
-            <div className={styles.limitHeader}>
-              <h3>Situação do limite mensal</h3>
-
-              <span>
-                Utilizado: {formatCurrency(totalFaturado)} de{' '}
-                {formatCurrency(empresa.limiteMensal)}
-              </span>
+                <div className={styles.limitCard}>
+                  <div className={styles.limitHeader}>
+                    <h3>Situação do limite mensal</h3>
+                    <span>Utilizado: {formatCurrency(totalFaturado)} de {formatCurrency(empresa.limiteMensal)}</span>
+                  </div>
+                  <div className={styles.progressBar}>
+                    <div className={styles.progressFill} style={{ width: `${percentualLimite}%` }} />
+                  </div>
+                  <div className={styles.limitFooter}>
+                    <div>
+                      <span>Restante</span>
+                      <strong>{formatCurrency(limiteRestante)}</strong>
+                    </div>
+                    <div className={styles.limitStatus}>
+                      <strong>{percentualLimite.toFixed(1)}%</strong>
+                      <span className={styles.healthBadge}>{statusLimite}</span>
+                    </div>
+                  </div>
+                </div>
+              </section>
             </div>
 
-            <div className={styles.progressBar}>
-              <div
-                className={styles.progressFill}
-                style={{ width: `${percentualLimite}%` }}
-              />
-            </div>
-
-            <div className={styles.limitFooter}>
-              <div>
-                <span>Restante</span>
-                <strong>{formatCurrency(limiteRestante)}</strong>
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Documentos do período</h2>
               </div>
-
-              <div className={styles.limitStatus}>
-                <strong>{percentualLimite.toFixed(1)}%</strong>
-                <span className={styles.healthBadge}>{statusLimite}</span>
-              </div>
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <section className={styles.card}>
-        <div className={styles.cardHeader}>
-          <h2>Documentos do período</h2>
-        </div>
-
-        <TabelaDocumentos documentos={documentosFiltrados} />
-      </section>
-    </>
-  )}
+              <TabelaDocumentos documentos={documentosFiltrados} />
+            </section>
+          </>
+        )}
 
         {activeTab === 'caixa' && (
           <>
             <section className={`${styles.card} ${styles.cashHeroCard}`}>
               <div className={styles.cashHeroHeader}>
                 <div className={styles.cashIconBox}>💼</div>
-
                 <div>
                   <h2>Saldo atual</h2>
-                  <strong>{formatCurrency(empresa.caixaAtual)}</strong>
+                  <strong>{formatCurrency(caixa?.resumo?.saldoAtual || empresa.caixaAtual)}</strong>
                   <p>Saldo disponível em caixa</p>
                 </div>
               </div>
@@ -276,7 +282,6 @@ const proximoImposto = impostosPendentes[0];
               <section className={`${styles.card} ${styles.cashMovementCard}`}>
                 <div className={styles.cashMovementHeader}>
                   <div className={styles.cashIconBoxGreen}>↓</div>
-
                   <div>
                     <h3>Entradas do Mês</h3>
                     <strong>{formatCurrency(totalFaturado)}</strong>
@@ -288,7 +293,6 @@ const proximoImposto = impostosPendentes[0];
               <section className={`${styles.card} ${styles.cashMovementCard}`}>
                 <div className={styles.cashMovementHeader}>
                   <div className={styles.cashIconBoxRed}>↑</div>
-
                   <div>
                     <h3>Saídas do Mês</h3>
                     <strong className={styles.cashRedValue}>{formatCurrency(totalDespesas)}</strong>
@@ -300,88 +304,93 @@ const proximoImposto = impostosPendentes[0];
           </>
         )}
 
-        {activeTab === 'despesas' && (
-          <section className={styles.card}>
-            <div className={styles.cardHeader}>
-              <h2>Despesas</h2>
+        {activeTab === 'impostos' && (
+          <div className={styles.tabContent}>
+            <div className={styles.taxHeader}>
+              <div>
+                <h1>Impostos lançados</h1>
+                <p>Acompanhe guias, vencimentos e pagamentos informados pela contabilidade.</p>
+              </div>
             </div>
-            <div className={styles.emptyBox}>
-              Despesas do período: {formatCurrency(totalDespesas)}
+
+            <div className={styles.impostosGrid}>
+              <div className={styles.impostoCard}>
+                <div className={`${styles.taxIconBox} ${styles.taxIconBlue}`}><Calculator size={30} /></div>
+                <div>
+                  <h3>Total de impostos</h3>
+                  <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
+                </div>
+              </div>
+
+              <div className={styles.impostoCard}>
+                <div className={`${styles.taxIconBox} ${styles.taxIconOrange}`}><Hourglass size={30} /></div>
+                <div>
+                  <h3>Guias pendentes</h3>
+                  <strong className={styles.orangeValue}>{impostosPendentes.length}</strong>
+                  <span>Total: {formatCurrency(totalImpostosPendentes)}</span>
+                </div>
+              </div>
+
+              <div className={styles.impostoCard}>
+                <div className={`${styles.taxIconBox} ${styles.taxIconGreen}`}><CheckCircle size={30} /></div>
+                <div>
+                  <h3>Guias pagas</h3>
+                  <strong className={styles.greenValue}>{impostosPagos.length}</strong>
+                  <span>Total: {formatCurrency(totalImpostosPagos)}</span>
+                </div>
+              </div>
             </div>
-          </section>
+
+            {proximoImposto && (
+              <section className={styles.proximoVencimentoCard}>
+                <div className={styles.dueLeft}>
+                  <div className={styles.dueIconBox}><CalendarDays size={30} /></div>
+                  <div>
+                    <span>Próximo vencimento</span>
+                    <h3>{proximoImposto.tipo} {proximoImposto.referencia}</h3>
+                    <p>Vence em {formatDateBR(proximoImposto.vencimento)}</p>
+                  </div>
+                </div>
+                <div className={styles.dueValue}>
+                  <strong>{formatCurrency(proximoImposto.valor)}</strong>
+                </div>
+              </section>
+            )}
+
+            <section className={styles.card}>
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>TIPO</th>
+                      <th>REFERÊNCIA</th>
+                      <th>VENCIMENTO</th>
+                      <th>VALOR</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {impostos.map((item) => (
+                      <tr key={item.id}>
+                        <td>{item.tipo}</td>
+                        <td>{item.referencia}</td>
+                        <td>{formatDateBR(item.vencimento)}</td>
+                        <td>{formatCurrency(item.valor)}</td>
+                        <td><span className={styles.noteStatusBadge}>{item.status}</span></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
         )}
 
-{activeTab === 'impostos' && (
-  <div className={styles.tabContent}>
-    <div className={styles.taxHeader}>
-      <div>
-        <h1>Impostos lançados</h1>
-        <p>Acompanhe guias, vencimentos e pagamentos informados pela contabilidade.</p>
-      </div>
-
-      <div className={styles.periodBox}>
-        <span>Período:</span>
-
-        <button type="button" className={styles.periodInput}>
-          <CalendarDays size={18} />
-          <span>Maio/2026</span>
-          <ChevronDown size={16} />
-        </button>
-      </div>
-    </div>
-
-    <div className={styles.impostosGrid}>
-      <div className={styles.impostoCard}>
-        <div className={`${styles.taxIconBox} ${styles.taxIconBlue}`}>
-          <Calculator size={30} />
-        </div>
-
-        <div>
-          <h3>Total de impostos</h3>
-          <strong>{formatCurrency(totalImpostosPendentes + totalImpostosPagos)}</strong>
-          <span>Valores lançados no período</span>
-        </div>
-      </div>
-
-      <div className={styles.impostoCard}>
-        <div className={`${styles.taxIconBox} ${styles.taxIconOrange}`}>
-          <Hourglass size={30} />
-        </div>
-
-        <div>
-          <h3>Guias pendentes</h3>
-          <strong className={styles.orangeValue}>{impostosPendentes.length}</strong>
-          <span>Total: {formatCurrency(totalImpostosPendentes)}</span>
-        </div>
-      </div>
-
-      <div className={styles.impostoCard}>
-        <div className={`${styles.taxIconBox} ${styles.taxIconGreen}`}>
-          <CheckCircle size={30} />
-        </div>
-
-        <div>
-          <h3>Guias pagas</h3>
-          <strong className={styles.greenValue}>{impostosPagos.length}</strong>
-          <span>Total: {formatCurrency(totalImpostosPagos)}</span>
-        </div>
-      </div>
-    </div>
-
-    {proximoImposto && (
-      <section className={styles.proximoVencimentoCard}>
-        <div className={styles.dueLeft}>
-          <div className={styles.dueIconBox}>
-            <CalendarDays size={30} />
-          </div>
-
-          <div>
-            <span>Próximo vencimento</span>
-            <h3>
-              {proximoImposto.tipo} {proximoImposto.referencia}
-            </h3>
-            <p>Vence em {formatDateBR(proximoImposto.vencimento)}</p>
-            <small>Pendente</small>
+        {activeTab === 'documentos' && (
+          <div className={styles.tabContent}>
+            <section className={styles.card}>
+              <TabelaDocumentos documentos={documentosFiltrados} />
+            </section>
           </div>
         </div>
 
@@ -433,42 +442,20 @@ const proximoImposto = impostosPendentes[0];
                   </span>
                 </td>
 
-                <td>
-                  <button type="button" className={styles.documentTitleButton}>
-                    {item.arquivo}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div className={styles.taxInfoBox}>
-      <Info size={18} />
-      <span>Os valores exibidos são baseados nos lançamentos financeiros informados no sistema.</span>
-    </div>
-  </div>
-)}
-
-{activeTab === 'documentos' && (
-  <div className={styles.tabContent}>
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Documentos disponíveis</h2>
-      </div>
-
-      <TabelaDocumentos documentos={documentosFiltrados} />
-    </section>
-  </div>
-)}
+        {/* Fallbacks amigáveis para as abas restantes */}
+        {['faturamento', 'prazos', 'perfil'].includes(activeTab) && (
+          <section className={styles.card}>
+            <div className={styles.emptyBox}>
+              Conteúdo da aba <strong>{getTabLabel(activeTab)}</strong> em desenvolvimento técnico ou integrado à API de suporte.
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );
 }
 
-function TabelaDocumentos({ documentos, onAbrirDocumento  }) {
+function TabelaDocumentos({ documentos }) {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -482,11 +469,10 @@ function TabelaDocumentos({ documentos, onAbrirDocumento  }) {
             <th>STATUS</th>
           </tr>
         </thead>
-
         <tbody>
           {documentos.length === 0 ? (
             <tr>
-              <td colSpan="7" className={styles.emptyTableText}>
+              <td colSpan="6" className={styles.emptyTableText}>
                 Nenhum documento encontrado neste período.
               </td>
             </tr>
@@ -497,34 +483,21 @@ function TabelaDocumentos({ documentos, onAbrirDocumento  }) {
                   <button
                     type="button"
                     className={styles.documentTitleButton}
-                    onClick={() => window.open(doc.url || doc.doc_url || '#', '_blank')}
-                    title="Baixar documento"
-                    >
-                      {doc.documento}
-                    </button>
-                  
+                    onClick={() => window.open(doc.url || '#', '_blank')}
+                  >
+                    {doc.documento}
+                  </button>
                 </td>
-                <td>
-                  <span className={styles.documentType}>{doc.tipo}</span>
-                </td>
+                <td><span className={styles.documentType}>{doc.tipo}</span></td>
                 <td>{doc.referencia}</td>
                 <td>{formatDateBR(doc.data)}</td>
                 <td className={styles.valueCell}>{formatCurrency(doc.valor)}</td>
-                <td>
-                  <span
-                    className={`${styles.noteStatusBadge} ${
-                      doc.status === 'Pendente' ? styles.statusPending : ''
-                    }`}
-                  >
-                    {doc.status}
-                  </span>
-                </td>
+                <td><span className={styles.noteStatusBadge}>{doc.status}</span></td>
               </tr>
             ))
           )}
         </tbody>
       </table>
-      
     </div>
   );
 }
@@ -539,11 +512,11 @@ function getTabLabel(tab) {
     prazos: 'Prazos',
     perfil: 'Perfil',
   };
-
-  return labels[tab];
+  return labels[tab] || tab;
 }
 
 function formatCurrency(value) {
+  if (isNaN(value) || value === null || value === undefined) return 'R$ 0,00';
   return Number(value).toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -551,29 +524,14 @@ function formatCurrency(value) {
 }
 
 function formatDateBR(value) {
+  if (!value || typeof value !== 'string' || !value.includes('-')) return '--/--/----';
   const [year, month, day] = value.split('-');
   return `${day}/${month}/${year}`;
 }
 
 function formatMonthBR(value) {
-  if (!value) return 'Mês atual';
-
+  if (!value || !value.includes('-')) return 'Mês atual';
   const [year, month] = value.split('-');
-
-  const months = [
-    'janeiro',
-    'fevereiro',
-    'março',
-    'abril',
-    'maio',
-    'junho',
-    'julho',
-    'agosto',
-    'setembro',
-    'outubro',
-    'novembro',
-    'dezembro',
-  ];
-
+  const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
   return `${months[Number(month) - 1]} de ${year}`;
 }

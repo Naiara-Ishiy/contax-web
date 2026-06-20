@@ -100,7 +100,9 @@ export default function MenuAdm() {
     try {
       setLoading(true);
 
-      const response = await api.get(`/documentos`);
+      const empresaSalva = JSON.parse(localStorage.getItem('empresa'));
+
+      const response = await api.get(`/documentos?emp_id=${empresaSalva?.emp_id || empresaSalva?.id || 1}`);
 
       console.log('DOCUMENTOS:', JSON.stringify(response.data));
 
