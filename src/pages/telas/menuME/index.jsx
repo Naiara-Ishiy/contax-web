@@ -6,7 +6,7 @@ import api from '../../../services/apis';
 
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [filtroMes, setFiltroMes] = useState('2026-06');
+  const [filtroMes, setFiltroMes] = useState('2026-05');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -392,7 +392,6 @@ export default function MenuME() {
               <TabelaDocumentos documentos={documentosFiltrados} />
             </section>
           </div>
-        </div>
 
         <div className={styles.dueValue}>
           <span>Valor</span>
