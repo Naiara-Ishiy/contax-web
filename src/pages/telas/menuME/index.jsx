@@ -376,7 +376,11 @@ export default function MenuME() {
                         <td>{item.referencia}</td>
                         <td>{formatDateBR(item.vencimento)}</td>
                         <td>{formatCurrency(item.valor)}</td>
-                        <td><span className={styles.noteStatusBadge}>{item.status}</span></td>
+                        <td>
+                          <span className={`${styles.noteStatusBadge} ${item.status === 'Pendente' ? styles.statusPending : ''}`}>
+                            {item.status}
+                          </span>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -392,54 +396,7 @@ export default function MenuME() {
               <TabelaDocumentos documentos={documentosFiltrados} />
             </section>
           </div>
-
-        <div className={styles.dueValue}>
-          <span>Valor</span>
-          <strong>{formatCurrency(proximoImposto.valor)}</strong>
-        </div>
-
-        <button type="button" className={styles.downloadGuideButton}>
-          <Download size={20} />
-          Baixar guia
-        </button>
-      </section>
-    )}
-
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Guias de impostos</h2>
-      </div>
-
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>TIPO</th>
-              <th>REFERÊNCIA</th>
-              <th>VENCIMENTO</th>
-              <th>VALOR</th>
-              <th>STATUS</th>
-              <th>DOCUMENTO</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {impostos.map((item) => (
-              <tr key={item.id}>
-                <td>{item.tipo}</td>
-                <td>{item.referencia}</td>
-                <td>{formatDateBR(item.vencimento)}</td>
-                <td>{formatCurrency(item.valor)}</td>
-
-                <td>
-                  <span
-                    className={`${styles.noteStatusBadge} ${
-                      item.status === 'Pendente' ? styles.statusPending : ''
-                    }`}
-                  >
-                    {item.status}
-                  </span>
-                </td>
+        )}
 
         {/* Fallbacks amigáveis para as abas restantes */}
         {['faturamento', 'prazos', 'perfil'].includes(activeTab) && (
