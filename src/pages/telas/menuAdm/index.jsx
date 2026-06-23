@@ -21,6 +21,7 @@ export default function MenuAdm() {
   const [auditoriaRecente, setAuditoriaRecente] = useState([]);
   const [empresas, setEmpresas] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+  const [usuarioSendoEditado, setUsuarioSendoEditado] = useState(null);
   const [notas, setNotas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,8 +85,7 @@ export default function MenuAdm() {
   const buscarUsuarios = async () => {
     try {
       setLoading(true);
-      // Dentro da função buscarUsuarios no MenuAdm.js
-      const response = await usuariosService.listar();
+      const response = await usuariosService.listar({ limit: 25});
       setUsuarios(response.dados || []); 
     } catch (err) {
       console.error("Erro ao listar usuários:", err);
@@ -93,6 +93,24 @@ export default function MenuAdm() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const prepararEdicaoUsuario = (usuario) => {
+    setUsuarioSendoEditado(usuario.usu_id || usuario.id); 
+  
+    setUsuarioForm({
+      usu_nome: usuario.usu_nome || usuario.nome || '',
+      usu_email: usuario.usu_email || usuario.email || '',
+      usu_cpf: usuario.usu_cpf || usuario.cpf || '',
+      usu_senha: '', 
+      usu_telefone: usuario.usu_telefone || usuario.telefone || '',
+      usu_status: usuario.usu_status ?? 1,
+      usu_alterar_senha: usuario.usu_alterar_senha ?? 0,
+      tipo_acesso: usuario.nivel_acesso || usuario.tipo_acesso || '',
+      empresa_vinculada: usuario.emp_id || usuario.empresa_vinculada || '',
+    });
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const buscarNotas = async () => {
@@ -222,43 +240,62 @@ export default function MenuAdm() {
     });
   };
 
-const cadastrarUsuario = async (e) => {
-    e.preventDefault();
+const salvarUsuario = async (e) => {
+  e.preventDefault();
 
-    // Objeto formatado exatamente como o 'request.body' do seu controller espera
-    const dadosParaEnviar = {
-      nome: usuarioForm.usu_nome,
-      email: usuarioForm.usu_email,
-      cpf: usuarioForm.usu_cpf,
-      senha: usuarioForm.usu_senha,
-      telefone: usuarioForm.usu_telefone,
-      alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
-      emp_id: Number(usuarioForm.empresa_vinculada), 
-      nivel_acesso: Number(usuarioForm.tipo_acesso),
-      data_vinculo: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
-      observacoes: 'Cadastro via MenuAdm' // Campo obrigatório no seu código
-    };
+// 1. Monte o objeto com as chaves exatas que o seu editarUsuarios espera
+const dadosParaEnviar = {
+  nome: usuarioForm.usu_nome,
+  email: usuarioForm.usu_email,
+  cpf: usuarioForm.usu_cpf,
+  // O seu back-end OBRIGA o envio da senha. Se estiver vazio, enviamos um padrão para não dar erro 400:
+  senha: usuarioForm.usu_senha.trim() || "MANTIDA_SEM_ALTERACAO", 
+  telefone: usuarioForm.usu_telefone,
+  status: Number(usuarioForm.usu_status) ?? 1,
+  alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0
+};
 
-    try {
-      console.log("Enviando para API:", dadosParaEnviar); // Log para conferência
-      await usuariosService.cadastrar(dadosParaEnviar);
-      
-      mostrarFeedback('Sucesso', 'Usuário cadastrado com sucesso!');
-      await buscarUsuarios(); 
+try {
+  setLoading(true);
 
-      // Reseta o formulário
-      setUsuarioForm({
-        usu_nome: '', usu_email: '', usu_cpf: '', usu_senha: '',
-        usu_telefone: '', usu_status: 1, usu_alterar_senha: 0,
-        tipo_acesso: '', empresa_vinculada: ''
-      });
-    } catch (err) {
-      // CAPTURA DO ERRO REAL DO BACKEND
-      const mensagemErro = err.response?.data?.mensagem || "Erro desconhecido";
-      console.error("Erro do Backend:", mensagemErro);
-      mostrarFeedback('Erro', mensagemErro); 
+  if (usuarioSendoEditado) {
+    // 2. Envia para a rota de usuários (usuarios.js)
+    await usuariosService.editar(usuarioSendoEditado, dadosParaEnviar);
+    
+    // NOTA: Como você mudou o vínculo de empresa, você também precisará chamar o seu 
+    // service de vínculos (usuarioEmpresas.js) passando os dados que o "editarUsuarioEmpresa" pede!
+    // Exemplo:
+    // await usuarioEmpresasService.editar(usuarioForm.usu_emp_id, { emp_id, usu_id, nivel_acesso, status });
+
+    mostrarFeedback('Sucesso', 'Usuário atualizado com sucesso!');
+  } else {
+    // Lógica de cadastro...
+    if (!usuarioForm.usu_senha.trim()) {
+      mostrarFeedback('Aviso', 'A senha é obrigatória para um novo cadastro.');
+      setLoading(false);
+      return;
     }
-  };
+    await usuariosService.cadastrar(dadosParaEnviar);
+    mostrarFeedback('Sucesso', 'Usuário cadastrado com sucesso!');
+  }
+
+  // Limpeza do formulário...
+  setUsuarioSendoEditado(null);
+  setUsuarioForm({
+    usu_nome: '', usu_email: '', usu_cpf: '', usu_senha: '',
+    usu_telefone: '', usu_status: 1, usu_alterar_senha: 0,
+    tipo_acesso: '', empresa_vinculada: ''
+  });
+
+  await buscarUsuarios(); 
+} catch (err) {
+  const mensagemErro = err.response?.data?.mensagem || "Erro ao salvar alterações do usuário.";
+  console.error("Erro na operação de usuário:", mensagemErro);
+  mostrarFeedback('Erro', mensagemErro); 
+} finally {
+  setLoading(false);
+}
+};
 
   const lancarNota = (e) => {
     e.preventDefault();
@@ -309,9 +346,36 @@ const cadastrarUsuario = async (e) => {
     }
   };
 
-  const excluirUsuario = (id) => {
-    setUsuarios((prev) => prev.filter((usuario) => usuario.usu_id !== id));
-  };
+const excluirUsuario = async (id) => {
+  if (window.confirm("Tem certeza que deseja desativar este usuário?")) {
+    try {
+      setLoading(true);
+
+      const usuarioAtual = usuarios.find(u => u.usu_id === id);
+
+      const dadosDesativar = {
+        nome: usuarioAtual?.usu_nome,
+        email: usuarioAtual?.usu_email,
+        cpf: usuarioAtual?.usu_cpf,
+        senha: "MANTIDA_SEM_ALTERACAO", // Passa o padrão exigido pelo seu back-end
+        telefone: usuarioAtual?.usu_telefone,
+        status: 0, // <--- Aqui desativamos o usuário
+        alterar_senha: Number(usuarioAtual?.usu_alterar_senha) || 0
+      };
+
+      await usuariosService.editar(id, dadosDesativar);
+
+      mostrarFeedback('Sucesso', 'Usuário desativado com sucesso!');
+      await buscarUsuarios(); 
+    } catch (err) {
+      const mensagemErro = err.response?.data?.mensagem || "Erro ao desativar usuário no servidor.";
+      console.error("Erro ao deletar:", mensagemErro);
+      mostrarFeedback('Erro', mensagemErro);
+    } finally {
+      setLoading(false);
+    }
+  }
+};
 
   const totalUsuarios = adminResumo?.totalUsuarios ?? 0;
   const totalEmpresas = adminResumo?.totalEmpresas ?? 0;
@@ -779,10 +843,10 @@ const cadastrarUsuario = async (e) => {
   <>
     <section className={styles.card}>
       <div className={styles.cardHeader}>
-        <h2>Cadastrar Usuário (Contabilista)</h2>
+        <h2>Cadastrar Usuário</h2>
       </div>
 
-      <form className={styles.form} onSubmit={cadastrarUsuario}>
+      <form className={styles.form} onSubmit={salvarUsuario}>
         <div className={styles.field}>
           <label>Nome completo</label>
           <input
@@ -881,7 +945,7 @@ const cadastrarUsuario = async (e) => {
         </div>
 
         <button type="submit" className={styles.primaryButton}>
-          Cadastrar Usuário
+          {usuarioSendoEditado ? 'Salvar Alterações' : 'Cadastrar Usuário'}
         </button>
       </form>
     </section>
@@ -933,7 +997,12 @@ const cadastrarUsuario = async (e) => {
                   </td>
 
                   <td className={styles.actionsCell}>
-                    <button className={styles.editButton}>Editar</button>
+                    <button 
+                      className={styles.editButton}
+                      onClick={() => prepararEdicaoUsuario(usuario)}
+                    >
+                      Editar
+                    </button>
                     <button
                       className={styles.deleteButton}
                       onClick={() => excluirUsuario(usuario.usu_id)}
