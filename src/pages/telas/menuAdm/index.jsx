@@ -7,6 +7,7 @@ import logo from '../../../assets/logoContaxCor.png';
 
 import { usuariosService } from '../../../services/usuariosService';
 import { empresasService } from '../../../services/empresasService';
+import { usuarioEmpresasService } from '../../../services/usuarioEmpresasService';
 
 export default function MenuAdm() {
   const [activeTab, setActiveTab] = useState('notas');
@@ -66,34 +67,26 @@ export default function MenuAdm() {
   };
 
   const buscarEmpresas = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/empresas`);
+  try {
+    const response = await empresasService.listar();
+    setEmpresas(response.dados || response.data?.dados || []);
+  } catch (err) {
+    console.log(err);
+    setEmpresas([]);
+    mostrarFeedback('Erro', 'Erro ao carregar empresas.');
+  }
+};
 
-      console.log('RESPOSTA:', response.data);
-
-      setEmpresas(response.data.dados || []);
-    } catch (err) {
-      console.log(err);
-      setEmpresas([]);
-      setError('Erro ao carregar empresas');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const buscarUsuarios = async () => {
-    try {
-      setLoading(true);
-      const response = await usuariosService.listar({ limit: 25});
-      setUsuarios(response.dados || []); 
-    } catch (err) {
-      console.error("Erro ao listar usuários:", err);
-      setUsuarios([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+const buscarUsuarios = async () => {
+  try {
+    const response = await usuariosService.listar({ limit: 25 });
+    setUsuarios(response.dados || response.data?.dados || []);
+  } catch (err) {
+    console.error('Erro ao listar usuários:', err);
+    setUsuarios([]);
+    mostrarFeedback('Erro', 'Erro ao carregar usuários.');
+  }
+};
 
   const prepararEdicaoUsuario = (usuario) => {
     setUsuarioSendoEditado(usuario.usu_id || usuario.id); 
@@ -108,37 +101,41 @@ export default function MenuAdm() {
       usu_alterar_senha: usuario.usu_alterar_senha ?? 0,
       tipo_acesso: usuario.nivel_acesso || usuario.tipo_acesso || '',
       empresa_vinculada: usuario.emp_id || usuario.empresa_vinculada || '',
+      usu_emp_id: usuario.usu_emp_id || '',
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const buscarNotas = async () => {
+const buscarNotas = async () => {
+  try {
+    const response = await api.get('/documentos');
+    setNotas(response.data.dados || []);
+  } catch (err) {
+    console.log(err);
+    setNotas([]);
+    mostrarFeedback('Erro', 'Erro ao carregar notas fiscais.');
+  }
+};
+
+  useEffect(() => {
+  const carregarDadosIniciais = async () => {
     try {
       setLoading(true);
 
-      const empresaSalva = JSON.parse(localStorage.getItem('empresa'));
-
-      const response = await api.get(`/documentos?emp_id=${empresaSalva?.emp_id || empresaSalva?.id || 1}`);
-
-      console.log('DOCUMENTOS:', JSON.stringify(response.data));
-
-      setNotas(response.data.dados || []);
-    } catch (err) {
-      console.log(err);
-      setNotas([]);
-      setError('Erro ao carregar notas fiscais');
+      await Promise.all([
+        buscarEmpresas(),
+        buscarUsuarios(),
+        buscarNotas(),
+        buscarDashboardAdmin(),
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    buscarEmpresas();
-    buscarUsuarios();
-    buscarNotas();
-    buscarDashboardAdmin();
-  }, []);
+  carregarDadosIniciais();
+}, []);
 
   const mostrarFeedback = (titulo, mensagem) => {
     setFeedback({
@@ -158,13 +155,16 @@ export default function MenuAdm() {
     emp_email: '',
     emp_senha: '',
     emp_tipo: 0,
+    emp_limite: '',
   });
 
   const [notaForm, setNotaForm] = useState({
-    empresa: '',
-    data: '',
-    valor: '',
-    descricao: '',
+    empresa: '',           // Será o emp_id
+    tpd_id: '1',           // Padrão 1 para 'Nota Fiscal' (ou dinâmico se tiver select)
+    data: '',              // doc_data_vencimento
+    valor: '',             // fin_valor
+    descricao: '',         // doc_observacao
+    arquivo: null,         // <--- ADICIONADO: Guardará o arquivo PDF físico
   });
 
   const [usuarioForm, setUsuarioForm] = useState({
@@ -177,6 +177,7 @@ export default function MenuAdm() {
     usu_alterar_senha: 0,
     tipo_acesso: '',
     empresa_vinculada: '',
+    usu_emp_id: '',
   });
 
   const totalFaturadoLocal = useMemo(() => {
@@ -207,25 +208,62 @@ export default function MenuAdm() {
     }));
   };
 
-  const cadastrarEmpresa = (e) => {
-    e.preventDefault();
+  const handleArquivoChange = (e) => {
+    setNotaForm((prev) => ({
+      ...prev,
+      arquivo: e.target.files[0], // Pega o primeiro arquivo selecionado
+    }));
+  };
 
-    if (!empresaForm.emp_nome_fantasia.trim() || !empresaForm.emp_cnpj.trim()) {
-      mostrarFeedback(
-        'Campos obrigatórios',
-        'Preencha todos os campos antes de cadastrar a empresa.'
-      );
-      return;
-    }
+  const cadastrarEmpresa = async (e) => {
+  e.preventDefault();
 
-    const novaEmpresa = {
-      emp_id: Date.now(),
+  if (
+    !empresaForm.emp_nome_fantasia.trim() ||
+    !empresaForm.emp_razao_social.trim() ||
+    !empresaForm.emp_cnpj.trim()
+  ) {
+    mostrarFeedback(
+      'Campos obrigatórios',
+      'Preencha nome fantasia, razão social e CNPJ.'
+    );
+    return;
+  }
+
+  if (Number(empresaForm.emp_tipo) === 1) {
+  const razaoSocial = empresaForm.emp_razao_social.trim().toUpperCase();
+
+  if (razaoSocial.includes('LTDA')) {
+    mostrarFeedback('Regra para MEI', 'MEI não pode ter razão social LTDA.');
+    return;
+  }
+
+  if (!/\d{11}$/.test(razaoSocial)) {
+    mostrarFeedback(
+      'Regra para MEI',
+      'A razão social do MEI deve terminar com o CPF do titular, contendo 11 números.'
+    );
+    return;
+  }
+}
+
+  try {
+    setLoading(true);
+
+    await empresasService.cadastrar({
       emp_nome_fantasia: empresaForm.emp_nome_fantasia.trim(),
+      emp_razao_social: empresaForm.emp_razao_social.trim(),
       emp_cnpj: empresaForm.emp_cnpj.trim(),
-      emp_tipo: empresaForm.emp_tipo,
-    };
+      emp_endereco: empresaForm.emp_endereco.trim(),
+      emp_municipio: empresaForm.emp_municipio.trim(),
+      emp_telefone: empresaForm.emp_telefone.trim(),
+      emp_email: empresaForm.emp_email.trim(),
+      emp_senha: empresaForm.emp_senha.trim(),
+      emp_tipo: Number(empresaForm.emp_tipo),
+      emp_limite: Number(empresaForm.emp_limite || 20000),
+    });
 
-    setEmpresas((prev) => [...prev, novaEmpresa]);
+    mostrarFeedback('Sucesso', 'Empresa cadastrada com sucesso!');
 
     setEmpresaForm({
       emp_nome_fantasia: '',
@@ -237,38 +275,71 @@ export default function MenuAdm() {
       emp_email: '',
       emp_senha: '',
       emp_tipo: 0,
+      emp_limite: '',
     });
-  };
+
+    await buscarEmpresas();
+    await buscarDashboardAdmin();
+  } catch (err) {
+    const mensagem =
+      err.response?.data?.mensagem || 'Erro ao cadastrar empresa.';
+    mostrarFeedback('Erro', mensagem);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const salvarUsuario = async (e) => {
   e.preventDefault();
 
-// 1. Monte o objeto com as chaves exatas que o seu editarUsuarios espera
+const hoje = new Date().toISOString().split('T')[0];
+
 const dadosParaEnviar = {
   nome: usuarioForm.usu_nome,
   email: usuarioForm.usu_email,
   cpf: usuarioForm.usu_cpf,
-  // O seu back-end OBRIGA o envio da senha. Se estiver vazio, enviamos um padrão para não dar erro 400:
-  senha: usuarioForm.usu_senha.trim() || "MANTIDA_SEM_ALTERACAO", 
+  senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
   telefone: usuarioForm.usu_telefone,
-  status: Number(usuarioForm.usu_status) ?? 1,
-  alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0
+  alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
+
+  emp_id: Number(usuarioForm.empresa_vinculada),
+  nivel_acesso: Number(usuarioForm.tipo_acesso),
+  data_vinculo: hoje,
+  observacoes: null,
 };
+
+  if (!usuarioForm.empresa_vinculada || usuarioForm.tipo_acesso === '') {
+    mostrarFeedback('Campos obrigatórios', 'Selecione a empresa vinculada e o tipo de acesso.');
+    return;
+  }
 
 try {
   setLoading(true);
 
-  if (usuarioSendoEditado) {
-    // 2. Envia para a rota de usuários (usuarios.js)
-    await usuariosService.editar(usuarioSendoEditado, dadosParaEnviar);
-    
-    // NOTA: Como você mudou o vínculo de empresa, você também precisará chamar o seu 
-    // service de vínculos (usuarioEmpresas.js) passando os dados que o "editarUsuarioEmpresa" pede!
-    // Exemplo:
-    // await usuarioEmpresasService.editar(usuarioForm.usu_emp_id, { emp_id, usu_id, nivel_acesso, status });
+if (usuarioSendoEditado) {
+  await usuariosService.editar(usuarioSendoEditado, {
+    nome: usuarioForm.usu_nome,
+    email: usuarioForm.usu_email,
+    cpf: usuarioForm.usu_cpf,
+    senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
+    telefone: usuarioForm.usu_telefone,
+    status: Number(usuarioForm.usu_status),
+    alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
+  });
 
-    mostrarFeedback('Sucesso', 'Usuário atualizado com sucesso!');
-  } else {
+  if (usuarioForm.usu_emp_id) {
+    await usuarioEmpresasService.editar(usuarioForm.usu_emp_id, {
+      emp_id: Number(usuarioForm.empresa_vinculada),
+      usu_id: Number(usuarioSendoEditado),
+      nivel_acesso: Number(usuarioForm.tipo_acesso),
+      data_vinculo: hoje,
+      status: Number(usuarioForm.usu_status),
+      observacoes: null,
+    });
+  }
+
+  mostrarFeedback('Sucesso', 'Usuário atualizado com sucesso!');
+} else {
     // Lógica de cadastro...
     if (!usuarioForm.usu_senha.trim()) {
       mostrarFeedback('Aviso', 'A senha é obrigatória para um novo cadastro.');
@@ -282,9 +353,16 @@ try {
   // Limpeza do formulário...
   setUsuarioSendoEditado(null);
   setUsuarioForm({
-    usu_nome: '', usu_email: '', usu_cpf: '', usu_senha: '',
-    usu_telefone: '', usu_status: 1, usu_alterar_senha: 0,
-    tipo_acesso: '', empresa_vinculada: ''
+    usu_nome: '',
+    usu_email: '',
+    usu_cpf: '',
+    usu_senha: '',
+    usu_telefone: '',
+    usu_status: 1,
+    usu_alterar_senha: 0,
+    tipo_acesso: '',
+    empresa_vinculada: '',
+    usu_emp_id: '',
   });
 
   await buscarUsuarios(); 
@@ -297,54 +375,116 @@ try {
 }
 };
 
-  const lancarNota = (e) => {
+  const lancarNota = async (e) => {
     e.preventDefault();
 
-    if (!notaForm.empresa || !notaForm.data || !notaForm.valor || !notaForm.descricao.trim()) {
+    // 1. Validações estritas dos campos no Front-end antes de disparar a API
+    if (!notaForm.empresa || !notaForm.valor || !notaForm.arquivo) {
       mostrarFeedback(
         'Campos obrigatórios',
-        'Preencha todos os campos antes de lançar a nota fiscal.'
+        'Por favor, selecione a Empresa Cliente, o Valor e o Arquivo PDF da nota.'
       );
       return;
     }
 
-    const empresaSelecionada = empresas.find(
-      (empresa) => String(empresa.emp_id) === notaForm.empresa
-    );
+    try {
+      setLoading(true);
 
-    const novaNota = {
-      id: Date.now(),
-      doc_id: Date.now(),
-      doc_nome_original: 'Nota Fiscal',
-      empresa_nome: empresaSelecionada?.emp_nome_fantasia || '',
-      emp_cnpj: empresaSelecionada?.emp_cnpj || '',
-      descricao: notaForm.descricao.trim(),
-      valor: Number(notaForm.valor),
-    };
+      // 2. Cria o objeto FormData necessário para transporte de arquivos binários
+      const formData = new FormData();
+      formData.append('img', notaForm.arquivo); // 'img' deve bater com o upload.single('img') das suas rotas
+      formData.append('emp_id', notaForm.empresa);
+      formData.append('tpd_id', notaForm.tpd_id);
+      formData.append('fin_valor', notaForm.valor);
+      formData.append('fin_categoria', 'Nota Fiscal Lançada'); // Categoria padrão ou adicione campo no form
+      formData.append('doc_observacao', notaForm.descricao.trim());
+      formData.append('doc_data_vencimento', notaForm.data);
 
-    setNotas((prev) => [novaNota, ...prev]);
+      // 3. Dispara a requisição para a rota que aponta para o notas.js
+      const response = await api.post('/documentos', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+          // O Token real (localStorage) será injetado automaticamente aqui pelo interceptor da sua instância 'api'
+        }
+      });
 
-    setNotaForm({
-      empresa: '',
-      data: '',
-      valor: '',
-      descricao: '',
-    });
-  };
+      if (response.data.sucesso) {
+        mostrarFeedback('Sucesso', 'Nota fiscal armazenada e financeiro gerado com sucesso!');
+        
+        // 4. Limpa o formulário na tela após o sucesso
+        setNotaForm({
+          empresa: '',
+          tpd_id: '1',
+          data: '',
+          valor: '',
+          descricao: '',
+          arquivo: null,
+        });
 
-  const excluirNota = (id) => {
-    setNotas((prev) => prev.filter((nota) => nota.id !== id));
-  };
+        // Limpa visualmente o input de arquivo caso use uma referência ou id
+        const fileInput = document.getElementById('input-arquivo-id'); // Ajuste se houver ID
+        if (fileInput) fileInput.value = '';
 
-  const excluirEmpresa = (id) => {
-    const empresaRemovida = empresas.find((item) => item.emp_id === id);
+        // 5. Atualiza a listagem de notas do painel administrativo imediatamente
+        await buscarNotas();
+        await buscarDashboardAdmin();
+      }
 
-    setEmpresas((prev) => prev.filter((empresa) => empresa.emp_id !== id));
-
-    if (empresaRemovida) {
-      setNotas((prev) => prev.filter((nota) => nota.empresa_id !== empresaRemovida.emp_id));
+    } catch (err) {
+      const mensagemErro = err.response?.data?.mensagem || "Erro ao efetuar o lançamento da nota no servidor.";
+      console.error("Erro no upload combinado:", err);
+      mostrarFeedback('Erro', mensagemErro);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const excluirNota = async (id) => {
+  if (!window.confirm('Tem certeza que deseja excluir/desativar esta nota?')) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    await api.delete(`/documentos/del/${id}`);
+
+    mostrarFeedback('Sucesso', 'Nota fiscal removida com sucesso!');
+
+    await buscarNotas();
+    await buscarDashboardAdmin();
+  } catch (err) {
+    const mensagem =
+      err.response?.data?.mensagem || 'Erro ao excluir nota fiscal.';
+    mostrarFeedback('Erro', mensagem);
+  } finally {
+    setLoading(false);
+  }
+};
+
+  const excluirEmpresa = async (id) => {
+  if (!window.confirm('Tem certeza que deseja excluir/desativar esta empresa?')) {
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    await empresasService.ocultar(id);
+
+    mostrarFeedback('Sucesso', 'Empresa removida com sucesso!');
+
+    await buscarEmpresas();
+    await buscarNotas();
+    await buscarDashboardAdmin();
+  } catch (err) {
+    const mensagem =
+      err.response?.data?.mensagem || 'Erro ao excluir empresa.';
+    mostrarFeedback('Erro', mensagem);
+  } finally {
+    setLoading(false);
+  }
+};
 
 const excluirUsuario = async (id) => {
   if (window.confirm("Tem certeza que deseja desativar este usuário?")) {
@@ -542,7 +682,7 @@ const excluirUsuario = async (id) => {
                         0
                       );
 
-                      const limite = 2000;
+                      const limite = Number(empresa.emp_tipo) === 1 ? 6750 : 20000;
                       const percentual = Math.min((total / limite) * 100, 100);
 
                       const status =
@@ -710,61 +850,143 @@ const excluirUsuario = async (id) => {
 
               <form className={styles.form} onSubmit={cadastrarEmpresa}>
                 <div className={styles.row}>
-                  <div className={styles.field}>
-                    <label>Nome da empresa</label>
+  <div className={styles.field}>
+    <label>Nome da empresa</label>
 
-                    <input
-                      type="text"
-                      name="emp_nome_fantasia"
-                      value={empresaForm.emp_nome_fantasia}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                      placeholder="Ex.: Acme LTDA"
-                    />
-                  </div>
+    <input
+      type="text"
+      name="emp_nome_fantasia"
+      value={empresaForm.emp_nome_fantasia}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="Ex.: Acme Comércio"
+    />
+  </div>
 
-                  <div className={styles.field}>
-                    <label>CNPJ</label>
+  <div className={styles.field}>
+    <label>Razão Social</label>
 
-                    <input
-                      type="text"
-                      name="emp_cnpj"
-                      value={empresaForm.emp_cnpj}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                      placeholder="00.000.000/0000-00"
-                    />
-                  </div>
-                </div>
+    <input
+      type="text"
+      name="emp_razao_social"
+      value={empresaForm.emp_razao_social}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="Ex.: Nome do Titular 12345678900"
+    />
+  </div>
+</div>
 
-                <div className={styles.row}>
-                  <div className={styles.field}>
-                    <label>Tipo</label>
+<div className={styles.row}>
+  <div className={styles.field}>
+    <label>CNPJ</label>
 
-                    <select
-                      name="emp_tipo"
-                      value={empresaForm.emp_tipo}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                    >
-                      <option value={0}>ME</option>
-                      <option value={1}>MEI</option>
-                    </select>
-                  </div>
+    <input
+      type="text"
+      name="emp_cnpj"
+      value={empresaForm.emp_cnpj}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="00.000.000/0000-00"
+    />
+  </div>
 
-                  <div className={styles.field}>
-                    <label>Limite mensal (R$)</label>
+  <div className={styles.field}>
+    <label>Tipo</label>
 
-                    <input
-                      type="number"
-                      name="emp_limite"
-                      value={empresaForm.emp_limite || ''}
-                      onChange={handleEmpresaChange}
-                      className={styles.input}
-                      placeholder="Ex.: 20000"
-                    />
-                  </div>
-                </div>
+    <select
+      name="emp_tipo"
+      value={empresaForm.emp_tipo}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+    >
+      <option value={0}>ME</option>
+      <option value={1}>MEI</option>
+    </select>
+  </div>
+</div>
+
+<div className={styles.row}>
+  <div className={styles.field}>
+    <label>Município</label>
+
+    <input
+      type="text"
+      name="emp_municipio"
+      value={empresaForm.emp_municipio}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="Ex.: Quintana"
+    />
+  </div>
+
+  <div className={styles.field}>
+    <label>Telefone</label>
+
+    <input
+      type="text"
+      name="emp_telefone"
+      value={empresaForm.emp_telefone}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="(00) 00000-0000"
+    />
+  </div>
+</div>
+
+<div className={styles.row}>
+  <div className={styles.field}>
+    <label>E-mail</label>
+
+    <input
+      type="email"
+      name="emp_email"
+      value={empresaForm.emp_email}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="empresa@email.com"
+    />
+  </div>
+
+  <div className={styles.field}>
+    <label>Senha</label>
+
+    <input
+      type="password"
+      name="emp_senha"
+      value={empresaForm.emp_senha}
+      onChange={handleEmpresaChange}
+      className={styles.input}
+      placeholder="Senha de acesso"
+    />
+  </div>
+</div>
+
+<div className={styles.field}>
+  <label>Endereço</label>
+
+  <input
+    type="text"
+    name="emp_endereco"
+    value={empresaForm.emp_endereco}
+    onChange={handleEmpresaChange}
+    className={styles.input}
+    placeholder="Rua, número, bairro"
+  />
+</div>
+
+<div className={styles.field}>
+  <label>Limite mensal</label>
+
+  <input
+    type="number"
+    name="emp_limite"
+    value={empresaForm.emp_limite || ''}
+    onChange={handleEmpresaChange}
+    className={styles.input}
+    placeholder="MEI: 6750 / ME: 20000"
+  />
+</div>
 
                 <button type="submit" className={styles.primaryButton}>
                   Salvar Empresa
@@ -816,7 +1038,7 @@ const excluirUsuario = async (id) => {
                           </td>
 
                           <td className={styles.limitCell}>
-                            {formatCurrency(empresa.emp_limite || 20000)}
+                            {formatCurrency(Number(empresa.emp_tipo) === 1 ? 6750 : empresa.emp_limite || 20000)}
                           </td>
 
                           <td className={styles.actionsCell}>
@@ -984,9 +1206,9 @@ const excluirUsuario = async (id) => {
 
                   <td>
                     <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
-                      {Number(usuario.tipo_acesso) === 2
+                      {Number(usuario.nivel_acesso) === 2
                         ? 'Administrador'
-                        : Number(usuario.tipo_acesso) === 1
+                        : Number(usuario.nivel_acesso) === 1
                         ? 'Gerente'
                         : 'Visualizador'}
                     </span>
@@ -1094,12 +1316,25 @@ const excluirUsuario = async (id) => {
                   />
                 </div>
 
+                <div className={styles.field}>
+  <label>Arquivo PDF</label>
+
+  <input
+    id="input-arquivo-id"
+    type="file"
+    accept="application/pdf"
+    onChange={handleArquivoChange}
+    className={styles.input}
+    disabled={!isAdmin}
+  />
+</div>
+
                 <button
                   type="submit"
                   className={styles.primaryButton}
-                  disabled={!isAdmin || empresas.length === 0}
+                  disabled={!isAdmin || empresas.length === 0 || loading}
                 >
-                  Lançar Nota
+                  {loading ? 'Salvando...' : 'Lançar Nota'}
                 </button>
               </form>
             </section>
