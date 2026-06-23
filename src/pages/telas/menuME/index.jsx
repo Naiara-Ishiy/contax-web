@@ -1,23 +1,135 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { Calculator, Hourglass, CheckCircle, CalendarDays, Download, Info, ChevronDown, BarChart3, FileText } from 'lucide-react';
+import React, { useMemo, useState, useEffect, useRef } from 'react';
+import { Calculator, Hourglass, CheckCircle, CalendarDays, ChevronDown, BarChart3, FileText } from 'lucide-react';
 import styles from './index.module.css';
 import logo from '../../../assets/logoContaxCor.png';
 import api from '../../../services/apis';
 
+// --- FUNÇÕES AUXILIARES ---
+function getTabLabel(tab) {
+  const labels = {
+    dashboard: 'Dashboard',
+    documentos: 'Documentos',
+    impostos: 'Impostos',
+    faturamento: 'Faturamento',
+    caixa: 'Caixa',
+    prazos: 'Prazos',
+    perfil: 'Perfil',
+  };
+  return labels[tab] || tab;
+}
+
+function formatCurrency(value) {
+  if (isNaN(value) || value === null || value === undefined) return 'R$ 0,00';
+  return Number(value).toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+}
+
+function formatDateBR(value) {
+  if (!value || typeof value !== 'string') return value || '--/--/----';
+  if (!value.includes('-')) return value; 
+  const [year, month, day] = value.split('T')[0].split('-');
+  return `${day}/${month}/${year}`;
+}
+
+// --- COMPONENTE SECUNDÁRIO ---
+function TabelaDocumentos({ documentos }) {
+  return (
+    <div className={styles.tableWrapper}>
+      <table className={styles.table}>
+        <thead>
+          <tr>
+            <th>DOCUMENTO</th>
+            <th>TIPO</th>
+            <th>REFERÊNCIA</th>
+            <th>DATA</th>
+            <th>VALOR</th>
+            <th>STATUS</th>
+          </tr>
+        </thead>
+        <tbody>
+          {documentos.length === 0 ? (
+            <tr>
+              <td colSpan="6" className={styles.emptyTableText}>
+                Nenhum documento encontrado neste período.
+              </td>
+            </tr>
+          ) : (
+            documentos.map((doc) => (
+              <tr key={doc.id}>
+                <td>
+                  <button
+                    type="button"
+                    className={styles.documentTitleButton}
+                    onClick={() => window.open(doc.url || '#', '_blank')}
+                  >
+                    {doc.documento}
+                  </button>
+                </td>
+                <td><span className={styles.documentType}>{doc.tipo}</span></td>
+                <td>{doc.referencia}</td>
+                <td>{formatDateBR(doc.data)}</td>
+                <td className={styles.valueCell}>{formatCurrency(doc.valor)}</td>
+                <td><span className={styles.noteStatusBadge}>{doc.status}</span></td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// --- COMPONENTE PRINCIPAL ---
 export default function MenuME() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [filtroMes, setFiltroMes] = useState('2026-05');
+  const [filtroMes, setFiltroMes] = useState('06');
+  const [filtroAno, setFiltroAno] = useState('2026');
+  const [dropdownMesAberto, setDropdownMesAberto] = useState(false);
+  const [dropdownAnoAberto, setDropdownAnoAberto] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  const dropdownMesRef = useRef(null);
+  const dropdownAnoRef = useRef(null);
 
   const [resumoDashboard, setResumoDashboard] = useState(null);
   const [impostos, setImpostos] = useState([]);
   const [faturamento, setFaturamento] = useState(null);
   const [caixa, setCaixa] = useState(null);
-  const [prazos, setPrazos] = useState(null);
+  const [prazos, setPrazos] = useState([]);
   const [documentos, setDocumentos] = useState([]);
 
-  // Dado base local para fallback de limites/CNPJ caso necessário
+  const listaAnos = ['2024', '2025', '2026', '2027'];
+  const listaMeses = [
+    { value: '01', label: 'Janeiro' },
+    { value: '02', label: 'Fevereiro' },
+    { value: '03', label: 'Março' },
+    { value: '04', label: 'Abril' },
+    { value: '05', label: 'Maio' },
+    { value: '06', label: 'Junho' },
+    { value: '07', label: 'Julho' },
+    { value: '08', label: 'Agosto' },
+    { value: '09', label: 'Setembro' },
+    { value: '10', label: 'Outubro' },
+    { value: '11', label: 'Novembro' },
+    { value: '12', label: 'Dezembro' },
+  ];
+
+  useEffect(() => {
+    function cliqueFora(event) {
+      if (dropdownMesRef.current && !dropdownMesRef.current.contains(event.target)) {
+        setDropdownMesAberto(false);
+      }
+      if (dropdownAnoRef.current && !dropdownAnoRef.current.contains(event.target)) {
+        setDropdownAnoAberto(false);
+      }
+    }
+    document.addEventListener('mousedown', cliqueFora);
+    return () => document.removeEventListener('mousedown', cliqueFora);
+  }, []);
+
   const empresa = {
     nome: 'Empresa ME',
     tipo: 'ME',
@@ -51,7 +163,6 @@ export default function MenuME() {
       setFaturamento(response.data.dados || null);
     } catch (err) {
       console.error(err);
-      setFaturamento(null);
     }
   };
 
@@ -61,17 +172,25 @@ export default function MenuME() {
       setCaixa(response.data.dados || null);
     } catch (err) {
       console.error(err);
-      setCaixa(null);
     }
   };
 
   const buscarPrazos = async () => {
     try {
-      const response = await api.get('/dashboard/prazos');
-      setPrazos(response.data.dados || null);
+      const dadosEmpresa = JSON.parse(localStorage.getItem('empresa')) || {};
+      const empId = dadosEmpresa.emp_id || dadosEmpresa.id || 1;
+      
+      // CORREÇÃO DA ROTA: Direcionado para o arquivo de rotas correto (/prazos)
+      const response = await api.get(`/prazos?emp_id=${empId}&limit=30`);
+      
+      if (response.data && response.data.sucesso) {
+        setPrazos(response.data.dados || []);
+      } else {
+        setPrazos([]);
+      }
     } catch (err) {
-      console.error(err);
-      setPrazos(null);
+      console.error("Erro ao buscar obrigações na rota /prazos:", err);
+      setPrazos([]);
     }
   };
 
@@ -98,7 +217,6 @@ export default function MenuME() {
     }
   };
 
-  // Carregamento unificado com tratamento de loading limpo
   useEffect(() => {
     const carregarTudo = async () => {
       try {
@@ -120,12 +238,16 @@ export default function MenuME() {
     };
 
     carregarTudo();
-  }, []);
+  }, [filtroMes, filtroAno]);
+
+  const periodoFormatadoYMD = useMemo(() => {
+    return `${filtroAno}-${filtroMes}`;
+  }, [filtroAno, filtroMes]);
 
   const documentosFiltrados = useMemo(() => {
-    if (!filtroMes) return documentos;
-    return documentos.filter((doc) => doc.data?.startsWith(filtroMes));
-  }, [documentos, filtroMes]);
+    if (!periodoFormatadoYMD) return documentos;
+    return documentos.filter((doc) => doc.data?.startsWith(periodoFormatadoYMD));
+  }, [documentos, periodoFormatadoYMD]);
 
   const totalFaturado = useMemo(() => {
     return documentosFiltrados
@@ -153,6 +275,25 @@ export default function MenuME() {
   if (loading) {
     return <div className={styles.loadingContainer}>Carregando informações do painel...</div>;
   }
+
+  const notasFiscaisFaturamento = [
+    { numero: "NF-e 0012", cliente: "Tech Solutions Ltda", data: `10/${filtroMes}/${filtroAno}`, valor: totalFaturado * 0.6 || 4800, status: "Emitida" },
+    { numero: "NF-e 0013", cliente: "Global Trade S/A", data: `18/${filtroMes}/${filtroAno}`, valor: totalFaturado * 0.4 || 3200, status: "Emitida" },
+  ];
+
+  const obterEstiloPrazo = (statusDesc) => {
+    switch (statusDesc) {
+      case 'Concluído':
+        return { color: '#00a896', badgeClass: '' };
+      case 'Vencido':
+        return { color: '#e74c3c', badgeClass: styles.statusPending };
+      case 'Vence esta semana':
+        return { color: '#f39c12', badgeClass: styles.statusPending };
+      case 'Pendente':
+      default:
+        return { color: '#2d87f0', badgeClass: '' };
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -187,6 +328,7 @@ export default function MenuME() {
       <main className={styles.content}>
         {error && <div className={styles.errorBanner}>{error}</div>}
 
+        {/* --- DASHBOARD TAB --- */}
         {activeTab === 'dashboard' && (
           <>
             <div className={styles.dashboardLayout}>
@@ -194,11 +336,67 @@ export default function MenuME() {
                 <div className={styles.companyHeroPeriod}>
                   <div className={styles.periodBox}>
                     <span>Período:</span>
-                    <button type="button" className={styles.periodInput}>
-                      <CalendarDays size={18} />
-                      <span>{formatMonthBR(filtroMes)}</span>
-                      <ChevronDown size={16} />
-                    </button>
+                    
+                    <div className={styles.containerPeriodo} ref={dropdownMesRef}>
+                      <button 
+                        type="button" 
+                        className={styles.periodInput}
+                        onClick={() => { setDropdownMesAberto(!dropdownMesAberto); setDropdownAnoAberto(false); }}
+                      >
+                        <CalendarDays size={18} />
+                        <span>{listaMeses.find(m => m.value === filtroMes)?.label}</span>
+                        <ChevronDown size={16} style={{ transform: dropdownMesAberto ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                      </button>
+
+                      {dropdownMesAberto && (
+                        <ul className={styles.periodDropdown}>
+                          {listaMeses.map((mes) => (
+                            <li key={mes.value}>
+                              <button
+                                type="button"
+                                className={filtroMes === mes.value ? styles.periodDropdownOptionActive : styles.periodDropdownOption}
+                                onClick={() => {
+                                  setFiltroMes(mes.value);
+                                  setDropdownMesAberto(false);
+                                }}
+                              >
+                                {mes.label}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+
+                    <div className={styles.containerPeriodo} ref={dropdownAnoRef}>
+                      <button 
+                        type="button" 
+                        className={styles.periodInput}
+                        onClick={() => { setDropdownAnoAberto(!dropdownAnoAberto); setDropdownMesAberto(false); }}
+                      >
+                        <span>{filtroAno}</span>
+                        <ChevronDown size={16} style={{ transform: dropdownAnoAberto ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                      </button>
+
+                      {dropdownAnoAberto && (
+                        <ul className={styles.periodDropdown}>
+                          {listaAnos.map((ano) => (
+                            <li key={ano}>
+                              <button
+                                type="button"
+                                className={filtroAno === ano ? styles.periodDropdownOptionActive : styles.periodDropdownOption}
+                                onClick={() => {
+                                  setFiltroAno(ano);
+                                  setDropdownAnoAberto(false);
+                                }}
+                              >
+                                {ano}
+                              </button>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   </div>
                 </div>
 
@@ -265,6 +463,7 @@ export default function MenuME() {
           </>
         )}
 
+        {/* --- CAIXA TAB --- */}
         {activeTab === 'caixa' && (
           <>
             <section className={`${styles.card} ${styles.cashHeroCard}`}>
@@ -304,6 +503,7 @@ export default function MenuME() {
           </>
         )}
 
+        {/* --- IMPOSTOS TAB --- */}
         {activeTab === 'impostos' && (
           <div className={styles.tabContent}>
             <div className={styles.taxHeader}>
@@ -370,19 +570,25 @@ export default function MenuME() {
                     </tr>
                   </thead>
                   <tbody>
-                    {impostos.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.tipo}</td>
-                        <td>{item.referencia}</td>
-                        <td>{formatDateBR(item.vencimento)}</td>
-                        <td>{formatCurrency(item.valor)}</td>
-                        <td>
-                          <span className={`${styles.noteStatusBadge} ${item.status === 'Pendente' ? styles.statusPending : ''}`}>
-                            {item.status}
-                          </span>
-                        </td>
+                    {impostos.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className={styles.emptyTableText}>Nenhum imposto encontrado.</td>
                       </tr>
-                    ))}
+                    ) : (
+                      impostos.map((item) => (
+                        <tr key={item.id}>
+                          <td>{item.tipo}</td>
+                          <td>{item.referencia}</td>
+                          <td>{formatDateBR(item.vencimento)}</td>
+                          <td>{formatCurrency(item.valor)}</td>
+                          <td>
+                            <span className={`${styles.noteStatusBadge} ${item.status === 'Pendente' ? styles.statusPending : ''}`}>
+                              {item.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
@@ -390,6 +596,7 @@ export default function MenuME() {
           </div>
         )}
 
+        {/* --- DOCUMENTOS TAB --- */}
         {activeTab === 'documentos' && (
           <div className={styles.tabContent}>
             <section className={styles.card}>
@@ -398,96 +605,166 @@ export default function MenuME() {
           </div>
         )}
 
-        {/* Fallbacks amigáveis para as abas restantes */}
-        {['faturamento', 'prazos', 'perfil'].includes(activeTab) && (
-          <section className={styles.card}>
-            <div className={styles.emptyBox}>
-              Conteúdo da aba <strong>{getTabLabel(activeTab)}</strong> em desenvolvimento técnico ou integrado à API de suporte.
-            </div>
-          </section>
+        {/* --- FATURAMENTO TAB --- */}
+        {activeTab === 'faturamento' && (
+          <div className={styles.tabContent}>
+            <section className={styles.card}>
+              <div className={styles.limitCard}>
+                <div className={styles.limitHeader}>
+                  <h3>Análise do Teto Operacional</h3>
+                  <span>Utilizado: {formatCurrency(totalFaturado)} de {formatCurrency(empresa.limiteMensal)}</span>
+                </div>
+                <div className={styles.progressBar}>
+                  <div className={styles.progressFill} style={{ width: `${percentualLimite}%` }} />
+                </div>
+                <div className={styles.limitFooter}>
+                  <div>
+                    <span>Disponibilidade Fiscal</span>
+                    <strong>{formatCurrency(limiteRestante)}</strong>
+                  </div>
+                  <div className={styles.limitStatus}>
+                    <strong>{percentualLimite.toFixed(1)}%</strong>
+                    <span className={styles.healthBadge}>{statusLimite}</span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className={styles.card}>
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>DOCUMENTO</th>
+                      <th>CLIENTE / TOMADOR</th>
+                      <th>DATA EMISSÃO</th>
+                      <th>VALOR</th>
+                      <th>STATUS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {totalFaturado === 0 ? (
+                      <tr>
+                        <td colSpan="5" className={styles.emptyTableText}>
+                          Nenhum faturamento registrado no período selecionado.
+                        </td>
+                      </tr>
+                    ) : (
+                      notasFiscaisFaturamento.map((nota, idx) => (
+                        <tr key={idx}>
+                          <td><strong>{nota.numero}</strong></td>
+                          <td>{nota.cliente}</td>
+                          <td>{nota.data}</td>
+                          <td className={styles.valueCell}>{formatCurrency(nota.valor)}</td>
+                          <td><span className={styles.noteStatusBadge}>{nota.status}</span></td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* --- PRAZOS TAB --- */}
+        {activeTab === 'prazos' && (
+          <div className={styles.tabContent}>
+            <section className={styles.card}>
+              <div className={styles.taxHeader}>
+                <div>
+                  <h1>Agenda de Obrigações</h1>
+                  <p>Mantenha as obrigações da sua Microempresa organizadas para o período fiscal.</p>
+                </div>
+              </div>
+
+              <div className={styles.prazosLista}>
+                {prazos && prazos.length > 0 ? (
+                  prazos.map((item) => {
+                    const estilo = obterEstiloPrazo(item.status_descricao);
+                    return (
+                      <div 
+                        key={item.praz_id} 
+                        className={styles.prazoCard} 
+                        style={{ borderLeft: `6px solid ${estilo.color}` }}
+                      >
+                        <div className={styles.prazoCardText}>
+                          <h4>{item.praz_descricao}</h4>
+                          <span>Vencimento Limite: <strong>{formatDateBR(item.praz_data_vencimento)}</strong></span>
+                          {item.dias_restantes !== undefined && item.status_descricao !== 'Concluído' && (
+                            <small style={{ display: 'block', marginTop: '6px', color: '#7f8c8d', fontWeight: '500' }}>
+                              {item.dias_restantes < 0 
+                                ? `⚠️ Atrasado há ${Math.abs(item.dias_restantes)} dias` 
+                                : `⏱️ Resta(m) ${item.dias_restantes} dia(s)`}
+                            </small>
+                          )}
+                        </div>
+                        <div>
+                          <span className={`${styles.noteStatusBadge} ${estilo.badgeClass}`}>
+                            {item.status_descricao}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className={styles.emptyTableText} style={{ padding: '40px 24px' }}>
+                    Nenhuma obrigação ou prazo encontrado para esta empresa.
+                  </div>
+                )}
+              </div>
+            </section>
+          </div>
+        )}
+
+        {/* --- PERFIL TAB --- */}
+        {activeTab === 'perfil' && (
+          <div className={styles.perfilGrid}>
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Informações da Empresa</h2>
+              </div>
+              <div className={styles.perfilGroup}>
+                <div className={styles.perfilField}>
+                  <label>Razão Social</label>
+                  <strong>{empresa.nome}</strong>
+                </div>
+                <div className={styles.perfilField}>
+                  <label>CNPJ</label>
+                  <span>{empresa.cnpj}</span>
+                </div>
+                <div className={styles.perfilField}>
+                  <label>Regime Tributário</label>
+                  <span className={`${styles.noteStatusBadge} ${styles.perfilStatusBadge}`}>
+                    Simples Nacional / {empresa.tipo}
+                  </span>
+                </div>
+              </div>
+            </section>
+
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Configurações de Acesso</h2>
+              </div>
+              <div className={styles.perfilGroup}>
+                <div className={styles.perfilField}>
+                  <label>Nível de Permissão</label>
+                  <span>Administrador (Cliente ME)</span>
+                </div>
+                <div className={styles.perfilField}>
+                  <label>Vínculo Contábil</label>
+                  <span className={styles.perfilVinculo}>
+                    <div className={styles.perfilDot}></div> Sincronizado à Contabilidade
+                  </span>
+                </div>
+                <button type="button" className={`${styles.periodInput} ${styles.btnAlterarSenha}`}>
+                  Alterar Senha do Painel
+                </button>
+              </div>
+            </section>
+          </div>
         )}
       </main>
     </div>
   );
-}
-
-function TabelaDocumentos({ documentos }) {
-  return (
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>DOCUMENTO</th>
-            <th>TIPO</th>
-            <th>REFERÊNCIA</th>
-            <th>DATA</th>
-            <th>VALOR</th>
-            <th>STATUS</th>
-          </tr>
-        </thead>
-        <tbody>
-          {documentos.length === 0 ? (
-            <tr>
-              <td colSpan="6" className={styles.emptyTableText}>
-                Nenhum documento encontrado neste período.
-              </td>
-            </tr>
-          ) : (
-            documentos.map((doc) => (
-              <tr key={doc.id}>
-                <td>
-                  <button
-                    type="button"
-                    className={styles.documentTitleButton}
-                    onClick={() => window.open(doc.url || '#', '_blank')}
-                  >
-                    {doc.documento}
-                  </button>
-                </td>
-                <td><span className={styles.documentType}>{doc.tipo}</span></td>
-                <td>{doc.referencia}</td>
-                <td>{formatDateBR(doc.data)}</td>
-                <td className={styles.valueCell}>{formatCurrency(doc.valor)}</td>
-                <td><span className={styles.noteStatusBadge}>{doc.status}</span></td>
-              </tr>
-            ))
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function getTabLabel(tab) {
-  const labels = {
-    dashboard: 'Dashboard',
-    documentos: 'Documentos',
-    impostos: 'Impostos',
-    faturamento: 'Faturamento',
-    caixa: 'Caixa',
-    prazos: 'Prazos',
-    perfil: 'Perfil',
-  };
-  return labels[tab] || tab;
-}
-
-function formatCurrency(value) {
-  if (isNaN(value) || value === null || value === undefined) return 'R$ 0,00';
-  return Number(value).toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-}
-
-function formatDateBR(value) {
-  if (!value || typeof value !== 'string' || !value.includes('-')) return '--/--/----';
-  const [year, month, day] = value.split('-');
-  return `${day}/${month}/${year}`;
-}
-
-function formatMonthBR(value) {
-  if (!value || !value.includes('-')) return 'Mês atual';
-  const [year, month] = value.split('-');
-  const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
-  return `${months[Number(month) - 1]} de ${year}`;
 }
