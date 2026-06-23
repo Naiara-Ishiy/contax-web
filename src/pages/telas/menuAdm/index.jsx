@@ -5,6 +5,9 @@ import api from '../../../services/apis';
 
 import logo from '../../../assets/logoContaxCor.png';
 
+import { usuariosService } from '../../../services/usuariosService';
+import { empresasService } from '../../../services/empresasService';
+
 export default function MenuAdm() {
   const [activeTab, setActiveTab] = useState('notas');
   const isAdmin = true;
@@ -81,16 +84,12 @@ export default function MenuAdm() {
   const buscarUsuarios = async () => {
     try {
       setLoading(true);
-
-      const response = await api.get(`/usuarios`);
-
-      console.log('USUÁRIOS:', response.data);
-
-      setUsuarios(response.data.dados || []);
+      // Dentro da função buscarUsuarios no MenuAdm.js
+      const response = await usuariosService.listar();
+      setUsuarios(response.dados || []); 
     } catch (err) {
-      console.log(err);
+      console.error("Erro ao listar usuários:", err);
       setUsuarios([]);
-      setError('Erro ao carregar usuários');
     } finally {
       setLoading(false);
     }
@@ -223,56 +222,42 @@ export default function MenuAdm() {
     });
   };
 
-  const cadastrarUsuario = (e) => {
+const cadastrarUsuario = async (e) => {
     e.preventDefault();
 
-    if (
-      !usuarioForm.usu_nome.trim() ||
-      !usuarioForm.usu_email.trim() ||
-      !usuarioForm.usu_cpf.trim() ||
-      !usuarioForm.usu_senha.trim() ||
-      !usuarioForm.usu_telefone.trim() ||
-      !usuarioForm.tipo_acesso ||
-      !usuarioForm.empresa_vinculada
-    ) {
-      mostrarFeedback(
-        'Campos obrigatórios',
-        'Preencha todos os campos antes de cadastrar o usuário.'
-      );
-      return;
-    }
-
-    const empresaVinculada = empresas.find(
-      (empresa) => String(empresa.emp_id) === String(usuarioForm.empresa_vinculada)
-    );
-
-    const novoUsuario = {
-      usu_id: Date.now(),
-      usu_nome: usuarioForm.usu_nome.trim(),
-      usu_email: usuarioForm.usu_email.trim(),
-      usu_cpf: usuarioForm.usu_cpf.trim(),
-      usu_senha: usuarioForm.usu_senha,
-      usu_telefone: usuarioForm.usu_telefone.trim(),
-      usu_status: usuarioForm.usu_status,
-      usu_alterar_senha: 0,
-      tipo_acesso: usuarioForm.tipo_acesso,
-      empresa_vinculada: usuarioForm.empresa_vinculada,
-      empresa_nome: empresaVinculada?.emp_nome_fantasia || '',
+    // Objeto formatado exatamente como o 'request.body' do seu controller espera
+    const dadosParaEnviar = {
+      nome: usuarioForm.usu_nome,
+      email: usuarioForm.usu_email,
+      cpf: usuarioForm.usu_cpf,
+      senha: usuarioForm.usu_senha,
+      telefone: usuarioForm.usu_telefone,
+      alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
+      emp_id: Number(usuarioForm.empresa_vinculada), 
+      nivel_acesso: Number(usuarioForm.tipo_acesso),
+      data_vinculo: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+      observacoes: 'Cadastro via MenuAdm' // Campo obrigatório no seu código
     };
 
-    setUsuarios((prev) => [...prev, novoUsuario]);
+    try {
+      console.log("Enviando para API:", dadosParaEnviar); // Log para conferência
+      await usuariosService.cadastrar(dadosParaEnviar);
+      
+      mostrarFeedback('Sucesso', 'Usuário cadastrado com sucesso!');
+      await buscarUsuarios(); 
 
-    setUsuarioForm({
-      usu_nome: '',
-      usu_email: '',
-      usu_cpf: '',
-      usu_senha: '',
-      usu_telefone: '',
-      usu_status: 1,
-      usu_alterar_senha: 0,
-      tipo_acesso: '',
-      empresa_vinculada: '',
-    });
+      // Reseta o formulário
+      setUsuarioForm({
+        usu_nome: '', usu_email: '', usu_cpf: '', usu_senha: '',
+        usu_telefone: '', usu_status: 1, usu_alterar_senha: 0,
+        tipo_acesso: '', empresa_vinculada: ''
+      });
+    } catch (err) {
+      // CAPTURA DO ERRO REAL DO BACKEND
+      const mensagemErro = err.response?.data?.mensagem || "Erro desconhecido";
+      console.error("Erro do Backend:", mensagemErro);
+      mostrarFeedback('Erro', mensagemErro); 
+    }
   };
 
   const lancarNota = (e) => {
@@ -791,183 +776,186 @@ export default function MenuAdm() {
         )}
 
         {activeTab === 'usuarios' && (
-          <>
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Cadastrar Usuário (Contabilista)</h2>
-              </div>
+  <>
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Cadastrar Usuário (Contabilista)</h2>
+      </div>
 
-              <form className={styles.form} onSubmit={cadastrarUsuario}>
-                <div className={styles.field}>
-                  <label>Nome completo</label>
-                  <input
-                    type="text"
-                    name="usu_nome"
-                    value={usuarioForm.usu_nome}
-                    onChange={handleUsuarioChange}
-                    className={styles.input}
-                    placeholder="Digite o nome completo"
-                  />
-                </div>
+      <form className={styles.form} onSubmit={cadastrarUsuario}>
+        <div className={styles.field}>
+          <label>Nome completo</label>
+          <input
+            type="text"
+            name="usu_nome"
+            value={usuarioForm.usu_nome}
+            onChange={handleUsuarioChange}
+            className={styles.input}
+            placeholder="Digite o nome completo"
+          />
+        </div>
 
-                <div className={styles.rowThree}>
-                  <div className={styles.field}>
-                    <label>E-mail</label>
-                    <input
-                      type="email"
-                      name="usu_email"
-                      value={usuarioForm.usu_email}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="email@exemplo.com"
-                    />
-                  </div>
+        <div className={styles.rowThree}>
+          <div className={styles.field}>
+            <label>E-mail</label>
+            <input
+              type="email"
+              name="usu_email"
+              value={usuarioForm.usu_email}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+              placeholder="email@exemplo.com"
+            />
+          </div>
 
-                  <div className={styles.field}>
-                    <label>CPF ou CRC</label>
-                    <input
-                      type="text"
-                      name="usu_cpf"
-                      value={usuarioForm.usu_cpf}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="Digite o documento"
-                    />
-                  </div>
+          <div className={styles.field}>
+            <label>CPF ou CRC</label>
+            <input
+              type="text"
+              name="usu_cpf"
+              value={usuarioForm.usu_cpf}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+              placeholder="Digite o documento"
+            />
+          </div>
 
-                  <div className={styles.field}>
-                    <label>Telefone</label>
-                    <input
-                      type="text"
-                      name="usu_telefone"
-                      value={usuarioForm.usu_telefone}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="(00) 00000-0000"
-                    />
-                  </div>
-                </div>
+          <div className={styles.field}>
+            <label>Telefone</label>
+            <input
+              type="text"
+              name="usu_telefone"
+              value={usuarioForm.usu_telefone}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+              placeholder="(00) 00000-0000"
+            />
+          </div>
+        </div>
 
-                <div className={styles.rowThree}>
-                  <div className={styles.field}>
-                    <label>Senha</label>
-                    <input
-                      type="password"
-                      name="usu_senha"
-                      value={usuarioForm.usu_senha}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                      placeholder="Digite a senha"
-                    />
-                  </div>
+        <div className={styles.rowThree}>
+          <div className={styles.field}>
+            <label>Senha</label>
+            <input
+              type="password"
+              name="usu_senha"
+              value={usuarioForm.usu_senha}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+              placeholder="Digite a senha"
+            />
+          </div>
 
-                  <div className={styles.field}>
-                    <label>Tipo de acesso</label>
-                    <select
-                      name="tipo_acesso"
-                      value={usuarioForm.tipo_acesso || ''}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
+          <div className={styles.field}>
+            <label>Tipo de acesso</label>
+            <select
+              name="tipo_acesso"
+              value={usuarioForm.tipo_acesso || ''}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+            >
+              <option value="">Selecione</option>
+              <option value="0">Visualizador</option>
+              <option value="1">Gerente</option>
+              <option value="2">Administrador</option>
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label>Empresa vinculada</label>
+            <select
+              name="empresa_vinculada"
+              value={usuarioForm.empresa_vinculada || ''}
+              onChange={handleUsuarioChange}
+              className={styles.input}
+            >
+              <option value="">Selecione uma empresa</option>
+
+              {empresas.map((empresa) => (
+                <option key={empresa.emp_id} value={empresa.emp_id}>
+                  {empresa.emp_nome_fantasia}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <button type="submit" className={styles.primaryButton}>
+          Cadastrar Usuário
+        </button>
+      </form>
+    </section>
+
+    <section className={styles.card}>
+      <div className={styles.cardHeader}>
+        <h2>Usuários cadastrados</h2>
+      </div>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>NOME</th>
+              <th>EMPRESA VINCULADA</th>
+              <th>TIPO DE ACESSO</th>
+              <th>STATUS</th>
+              <th></th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {Array.isArray(usuarios) && usuarios.length > 0 ? (
+              usuarios.map((usuario) => (
+                <tr key={usuario.usu_id} className={styles.userRow}>
+                  <td>
+                    <div className={styles.userInfo}>
+                      <strong>{usuario.usu_nome}</strong>
+                      <span>{usuario.usu_cpf || '000.000.000-00'}</span>
+                    </div>
+                  </td>
+
+                  <td className={styles.companyLinkedCell}>
+                    {usuario.empresa_nome || 'Nenhuma empresa vinculada'}
+                  </td>
+
+                  <td>
+                    <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
+                      {Number(usuario.tipo_acesso) === 2
+                        ? 'Administrador'
+                        : Number(usuario.tipo_acesso) === 1
+                        ? 'Gerente'
+                        : 'Visualizador'}
+                    </span>
+                  </td>
+
+                  <td className={styles.statusCell}>
+                    {Number(usuario.usu_status) === 1 ? 'Ativo' : 'Inativo'}
+                  </td>
+
+                  <td className={styles.actionsCell}>
+                    <button className={styles.editButton}>Editar</button>
+                    <button
+                      className={styles.deleteButton}
+                      onClick={() => excluirUsuario(usuario.usu_id)}
                     >
-                      <option value="">Selecione</option>
-                      <option value="0">Visualizador</option>
-                      <option value="1">Gerente</option>
-                      <option value="2">Administrador</option>
-                    </select>
-                  </div>
-
-                  <div className={styles.field}>
-                    <label>Empresa vinculada</label>
-                    <select
-                      name="empresa_vinculada"
-                      value={usuarioForm.empresa_vinculada || ''}
-                      onChange={handleUsuarioChange}
-                      className={styles.input}
-                    >
-                      <option value="">Selecione uma empresa</option>
-
-                      {empresas.map((empresa) => (
-                        <option key={empresa.emp_id} value={empresa.emp_id}>
-                          {empresa.emp_nome_fantasia}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-
-                <button type="submit" className={styles.primaryButton}>
-                  Cadastrar Usuário
-                </button>
-              </form>
-            </section>
-
-            <section className={styles.card}>
-              <div className={styles.cardHeader}>
-                <h2>Usuários cadastrados</h2>
-              </div>
-
-              <div className={styles.tableWrapper}>
-                <table className={styles.table}>
-                  <thead>
-                    <tr>
-                      <th>NOME</th>
-                      <th>EMPRESA VINCULADA</th>
-                      <th>TIPO DE ACESSO</th>
-                      <th>STATUS</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-
-                  <tbody>
-                    {usuarios.length === 0 ? (
-                      <tr>
-                        <td colSpan="5" className={styles.emptyTable}>
-                          Nenhum usuário cadastrado.
-                        </td>
-                      </tr>
-                    ) : (
-                      usuarios.map((usuario) => (
-                        <tr key={usuario.usu_id} className={styles.userRow}>
-                          <td>
-                            <div className={styles.userInfo}>
-                              <strong>{usuario.usu_nome}</strong>
-                              <span>{usuario.usu_cpf || '000.000.000-00'}</span>
-                            </div>
-                          </td>
-
-                          <td className={styles.companyLinkedCell}>
-                            {usuario.empresa_nome || 'Nenhuma empresa vinculada'}
-                          </td>
-
-                          <td>
-                            <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
-                              Visualizador
-                            </span>
-                          </td>
-
-                          <td className={styles.statusCell}>
-                            {Number(usuario.usu_status) === 1 ? 'Ativo' : 'Inativo'}
-                          </td>
-
-                          <td className={styles.actionsCell}>
-                            <button className={styles.editButton}>Editar</button>
-
-                            <button
-                              className={styles.deleteButton}
-                              onClick={() => excluirUsuario(usuario.usu_id)}
-                            >
-                              Excluir
-                            </button>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </section>
-          </>
-        )}
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="5" className={styles.emptyTable}>
+                  {loading ? 'Carregando usuários...' : 'Nenhum usuário cadastrado.'}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </>
+)}
 
         {activeTab === 'notas' && (
           <>
