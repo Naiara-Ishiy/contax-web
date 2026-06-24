@@ -11,8 +11,8 @@ function Home() {
         <Link to="/tela/login">Tela de Login.</Link>
         <Link to="/tela/menuAdm">Tela de Menu Administrador.</Link>
         <Link to="/tela/menuME">Tela de Menu ME.</Link>
-        <Link to="/tela/menuMEvisu">Tela de Menu ME Visualizador.</Link>
-        <Link to="/tela/menuMEgeren">Tela de Menu ME Gerente.</Link>
+        <Link to="/tela/menuMEVisualizador">Tela de Menu ME Visualizador.</Link>
+        <Link to="/tela/menuMEGerente">Tela de Menu ME Gerente.</Link>
         <Link to="/tela/menuMEI">Tela de Menu MEI.</Link>
       </div>
     </div>

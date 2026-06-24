@@ -16,53 +16,55 @@ function Login() {
   const [loading, setLoading] = useState(false);
 
   async function handleLogin() {
-    setErro('');
+  setErro('');
 
-    if (!email || !senha) {
-      setErro('Preencha todos os campos');
+  if (!email || !senha) {
+    setErro('Preencha todos os campos');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const res = await api.get('/usuarios/login', {
+      params: { email, senha },
+    });
+
+    const dados = res.data?.dados;
+
+    if (!dados?.usuario || !dados?.empresa_padrao) {
+      setErro('Resposta de login inválida.');
       return;
     }
 
-    setLoading(true);
+    const usuario = dados.usuario;
+    const empresa = dados.empresa_padrao;
+    const empresas = dados.empresas || [];
 
-    try {
-      const res = await api.get('/usuarios/login', {
-        params: { email, senha }
-      });
-      const data = res.data || {};
-      const dados = data.dados || {};
+    localStorage.setItem('usuario', JSON.stringify(usuario));
+    localStorage.setItem('empresa', JSON.stringify(empresa));
+    localStorage.setItem('empresas', JSON.stringify(empresas));
 
-      const user = dados.usuario;
-      const empresa = dados.empresa_padrao;
-      const empresas = dados.empresas || [];
+    localStorage.setItem('nivel_acesso', String(empresa.nivel_acesso));
+    localStorage.setItem('emp_tipo', String(empresa.tipoNumerico));
 
-      if (user) localStorage.setItem('user', JSON.stringify(user));
-      if (empresas) localStorage.setItem('empresas', JSON.stringify(empresas));
+    const nivel = Number(empresa.nivel_acesso);
+    const tipo = Number(empresa.tipoNumerico);
 
-      if (empresa) {
-        localStorage.setItem('empresa', JSON.stringify(empresa));
-      }
-
-      // decide rota baseada no tipo do usuário ou da empresa
-      const tipo = String(
-        empresa?.nivel_descricao ||
-        ''
-      ).toLowerCase();
-
-      if (tipo.includes('administrador')) {
-        navigate('/tela/menuAdm');
-      } else {
-        navigate('/tela/menuME');
-      }
-      
-    } catch (err) {
-      // fallback: manter comportamento local caso a API não esteja disponível
-      console.error(err);
-      setErro('Falha ao autenticar — verifique suas credenciais ou a API.');
-    } finally {
-      setLoading(false);
+    if (nivel === 2) {
+      navigate('/tela/menuAdm');
+    } else if (tipo === 1) {
+      navigate('/tela/menuMEI');
+    } else {
+      navigate('/tela/menuME');
     }
+  } catch (err) {
+    console.error(err);
+    setErro(err.response?.data?.mensagem || 'Falha ao autenticar.');
+  } finally {
+    setLoading(false);
   }
+}
 
   return (
     <div className={styles.pagina}>

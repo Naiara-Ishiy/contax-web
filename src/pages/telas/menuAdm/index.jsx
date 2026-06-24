@@ -9,28 +9,152 @@ import { usuariosService } from '../../../services/usuariosService';
 import { empresasService } from '../../../services/empresasService';
 import { usuarioEmpresasService } from '../../../services/usuarioEmpresasService';
 
-export default function MenuAdm() {
-  const [activeTab, setActiveTab] = useState('notas');
-  const isAdmin = true;
+const empresaFormInicial = {
+  emp_nome_fantasia: '',
+  emp_razao_social: '',
+  emp_cnpj: '',
+  emp_endereco: '',
+  emp_municipio: '',
+  emp_telefone: '',
+  emp_email: '',
+  emp_senha: '',
+  emp_tipo: 0,
+  emp_limite: '',
+};
 
+const notaFormInicial = {
+  empresa: '',
+  tpd_id: '1',
+  data: '',
+  valor: '',
+  descricao: '',
+  arquivo: null,
+};
+
+const usuarioFormInicial = {
+  usu_nome: '',
+  usu_email: '',
+  usu_cpf: '',
+  usu_senha: '',
+  usu_telefone: '',
+  usu_status: 1,
+  usu_alterar_senha: 0,
+  tipo_acesso: '',
+  empresa_vinculada: '',
+  usu_emp_id: '',
+};
+
+function getNivelAcessoTexto(nivel) {
+  const nivelNumerico = Number(nivel);
+
+  if (nivelNumerico === 2) return 'Administrador';
+  if (nivelNumerico === 1) return 'Gerente';
+
+  return 'Visualizador';
+}
+
+function getTipoEmpresaTexto(tipo) {
+  return Number(tipo) === 1 ? 'MEI' : 'ME';
+}
+
+function getLimiteMensalEmpresa(empresa) {
+  if (Number(empresa.emp_tipo) === 1) return 6750;
+
+  return Number(empresa.emp_limite || 20000);
+}
+
+function formatCurrency(value) {
+  const numero = Number(value || 0);
+
+  return numero.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+}
+
+function formatDateBR(dateString) {
+  const [year, month, day] = dateString.split('-');
+  return `${day}/${month}/${year}`;
+}
+
+function formatDateBRFromAPI(dateString) {
+  if (!dateString) return '-';
+
+  const date = new Date(dateString);
+
+  return date.toLocaleDateString('pt-BR', {
+    timeZone: 'UTC',
+  });
+}
+
+export default function MenuAdm() {
+  // 1. CONTROLE PRINCIPAL DA TELA
+  const [activeTab, setActiveTab] = useState('notas');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 2. DADOS DO LOGIN / PERMISSÕES
+  const empresaLogada = JSON.parse(localStorage.getItem('empresa'));
+  const usuarioLogado = JSON.parse(localStorage.getItem('usuario'));
+
+  const nivelAcesso = Number(localStorage.getItem('nivel_acesso'));
+  const empTipo = Number(localStorage.getItem('emp_tipo'));
+
+  const isAdmin = nivelAcesso === 2;
+  const isGerente = nivelAcesso === 1;
+  const isVisualizador = nivelAcesso === 0;
+
+  const isMEI = empTipo === 1;
+  const isME = empTipo === 0;
+
+  // 3. DADOS PRINCIPAIS DO SISTEMA
+  const [empresas, setEmpresas] = useState([]);
+  const [usuarios, setUsuarios] = useState([]);
+  const [notas, setNotas] = useState([]);
+
+  // 4. DASHBOARD ADMINISTRATIVO
   const [adminResumo, setAdminResumo] = useState(null);
   const [financeiroMensal, setFinanceiroMensal] = useState(null);
-  const [empresaModal, setEmpresaModal] = useState(null)
   const [empresasRisco, setEmpresasRisco] = useState([]);
   const [notasRecentes, setNotasRecentes] = useState([]);
   const [prazosPendentes, setPrazosPendentes] = useState([]);
   const [auditoriaRecente, setAuditoriaRecente] = useState([]);
-  const [empresas, setEmpresas] = useState([]);
-  const [usuarios, setUsuarios] = useState([]);
+
+  // 5. ESTADOS DE EDIÇÃO / MODAIS
+  const [empresaModal, setEmpresaModal] = useState(null);
   const [usuarioSendoEditado, setUsuarioSendoEditado] = useState(null);
-  const [notas, setNotas] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  // 6. FORMULÁRIOS
+  const [empresaForm, setEmpresaForm] = useState(empresaFormInicial);
+  const [notaForm, setNotaForm] = useState(notaFormInicial);
+  const [usuarioForm, setUsuarioForm] = useState(usuarioFormInicial);
+
+  // 7. FEEDBACK VISUAL
   const [feedback, setFeedback] = useState({
     ativo: false,
     titulo: '',
     mensagem: '',
   });
+
+  const mostrarFeedback = (titulo, mensagem) => {
+    setFeedback({
+      ativo: true,
+      titulo,
+      mensagem,
+    });
+  };
+
+  const feedbackSucesso = (mensagem) => {
+    mostrarFeedback('Sucesso', mensagem);
+  };
+
+  const feedbackErro = (mensagem) => {
+    mostrarFeedback('Erro', mensagem);
+  };
+
+  const feedbackAviso = (mensagem) => {
+    mostrarFeedback('Aviso', mensagem);
+  };
 
   const buscarDashboardAdmin = async () => {
     try {
@@ -67,35 +191,65 @@ export default function MenuAdm() {
   };
 
   const buscarEmpresas = async () => {
-  try {
-    const response = await empresasService.listar();
-    setEmpresas(response.dados || response.data?.dados || []);
-  } catch (err) {
-    console.log(err);
-    setEmpresas([]);
-    mostrarFeedback('Erro', 'Erro ao carregar empresas.');
-  }
-};
+    try {
+      const response = await empresasService.listar();
+      setEmpresas(response.dados || response.data?.dados || []);
+    } catch (err) {
+      console.log(err);
+      setEmpresas([]);
+      feedbackErro('Erro ao carregar empresas.');
+    }
+  };
 
-const buscarUsuarios = async () => {
-  try {
-    const response = await usuariosService.listar({ limit: 25 });
-    setUsuarios(response.dados || response.data?.dados || []);
-  } catch (err) {
-    console.error('Erro ao listar usuários:', err);
-    setUsuarios([]);
-    mostrarFeedback('Erro', 'Erro ao carregar usuários.');
-  }
-};
+  const buscarUsuarios = async () => {
+    try {
+      const response = await usuariosService.listar({ limit: 25 });
+      setUsuarios(response.dados || response.data?.dados || []);
+    } catch (err) {
+      console.error('Erro ao listar usuários:', err);
+      setUsuarios([]);
+      feedbackErro('Erro ao carregar usuários.');
+    }
+  };
+
+  const buscarNotas = async () => {
+    try {
+      const response = await api.get('/documentos');
+      setNotas(response.data.dados || []);
+    } catch (err) {
+      console.log(err);
+      setNotas([]);
+      feedbackErro('Erro ao carregar notas fiscais.');
+    }
+  };
+
+  useEffect(() => {
+    const carregarDadosIniciais = async () => {
+      try {
+        setLoading(true);
+
+        await Promise.all([
+          buscarEmpresas(),
+          buscarUsuarios(),
+          buscarNotas(),
+          buscarDashboardAdmin(),
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDadosIniciais();
+  }, []);
 
   const prepararEdicaoUsuario = (usuario) => {
-    setUsuarioSendoEditado(usuario.usu_id || usuario.id); 
-  
+    setUsuarioSendoEditado(usuario.usu_id || usuario.id);
+
     setUsuarioForm({
       usu_nome: usuario.usu_nome || usuario.nome || '',
       usu_email: usuario.usu_email || usuario.email || '',
       usu_cpf: usuario.usu_cpf || usuario.cpf || '',
-      usu_senha: '', 
+      usu_senha: '',
       usu_telefone: usuario.usu_telefone || usuario.telefone || '',
       usu_status: usuario.usu_status ?? 1,
       usu_alterar_senha: usuario.usu_alterar_senha ?? 0,
@@ -107,85 +261,13 @@ const buscarUsuarios = async () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-const buscarNotas = async () => {
-  try {
-    const response = await api.get('/documentos');
-    setNotas(response.data.dados || []);
-  } catch (err) {
-    console.log(err);
-    setNotas([]);
-    mostrarFeedback('Erro', 'Erro ao carregar notas fiscais.');
-  }
-};
-
-  useEffect(() => {
-  const carregarDadosIniciais = async () => {
-    try {
-      setLoading(true);
-
-      await Promise.all([
-        buscarEmpresas(),
-        buscarUsuarios(),
-        buscarNotas(),
-        buscarDashboardAdmin(),
-      ]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  carregarDadosIniciais();
-}, []);
-
-  const mostrarFeedback = (titulo, mensagem) => {
-    setFeedback({
-      ativo: true,
-      titulo,
-      mensagem,
-    });
-  };
-
-  const [empresaForm, setEmpresaForm] = useState({
-    emp_nome_fantasia: '',
-    emp_razao_social: '',
-    emp_cnpj: '',
-    emp_endereco: '',
-    emp_municipio: '',
-    emp_telefone: '',
-    emp_email: '',
-    emp_senha: '',
-    emp_tipo: 0,
-    emp_limite: '',
-  });
-
-  const [notaForm, setNotaForm] = useState({
-    empresa: '',           // Será o emp_id
-    tpd_id: '1',           // Padrão 1 para 'Nota Fiscal' (ou dinâmico se tiver select)
-    data: '',              // doc_data_vencimento
-    valor: '',             // fin_valor
-    descricao: '',         // doc_observacao
-    arquivo: null,         // <--- ADICIONADO: Guardará o arquivo PDF físico
-  });
-
-  const [usuarioForm, setUsuarioForm] = useState({
-    usu_nome: '',
-    usu_email: '',
-    usu_cpf: '',
-    usu_senha: '',
-    usu_telefone: '',
-    usu_status: 1,
-    usu_alterar_senha: 0,
-    tipo_acesso: '',
-    empresa_vinculada: '',
-    usu_emp_id: '',
-  });
-
   const totalFaturadoLocal = useMemo(() => {
     return notas.reduce((acc, item) => acc + Number(item.fin_valor_total || 0), 0);
   }, [notas]);
 
   const handleEmpresaChange = (e) => {
     const { name, value } = e.target;
+
     setEmpresaForm((prev) => ({
       ...prev,
       [name]: name === 'emp_tipo' ? Number(value) : value,
@@ -194,6 +276,7 @@ const buscarNotas = async () => {
 
   const handleNotaChange = (e) => {
     const { name, value } = e.target;
+
     setNotaForm((prev) => ({
       ...prev,
       [name]: value,
@@ -202,6 +285,7 @@ const buscarNotas = async () => {
 
   const handleUsuarioChange = (e) => {
     const { name, value } = e.target;
+
     setUsuarioForm((prev) => ({
       ...prev,
       [name]: name === 'usu_status' ? Number(value) : value,
@@ -211,174 +295,154 @@ const buscarNotas = async () => {
   const handleArquivoChange = (e) => {
     setNotaForm((prev) => ({
       ...prev,
-      arquivo: e.target.files[0], // Pega o primeiro arquivo selecionado
+      arquivo: e.target.files[0],
     }));
   };
 
   const cadastrarEmpresa = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (
-    !empresaForm.emp_nome_fantasia.trim() ||
-    !empresaForm.emp_razao_social.trim() ||
-    !empresaForm.emp_cnpj.trim()
-  ) {
-    mostrarFeedback(
-      'Campos obrigatórios',
-      'Preencha nome fantasia, razão social e CNPJ.'
-    );
-    return;
-  }
-
-  if (Number(empresaForm.emp_tipo) === 1) {
-  const razaoSocial = empresaForm.emp_razao_social.trim().toUpperCase();
-
-  if (razaoSocial.includes('LTDA')) {
-    mostrarFeedback('Regra para MEI', 'MEI não pode ter razão social LTDA.');
-    return;
-  }
-
-  if (!/\d{11}$/.test(razaoSocial)) {
-    mostrarFeedback(
-      'Regra para MEI',
-      'A razão social do MEI deve terminar com o CPF do titular, contendo 11 números.'
-    );
-    return;
-  }
-}
-
-  try {
-    setLoading(true);
-
-    await empresasService.cadastrar({
-      emp_nome_fantasia: empresaForm.emp_nome_fantasia.trim(),
-      emp_razao_social: empresaForm.emp_razao_social.trim(),
-      emp_cnpj: empresaForm.emp_cnpj.trim(),
-      emp_endereco: empresaForm.emp_endereco.trim(),
-      emp_municipio: empresaForm.emp_municipio.trim(),
-      emp_telefone: empresaForm.emp_telefone.trim(),
-      emp_email: empresaForm.emp_email.trim(),
-      emp_senha: empresaForm.emp_senha.trim(),
-      emp_tipo: Number(empresaForm.emp_tipo),
-      emp_limite: Number(empresaForm.emp_limite || 20000),
-    });
-
-    mostrarFeedback('Sucesso', 'Empresa cadastrada com sucesso!');
-
-    setEmpresaForm({
-      emp_nome_fantasia: '',
-      emp_razao_social: '',
-      emp_cnpj: '',
-      emp_endereco: '',
-      emp_municipio: '',
-      emp_telefone: '',
-      emp_email: '',
-      emp_senha: '',
-      emp_tipo: 0,
-      emp_limite: '',
-    });
-
-    await buscarEmpresas();
-    await buscarDashboardAdmin();
-  } catch (err) {
-    const mensagem =
-      err.response?.data?.mensagem || 'Erro ao cadastrar empresa.';
-    mostrarFeedback('Erro', mensagem);
-  } finally {
-    setLoading(false);
-  }
-};
-
-const salvarUsuario = async (e) => {
-  e.preventDefault();
-
-const hoje = new Date().toISOString().split('T')[0];
-
-const dadosParaEnviar = {
-  nome: usuarioForm.usu_nome,
-  email: usuarioForm.usu_email,
-  cpf: usuarioForm.usu_cpf,
-  senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
-  telefone: usuarioForm.usu_telefone,
-  alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
-
-  emp_id: Number(usuarioForm.empresa_vinculada),
-  nivel_acesso: Number(usuarioForm.tipo_acesso),
-  data_vinculo: hoje,
-  observacoes: null,
-};
-
-  if (!usuarioForm.empresa_vinculada || usuarioForm.tipo_acesso === '') {
-    mostrarFeedback('Campos obrigatórios', 'Selecione a empresa vinculada e o tipo de acesso.');
-    return;
-  }
-
-try {
-  setLoading(true);
-
-if (usuarioSendoEditado) {
-  await usuariosService.editar(usuarioSendoEditado, {
-    nome: usuarioForm.usu_nome,
-    email: usuarioForm.usu_email,
-    cpf: usuarioForm.usu_cpf,
-    senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
-    telefone: usuarioForm.usu_telefone,
-    status: Number(usuarioForm.usu_status),
-    alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
-  });
-
-  if (usuarioForm.usu_emp_id) {
-    await usuarioEmpresasService.editar(usuarioForm.usu_emp_id, {
-      emp_id: Number(usuarioForm.empresa_vinculada),
-      usu_id: Number(usuarioSendoEditado),
-      nivel_acesso: Number(usuarioForm.tipo_acesso),
-      data_vinculo: hoje,
-      status: Number(usuarioForm.usu_status),
-      observacoes: null,
-    });
-  }
-
-  mostrarFeedback('Sucesso', 'Usuário atualizado com sucesso!');
-} else {
-    // Lógica de cadastro...
-    if (!usuarioForm.usu_senha.trim()) {
-      mostrarFeedback('Aviso', 'A senha é obrigatória para um novo cadastro.');
-      setLoading(false);
+    if (
+      !empresaForm.emp_nome_fantasia.trim() ||
+      !empresaForm.emp_razao_social.trim() ||
+      !empresaForm.emp_cnpj.trim()
+    ) {
+      mostrarFeedback(
+        'Campos obrigatórios',
+        'Preencha nome fantasia, razão social e CNPJ.'
+      );
       return;
     }
-    await usuariosService.cadastrar(dadosParaEnviar);
-    mostrarFeedback('Sucesso', 'Usuário cadastrado com sucesso!');
-  }
 
-  // Limpeza do formulário...
-  setUsuarioSendoEditado(null);
-  setUsuarioForm({
-    usu_nome: '',
-    usu_email: '',
-    usu_cpf: '',
-    usu_senha: '',
-    usu_telefone: '',
-    usu_status: 1,
-    usu_alterar_senha: 0,
-    tipo_acesso: '',
-    empresa_vinculada: '',
-    usu_emp_id: '',
-  });
+    if (Number(empresaForm.emp_tipo) === 1) {
+      const razaoSocial = empresaForm.emp_razao_social.trim().toUpperCase();
 
-  await buscarUsuarios(); 
-} catch (err) {
-  const mensagemErro = err.response?.data?.mensagem || "Erro ao salvar alterações do usuário.";
-  console.error("Erro na operação de usuário:", mensagemErro);
-  mostrarFeedback('Erro', mensagemErro); 
-} finally {
-  setLoading(false);
-}
-};
+      if (razaoSocial.includes('LTDA')) {
+        mostrarFeedback('Regra para MEI', 'MEI não pode ter razão social LTDA.');
+        return;
+      }
+
+      if (!/\d{11}$/.test(razaoSocial)) {
+        mostrarFeedback(
+          'Regra para MEI',
+          'A razão social do MEI deve terminar com o CPF do titular, contendo 11 números.'
+        );
+        return;
+      }
+    }
+
+    try {
+      setLoading(true);
+
+      await empresasService.cadastrar({
+        emp_nome_fantasia: empresaForm.emp_nome_fantasia.trim(),
+        emp_razao_social: empresaForm.emp_razao_social.trim(),
+        emp_cnpj: empresaForm.emp_cnpj.trim(),
+        emp_endereco: empresaForm.emp_endereco.trim(),
+        emp_municipio: empresaForm.emp_municipio.trim(),
+        emp_telefone: empresaForm.emp_telefone.trim(),
+        emp_email: empresaForm.emp_email.trim(),
+        emp_senha: empresaForm.emp_senha.trim(),
+        emp_tipo: Number(empresaForm.emp_tipo),
+        emp_limite: Number(empresaForm.emp_limite || 20000),
+      });
+
+      feedbackSucesso('Empresa cadastrada com sucesso!');
+
+      setEmpresaForm(empresaFormInicial);
+
+      await buscarEmpresas();
+      await buscarDashboardAdmin();
+    } catch (err) {
+      const mensagem = err.response?.data?.mensagem || 'Erro ao cadastrar empresa.';
+      feedbackErro(mensagem);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const salvarUsuario = async (e) => {
+    e.preventDefault();
+
+    const hoje = new Date().toISOString().split('T')[0];
+
+    const dadosParaEnviar = {
+      nome: usuarioForm.usu_nome,
+      email: usuarioForm.usu_email,
+      cpf: usuarioForm.usu_cpf,
+      senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
+      telefone: usuarioForm.usu_telefone,
+      alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
+
+      emp_id: Number(usuarioForm.empresa_vinculada),
+      nivel_acesso: Number(usuarioForm.tipo_acesso),
+      data_vinculo: hoje,
+      observacoes: null,
+    };
+
+    if (!usuarioForm.empresa_vinculada || usuarioForm.tipo_acesso === '') {
+      mostrarFeedback(
+        'Campos obrigatórios',
+        'Selecione a empresa vinculada e o tipo de acesso.'
+      );
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      if (usuarioSendoEditado) {
+        await usuariosService.editar(usuarioSendoEditado, {
+          nome: usuarioForm.usu_nome,
+          email: usuarioForm.usu_email,
+          cpf: usuarioForm.usu_cpf,
+          senha: usuarioForm.usu_senha.trim() || 'MANTIDA_SEM_ALTERACAO',
+          telefone: usuarioForm.usu_telefone,
+          status: Number(usuarioForm.usu_status),
+          alterar_senha: Number(usuarioForm.usu_alterar_senha) || 0,
+        });
+
+        if (usuarioForm.usu_emp_id) {
+          await usuarioEmpresasService.editar(usuarioForm.usu_emp_id, {
+            emp_id: Number(usuarioForm.empresa_vinculada),
+            usu_id: Number(usuarioSendoEditado),
+            nivel_acesso: Number(usuarioForm.tipo_acesso),
+            data_vinculo: hoje,
+            status: Number(usuarioForm.usu_status),
+            observacoes: null,
+          });
+        }
+
+        feedbackSucesso('Usuário atualizado com sucesso!');
+      } else {
+        if (!usuarioForm.usu_senha.trim()) {
+          feedbackAviso('A senha é obrigatória para um novo cadastro.');
+          setLoading(false);
+          return;
+        }
+
+        await usuariosService.cadastrar(dadosParaEnviar);
+        feedbackSucesso('Usuário cadastrado com sucesso!');
+      }
+
+      setUsuarioSendoEditado(null);
+      setUsuarioForm(usuarioFormInicial);
+
+      await buscarUsuarios();
+    } catch (err) {
+      const mensagemErro =
+        err.response?.data?.mensagem || 'Erro ao salvar alterações do usuário.';
+
+      console.error('Erro na operação de usuário:', mensagemErro);
+      feedbackErro(mensagemErro);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const lancarNota = async (e) => {
     e.preventDefault();
 
-    // 1. Validações estritas dos campos no Front-end antes de disparar a API
     if (!notaForm.empresa || !notaForm.valor || !notaForm.arquivo) {
       mostrarFeedback(
         'Campos obrigatórios',
@@ -390,132 +454,121 @@ if (usuarioSendoEditado) {
     try {
       setLoading(true);
 
-      // 2. Cria o objeto FormData necessário para transporte de arquivos binários
       const formData = new FormData();
-      formData.append('img', notaForm.arquivo); // 'img' deve bater com o upload.single('img') das suas rotas
+      formData.append('img', notaForm.arquivo);
       formData.append('emp_id', notaForm.empresa);
       formData.append('tpd_id', notaForm.tpd_id);
       formData.append('fin_valor', notaForm.valor);
-      formData.append('fin_categoria', 'Nota Fiscal Lançada'); // Categoria padrão ou adicione campo no form
+      formData.append('fin_categoria', 'Faturamento');
       formData.append('doc_observacao', notaForm.descricao.trim());
       formData.append('doc_data_vencimento', notaForm.data);
 
-      // 3. Dispara a requisição para a rota que aponta para o notas.js
       const response = await api.post('/documentos', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-          // O Token real (localStorage) será injetado automaticamente aqui pelo interceptor da sua instância 'api'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
 
       if (response.data.sucesso) {
-        mostrarFeedback('Sucesso', 'Nota fiscal armazenada e financeiro gerado com sucesso!');
-        
-        // 4. Limpa o formulário na tela após o sucesso
-        setNotaForm({
-          empresa: '',
-          tpd_id: '1',
-          data: '',
-          valor: '',
-          descricao: '',
-          arquivo: null,
-        });
+        feedbackSucesso('Nota fiscal armazenada e financeiro gerado com sucesso!');
 
-        // Limpa visualmente o input de arquivo caso use uma referência ou id
-        const fileInput = document.getElementById('input-arquivo-id'); // Ajuste se houver ID
+        setNotaForm(notaFormInicial);
+
+        const fileInput = document.getElementById('input-arquivo-id');
         if (fileInput) fileInput.value = '';
 
-        // 5. Atualiza a listagem de notas do painel administrativo imediatamente
         await buscarNotas();
         await buscarDashboardAdmin();
       }
-
     } catch (err) {
-      const mensagemErro = err.response?.data?.mensagem || "Erro ao efetuar o lançamento da nota no servidor.";
-      console.error("Erro no upload combinado:", err);
-      mostrarFeedback('Erro', mensagemErro);
+      const mensagemErro =
+        err.response?.data?.mensagem ||
+        'Erro ao efetuar o lançamento da nota no servidor.';
+
+      console.error('Erro no upload combinado:', err);
+      feedbackErro(mensagemErro);
     } finally {
       setLoading(false);
     }
   };
 
   const excluirNota = async (id) => {
-  if (!window.confirm('Tem certeza que deseja excluir/desativar esta nota?')) {
-    return;
-  }
+    if (!window.confirm('Tem certeza que deseja excluir/desativar esta nota?')) {
+      return;
+    }
 
-  try {
-    setLoading(true);
-
-    await api.delete(`/documentos/del/${id}`);
-
-    mostrarFeedback('Sucesso', 'Nota fiscal removida com sucesso!');
-
-    await buscarNotas();
-    await buscarDashboardAdmin();
-  } catch (err) {
-    const mensagem =
-      err.response?.data?.mensagem || 'Erro ao excluir nota fiscal.';
-    mostrarFeedback('Erro', mensagem);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  const excluirEmpresa = async (id) => {
-  if (!window.confirm('Tem certeza que deseja excluir/desativar esta empresa?')) {
-    return;
-  }
-
-  try {
-    setLoading(true);
-
-    await empresasService.ocultar(id);
-
-    mostrarFeedback('Sucesso', 'Empresa removida com sucesso!');
-
-    await buscarEmpresas();
-    await buscarNotas();
-    await buscarDashboardAdmin();
-  } catch (err) {
-    const mensagem =
-      err.response?.data?.mensagem || 'Erro ao excluir empresa.';
-    mostrarFeedback('Erro', mensagem);
-  } finally {
-    setLoading(false);
-  }
-};
-
-const excluirUsuario = async (id) => {
-  if (window.confirm("Tem certeza que deseja desativar este usuário?")) {
     try {
       setLoading(true);
 
-      const usuarioAtual = usuarios.find(u => u.usu_id === id);
+      await api.delete(`/documentos/del/${id}`);
 
-      const dadosDesativar = {
-        nome: usuarioAtual?.usu_nome,
-        email: usuarioAtual?.usu_email,
-        cpf: usuarioAtual?.usu_cpf,
-        senha: "MANTIDA_SEM_ALTERACAO", // Passa o padrão exigido pelo seu back-end
-        telefone: usuarioAtual?.usu_telefone,
-        status: 0, // <--- Aqui desativamos o usuário
-        alterar_senha: Number(usuarioAtual?.usu_alterar_senha) || 0
-      };
+      feedbackSucesso('Nota fiscal removida com sucesso!');
 
-      await usuariosService.editar(id, dadosDesativar);
-
-      mostrarFeedback('Sucesso', 'Usuário desativado com sucesso!');
-      await buscarUsuarios(); 
+      await buscarNotas();
+      await buscarDashboardAdmin();
     } catch (err) {
-      const mensagemErro = err.response?.data?.mensagem || "Erro ao desativar usuário no servidor.";
-      console.error("Erro ao deletar:", mensagemErro);
-      mostrarFeedback('Erro', mensagemErro);
+      const mensagem = err.response?.data?.mensagem || 'Erro ao excluir nota fiscal.';
+      feedbackErro(mensagem);
     } finally {
       setLoading(false);
     }
-  }
-};
+  };
+
+  const excluirEmpresa = async (id) => {
+    if (!window.confirm('Tem certeza que deseja excluir/desativar esta empresa?')) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await empresasService.ocultar(id);
+
+      feedbackSucesso('Empresa removida com sucesso!');
+
+      await buscarEmpresas();
+      await buscarNotas();
+      await buscarDashboardAdmin();
+    } catch (err) {
+      const mensagem = err.response?.data?.mensagem || 'Erro ao excluir empresa.';
+      feedbackErro(mensagem);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const excluirUsuario = async (id) => {
+    if (window.confirm('Tem certeza que deseja desativar este usuário?')) {
+      try {
+        setLoading(true);
+
+        const usuarioAtual = usuarios.find((u) => u.usu_id === id);
+
+        const dadosDesativar = {
+          nome: usuarioAtual?.usu_nome,
+          email: usuarioAtual?.usu_email,
+          cpf: usuarioAtual?.usu_cpf,
+          senha: 'MANTIDA_SEM_ALTERACAO',
+          telefone: usuarioAtual?.usu_telefone,
+          status: 0,
+          alterar_senha: Number(usuarioAtual?.usu_alterar_senha) || 0,
+        };
+
+        await usuariosService.editar(id, dadosDesativar);
+
+        feedbackSucesso('Usuário desativado com sucesso!');
+        await buscarUsuarios();
+      } catch (err) {
+        const mensagemErro =
+          err.response?.data?.mensagem || 'Erro ao desativar usuário no servidor.';
+
+        console.error('Erro ao deletar:', mensagemErro);
+        feedbackErro(mensagemErro);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
 
   const totalUsuarios = adminResumo?.totalUsuarios ?? 0;
   const totalEmpresas = adminResumo?.totalEmpresas ?? 0;
@@ -559,9 +612,9 @@ const excluirUsuario = async (id) => {
           </div>
         </div>
       )}
+
       <header className={styles.topbar}>
         <div className={styles.topbarInner}>
-          {/* LOGO */}
           <div className={styles.logoArea}>
             <img src={logo} alt="Contax" className={styles.logoImg} />
 
@@ -571,7 +624,6 @@ const excluirUsuario = async (id) => {
             </div>
           </div>
 
-          {/* NAV */}
           <nav className={styles.nav}>
             <button
               className={`${styles.navButton} ${
@@ -610,9 +662,10 @@ const excluirUsuario = async (id) => {
             </button>
           </nav>
 
-          {/* USER */}
           <div className={styles.userArea}>
-            <span className={styles.userText}>Acesso: Administrador</span>
+            <span className={styles.userText}>
+              Acesso: {getNivelAcessoTexto(nivelAcesso)}
+            </span>
           </div>
         </div>
       </header>
@@ -653,12 +706,14 @@ const excluirUsuario = async (id) => {
 
                 <div className={styles.statContent}>
                   <span className={styles.statLabel}>Faturamento Geral Mensal</span>
-                  <div className={styles.statValue}>{formatCurrency(faturamentoMensal)}</div>
+                  <div className={styles.statValue}>
+                    {formatCurrency(faturamentoMensal)}
+                  </div>
                 </div>
               </div>
             </div>
+
             <div className={styles.dashboardLayout}>
-              {/* ESQUERDA */}
               <section className={styles.card}>
                 <div className={styles.cardHeader}>
                   <h2>
@@ -682,7 +737,7 @@ const excluirUsuario = async (id) => {
                         0
                       );
 
-                      const limite = Number(empresa.emp_tipo) === 1 ? 6750 : 20000;
+                      const limite = getLimiteMensalEmpresa(empresa);
                       const percentual = Math.min((total / limite) * 100, 100);
 
                       const status =
@@ -690,20 +745,21 @@ const excluirUsuario = async (id) => {
 
                       return (
                         <div key={empresa.emp_id} className={styles.companyCard}>
-                          <div className={styles.companyTop}>
-                            
-                          </div>
+                          <div className={styles.companyTop}></div>
 
                           <div className={styles.companyContent}>
                             <div>
                               <div className={styles.companyName}>
                                 <span
                                   className={`${styles.typeBadge} ${
-                                  Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
-                                }`}
+                                    Number(empresa.emp_tipo) === 0
+                                      ? styles.badgeME
+                                      : styles.badgeMEI
+                                  }`}
                                 >
-                                  {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
+                                  {getTipoEmpresaTexto(empresa.emp_tipo)}
                                 </span>
+
                                 <strong
                                   className={styles.companyNameClickable}
                                   onClick={() => setEmpresaModal(empresa)}
@@ -711,35 +767,34 @@ const excluirUsuario = async (id) => {
                                   {empresa.emp_nome_fantasia}
                                 </strong>
                               </div>
+
                               <div className={styles.companyInfoRow}>
                                 <p className={styles.limitText}>
-                                Limite: <strong>{formatCurrency(limite)}</strong> • 
-                                Utilizado:{' '} <strong>{formatCurrency(total)}</strong> • 
-                                Restante:{' '} <strong>{formatCurrency(limite - total)}</strong>                    
+                                  Limite: <strong>{formatCurrency(limite)}</strong> •
+                                  Utilizado: <strong>{formatCurrency(total)}</strong> •
+                                  Restante: <strong>{formatCurrency(limite - total)}</strong>
                                 </p>
 
                                 <span
                                   className={styles.statusBadge}
                                   style={{
                                     background:
-                                      status === "Saudável"
-                                        ? "#d9f8e8"
-                                        : status === "Atenção"
-                                        ? "#fff4d6"
-                                        : "#ffe4e6",
+                                      status === 'Saudável'
+                                        ? '#d9f8e8'
+                                        : status === 'Atenção'
+                                        ? '#fff4d6'
+                                        : '#ffe4e6',
                                     color:
-                                      status === "Saudável"
-                                        ? "#047857"
-                                        : status === "Atenção"
-                                        ? "#b45309"
-                                        : "#b91c1c",
+                                      status === 'Saudável'
+                                        ? '#047857'
+                                        : status === 'Atenção'
+                                        ? '#b45309'
+                                        : '#b91c1c',
                                   }}
                                 >
                                   {status}
                                 </span>
                               </div>
-                              
-                              
                             </div>
 
                             <div className={styles.progressArea}>
@@ -751,8 +806,8 @@ const excluirUsuario = async (id) => {
                               </div>
 
                               <div className={styles.progressInfo}>
-                                <strong className={styles.percent}>{
-                                  percentual.toFixed(1)}%
+                                <strong className={styles.percent}>
+                                  {percentual.toFixed(1)}%
                                 </strong>
                               </div>
                             </div>
@@ -764,7 +819,6 @@ const excluirUsuario = async (id) => {
                 )}
               </section>
 
-              {/* DIREITA */}
               <section className={`${styles.card} ${styles.filterCard}`}>
                 <div className={styles.cardHeader}>
                   <h2>Filtro</h2>
@@ -778,8 +832,10 @@ const excluirUsuario = async (id) => {
 
                   <div className={styles.field}>
                     <label>Empresa</label>
+
                     <select className={styles.input}>
                       <option value="">Todas</option>
+
                       {empresas.map((e) => (
                         <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
                       ))}
@@ -791,7 +847,6 @@ const excluirUsuario = async (id) => {
               </section>
             </div>
 
-            {/* TABELA */}
             <section className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>Notas Fiscais</h2>
@@ -826,12 +881,15 @@ const excluirUsuario = async (id) => {
 
                           <td>
                             <strong>{nota.doc_nome_original}</strong>
+
                             <span className={styles.subText}>
                               {nota.tpd_descricao || 'Documento fiscal'}
                             </span>
                           </td>
 
-                          <td className={styles.valueCell}>{formatCurrency(nota.fin_valor_total)}</td>
+                          <td className={styles.valueCell}>
+                            {formatCurrency(nota.fin_valor_total)}
+                          </td>
                         </tr>
                       ))
                     )}
@@ -841,6 +899,7 @@ const excluirUsuario = async (id) => {
             </section>
           </>
         )}
+
         {activeTab === 'empresas' && (
           <>
             <section className={styles.card}>
@@ -850,143 +909,143 @@ const excluirUsuario = async (id) => {
 
               <form className={styles.form} onSubmit={cadastrarEmpresa}>
                 <div className={styles.row}>
-  <div className={styles.field}>
-    <label>Nome da empresa</label>
+                  <div className={styles.field}>
+                    <label>Nome da empresa</label>
 
-    <input
-      type="text"
-      name="emp_nome_fantasia"
-      value={empresaForm.emp_nome_fantasia}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="Ex.: Acme Comércio"
-    />
-  </div>
+                    <input
+                      type="text"
+                      name="emp_nome_fantasia"
+                      value={empresaForm.emp_nome_fantasia}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Ex.: Acme Comércio"
+                    />
+                  </div>
 
-  <div className={styles.field}>
-    <label>Razão Social</label>
+                  <div className={styles.field}>
+                    <label>Razão Social</label>
 
-    <input
-      type="text"
-      name="emp_razao_social"
-      value={empresaForm.emp_razao_social}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="Ex.: Nome do Titular 12345678900"
-    />
-  </div>
-</div>
+                    <input
+                      type="text"
+                      name="emp_razao_social"
+                      value={empresaForm.emp_razao_social}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Ex.: Nome do Titular 12345678900"
+                    />
+                  </div>
+                </div>
 
-<div className={styles.row}>
-  <div className={styles.field}>
-    <label>CNPJ</label>
+                <div className={styles.rowThree}>
+                  <div className={styles.field}>
+                    <label>CNPJ</label>
 
-    <input
-      type="text"
-      name="emp_cnpj"
-      value={empresaForm.emp_cnpj}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="00.000.000/0000-00"
-    />
-  </div>
+                    <input
+                      type="text"
+                      name="emp_cnpj"
+                      value={empresaForm.emp_cnpj}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="00.000.000/0000-00"
+                    />
+                  </div>
 
-  <div className={styles.field}>
-    <label>Tipo</label>
+                  <div className={styles.field}>
+                    <label>Tipo</label>
 
-    <select
-      name="emp_tipo"
-      value={empresaForm.emp_tipo}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-    >
-      <option value={0}>ME</option>
-      <option value={1}>MEI</option>
-    </select>
-  </div>
-</div>
+                    <select
+                      name="emp_tipo"
+                      value={empresaForm.emp_tipo}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                    >
+                      <option value={0}>ME</option>
+                      <option value={1}>MEI</option>
+                    </select>
+                  </div>
 
-<div className={styles.row}>
-  <div className={styles.field}>
-    <label>Município</label>
+                  <div className={styles.field}>
+                    <label>Município</label>
 
-    <input
-      type="text"
-      name="emp_municipio"
-      value={empresaForm.emp_municipio}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="Ex.: Quintana"
-    />
-  </div>
+                    <input
+                      type="text"
+                      name="emp_municipio"
+                      value={empresaForm.emp_municipio}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Ex.: Quintana"
+                    />
+                  </div>
+                </div>
 
-  <div className={styles.field}>
-    <label>Telefone</label>
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>Telefone</label>
 
-    <input
-      type="text"
-      name="emp_telefone"
-      value={empresaForm.emp_telefone}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="(00) 00000-0000"
-    />
-  </div>
-</div>
+                    <input
+                      type="text"
+                      name="emp_telefone"
+                      value={empresaForm.emp_telefone}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
 
-<div className={styles.row}>
-  <div className={styles.field}>
-    <label>E-mail</label>
+                  <div className={styles.field}>
+                    <label>Endereço</label>
 
-    <input
-      type="email"
-      name="emp_email"
-      value={empresaForm.emp_email}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="empresa@email.com"
-    />
-  </div>
+                    <input
+                      type="text"
+                      name="emp_endereco"
+                      value={empresaForm.emp_endereco}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Rua, número, bairro"
+                    />
+                  </div>
+                </div>
 
-  <div className={styles.field}>
-    <label>Senha</label>
+                <div className={styles.row}>
+                  <div className={styles.field}>
+                    <label>E-mail</label>
 
-    <input
-      type="password"
-      name="emp_senha"
-      value={empresaForm.emp_senha}
-      onChange={handleEmpresaChange}
-      className={styles.input}
-      placeholder="Senha de acesso"
-    />
-  </div>
-</div>
+                    <input
+                      type="email"
+                      name="emp_email"
+                      value={empresaForm.emp_email}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="empresa@email.com"
+                    />
+                  </div>
 
-<div className={styles.field}>
-  <label>Endereço</label>
+                  <div className={styles.field}>
+                    <label>Senha</label>
 
-  <input
-    type="text"
-    name="emp_endereco"
-    value={empresaForm.emp_endereco}
-    onChange={handleEmpresaChange}
-    className={styles.input}
-    placeholder="Rua, número, bairro"
-  />
-</div>
+                    <input
+                      type="password"
+                      name="emp_senha"
+                      value={empresaForm.emp_senha}
+                      onChange={handleEmpresaChange}
+                      className={styles.input}
+                      placeholder="Senha de acesso"
+                    />
+                  </div>
+                </div>
 
-<div className={styles.field}>
-  <label>Limite mensal</label>
+                <div className={styles.field}>
+                  <label>Limite mensal</label>
 
-  <input
-    type="number"
-    name="emp_limite"
-    value={empresaForm.emp_limite || ''}
-    onChange={handleEmpresaChange}
-    className={styles.input}
-    placeholder="MEI: 6750 / ME: 20000"
-  />
-</div>
+                  <input
+                    type="number"
+                    name="emp_limite"
+                    value={empresaForm.emp_limite || ''}
+                    onChange={handleEmpresaChange}
+                    className={styles.input}
+                    placeholder="MEI: 6750 / ME: 20000"
+                  />
+                </div>
 
                 <button type="submit" className={styles.primaryButton}>
                   Salvar Empresa
@@ -1030,15 +1089,17 @@ const excluirUsuario = async (id) => {
                           <td>
                             <span
                               className={`${styles.companyBadge} ${
-                                Number(empresa.emp_tipo) === 0 ? styles.badgeME : styles.badgeMEI
+                                Number(empresa.emp_tipo) === 0
+                                  ? styles.badgeME
+                                  : styles.badgeMEI
                               }`}
                             >
-                              {Number(empresa.emp_tipo) === 0 ? 'ME' : 'MEI'}
+                              {getTipoEmpresaTexto(empresa.emp_tipo)}
                             </span>
                           </td>
 
                           <td className={styles.limitCell}>
-                            {formatCurrency(Number(empresa.emp_tipo) === 1 ? 6750 : empresa.emp_limite || 20000)}
+                            {formatCurrency(getLimiteMensalEmpresa(empresa))}
                           </td>
 
                           <td className={styles.actionsCell}>
@@ -1062,191 +1123,195 @@ const excluirUsuario = async (id) => {
         )}
 
         {activeTab === 'usuarios' && (
-  <>
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Cadastrar Usuário</h2>
-      </div>
+          <>
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Cadastrar Usuário</h2>
+              </div>
 
-      <form className={styles.form} onSubmit={salvarUsuario}>
-        <div className={styles.field}>
-          <label>Nome completo</label>
-          <input
-            type="text"
-            name="usu_nome"
-            value={usuarioForm.usu_nome}
-            onChange={handleUsuarioChange}
-            className={styles.input}
-            placeholder="Digite o nome completo"
-          />
-        </div>
+              <form className={styles.form} onSubmit={salvarUsuario}>
+                <div className={styles.field}>
+                  <label>Nome completo</label>
 
-        <div className={styles.rowThree}>
-          <div className={styles.field}>
-            <label>E-mail</label>
-            <input
-              type="email"
-              name="usu_email"
-              value={usuarioForm.usu_email}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-              placeholder="email@exemplo.com"
-            />
-          </div>
+                  <input
+                    type="text"
+                    name="usu_nome"
+                    value={usuarioForm.usu_nome}
+                    onChange={handleUsuarioChange}
+                    className={styles.input}
+                    placeholder="Digite o nome completo"
+                  />
+                </div>
 
-          <div className={styles.field}>
-            <label>CPF ou CRC</label>
-            <input
-              type="text"
-              name="usu_cpf"
-              value={usuarioForm.usu_cpf}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-              placeholder="Digite o documento"
-            />
-          </div>
+                <div className={styles.rowThree}>
+                  <div className={styles.field}>
+                    <label>E-mail</label>
 
-          <div className={styles.field}>
-            <label>Telefone</label>
-            <input
-              type="text"
-              name="usu_telefone"
-              value={usuarioForm.usu_telefone}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-              placeholder="(00) 00000-0000"
-            />
-          </div>
-        </div>
+                    <input
+                      type="email"
+                      name="usu_email"
+                      value={usuarioForm.usu_email}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="email@exemplo.com"
+                    />
+                  </div>
 
-        <div className={styles.rowThree}>
-          <div className={styles.field}>
-            <label>Senha</label>
-            <input
-              type="password"
-              name="usu_senha"
-              value={usuarioForm.usu_senha}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-              placeholder="Digite a senha"
-            />
-          </div>
+                  <div className={styles.field}>
+                    <label>CPF ou CRC</label>
 
-          <div className={styles.field}>
-            <label>Tipo de acesso</label>
-            <select
-              name="tipo_acesso"
-              value={usuarioForm.tipo_acesso || ''}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-            >
-              <option value="">Selecione</option>
-              <option value="0">Visualizador</option>
-              <option value="1">Gerente</option>
-              <option value="2">Administrador</option>
-            </select>
-          </div>
+                    <input
+                      type="text"
+                      name="usu_cpf"
+                      value={usuarioForm.usu_cpf}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite o documento"
+                    />
+                  </div>
 
-          <div className={styles.field}>
-            <label>Empresa vinculada</label>
-            <select
-              name="empresa_vinculada"
-              value={usuarioForm.empresa_vinculada || ''}
-              onChange={handleUsuarioChange}
-              className={styles.input}
-            >
-              <option value="">Selecione uma empresa</option>
+                  <div className={styles.field}>
+                    <label>Telefone</label>
 
-              {empresas.map((empresa) => (
-                <option key={empresa.emp_id} value={empresa.emp_id}>
-                  {empresa.emp_nome_fantasia}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+                    <input
+                      type="text"
+                      name="usu_telefone"
+                      value={usuarioForm.usu_telefone}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+                </div>
 
-        <button type="submit" className={styles.primaryButton}>
-          {usuarioSendoEditado ? 'Salvar Alterações' : 'Cadastrar Usuário'}
-        </button>
-      </form>
-    </section>
+                <div className={styles.rowThree}>
+                  <div className={styles.field}>
+                    <label>Senha</label>
 
-    <section className={styles.card}>
-      <div className={styles.cardHeader}>
-        <h2>Usuários cadastrados</h2>
-      </div>
+                    <input
+                      type="password"
+                      name="usu_senha"
+                      value={usuarioForm.usu_senha}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
+                      placeholder="Digite a senha"
+                    />
+                  </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>NOME</th>
-              <th>EMPRESA VINCULADA</th>
-              <th>TIPO DE ACESSO</th>
-              <th>STATUS</th>
-              <th></th>
-            </tr>
-          </thead>
+                  <div className={styles.field}>
+                    <label>Tipo de acesso</label>
 
-          <tbody>
-            {Array.isArray(usuarios) && usuarios.length > 0 ? (
-              usuarios.map((usuario) => (
-                <tr key={usuario.usu_id} className={styles.userRow}>
-                  <td>
-                    <div className={styles.userInfo}>
-                      <strong>{usuario.usu_nome}</strong>
-                      <span>{usuario.usu_cpf || '000.000.000-00'}</span>
-                    </div>
-                  </td>
-
-                  <td className={styles.companyLinkedCell}>
-                    {usuario.empresa_nome || 'Nenhuma empresa vinculada'}
-                  </td>
-
-                  <td>
-                    <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
-                      {Number(usuario.nivel_acesso) === 2
-                        ? 'Administrador'
-                        : Number(usuario.nivel_acesso) === 1
-                        ? 'Gerente'
-                        : 'Visualizador'}
-                    </span>
-                  </td>
-
-                  <td className={styles.statusCell}>
-                    {Number(usuario.usu_status) === 1 ? 'Ativo' : 'Inativo'}
-                  </td>
-
-                  <td className={styles.actionsCell}>
-                    <button 
-                      className={styles.editButton}
-                      onClick={() => prepararEdicaoUsuario(usuario)}
+                    <select
+                      name="tipo_acesso"
+                      value={usuarioForm.tipo_acesso || ''}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
                     >
-                      Editar
-                    </button>
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => excluirUsuario(usuario.usu_id)}
+                      <option value="">Selecione</option>
+                      <option value="0">Visualizador</option>
+                      <option value="1">Gerente</option>
+                      <option value="2">Administrador</option>
+                    </select>
+                  </div>
+
+                  <div className={styles.field}>
+                    <label>Empresa vinculada</label>
+
+                    <select
+                      name="empresa_vinculada"
+                      value={usuarioForm.empresa_vinculada || ''}
+                      onChange={handleUsuarioChange}
+                      className={styles.input}
                     >
-                      Excluir
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" className={styles.emptyTable}>
-                  {loading ? 'Carregando usuários...' : 'Nenhum usuário cadastrado.'}
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </>
-)}
+                      <option value="">Selecione uma empresa</option>
+
+                      {empresas.map((empresa) => (
+                        <option key={empresa.emp_id} value={empresa.emp_id}>
+                          {empresa.emp_nome_fantasia}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <button type="submit" className={styles.primaryButton}>
+                  {usuarioSendoEditado ? 'Salvar Alterações' : 'Cadastrar Usuário'}
+                </button>
+              </form>
+            </section>
+
+            <section className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>Usuários cadastrados</h2>
+              </div>
+
+              <div className={styles.tableWrapper}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>NOME</th>
+                      <th>EMPRESA VINCULADA</th>
+                      <th>TIPO DE ACESSO</th>
+                      <th>STATUS</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {Array.isArray(usuarios) && usuarios.length > 0 ? (
+                      usuarios.map((usuario) => (
+                        <tr key={usuario.usu_id} className={styles.userRow}>
+                          <td>
+                            <div className={styles.userInfo}>
+                              <strong>{usuario.usu_nome}</strong>
+                              <span>{usuario.usu_cpf || '000.000.000-00'}</span>
+                            </div>
+                          </td>
+
+                          <td className={styles.companyLinkedCell}>
+                            {usuario.empresa_nome || 'Nenhuma empresa vinculada'}
+                          </td>
+
+                          <td>
+                            <span className={`${styles.accessBadge} ${styles.badgeViewer}`}>
+                              {getNivelAcessoTexto(usuario.nivel_acesso)}
+                            </span>
+                          </td>
+
+                          <td className={styles.statusCell}>
+                            {Number(usuario.usu_status) === 1 ? 'Ativo' : 'Inativo'}
+                          </td>
+
+                          <td className={styles.actionsCell}>
+                            <button
+                              className={styles.editButton}
+                              onClick={() => prepararEdicaoUsuario(usuario)}
+                            >
+                              Editar
+                            </button>
+
+                            <button
+                              className={styles.deleteButton}
+                              onClick={() => excluirUsuario(usuario.usu_id)}
+                            >
+                              Excluir
+                            </button>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan="5" className={styles.emptyTable}>
+                          {loading ? 'Carregando usuários...' : 'Nenhum usuário cadastrado.'}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </>
+        )}
 
         {activeTab === 'notas' && (
           <>
@@ -1258,6 +1323,7 @@ const excluirUsuario = async (id) => {
               <form className={styles.form} onSubmit={lancarNota}>
                 <div className={styles.field}>
                   <label>Empresa</label>
+
                   <select
                     name="empresa"
                     value={notaForm.empresa}
@@ -1266,6 +1332,7 @@ const excluirUsuario = async (id) => {
                     disabled={!isAdmin}
                   >
                     <option value="">Selecione uma empresa</option>
+
                     {empresas.map((empresa) => (
                       <option key={empresa.emp_id} value={empresa.emp_id}>
                         {empresa.emp_nome_fantasia}
@@ -1277,6 +1344,7 @@ const excluirUsuario = async (id) => {
                 <div className={styles.row}>
                   <div className={styles.field}>
                     <label>Data</label>
+
                     <input
                       type="date"
                       name="data"
@@ -1289,6 +1357,7 @@ const excluirUsuario = async (id) => {
 
                   <div className={styles.field}>
                     <label>Valor (R$)</label>
+
                     <input
                       type="number"
                       name="valor"
@@ -1305,6 +1374,7 @@ const excluirUsuario = async (id) => {
 
                 <div className={styles.field}>
                   <label>Descrição</label>
+
                   <input
                     type="text"
                     name="descricao"
@@ -1317,17 +1387,17 @@ const excluirUsuario = async (id) => {
                 </div>
 
                 <div className={styles.field}>
-  <label>Arquivo PDF</label>
+                  <label>Arquivo PDF</label>
 
-  <input
-    id="input-arquivo-id"
-    type="file"
-    accept="application/pdf"
-    onChange={handleArquivoChange}
-    className={styles.input}
-    disabled={!isAdmin}
-  />
-</div>
+                  <input
+                    id="input-arquivo-id"
+                    type="file"
+                    accept="application/pdf"
+                    onChange={handleArquivoChange}
+                    className={styles.input}
+                    disabled={!isAdmin}
+                  />
+                </div>
 
                 <button
                   type="submit"
@@ -1370,8 +1440,11 @@ const excluirUsuario = async (id) => {
                           <td>
                             <div className={styles.noteCompanyInfo}>
                               <strong>
-                                {nota.emp_nome_fantasia || nota.empresa || 'Empresa não informada'}
+                                {nota.emp_nome_fantasia ||
+                                  nota.empresa ||
+                                  'Empresa não informada'}
                               </strong>
+
                               <span>{nota.emp_cnpj || 'CNPJ não informado'}</span>
                             </div>
                           </td>
@@ -1387,7 +1460,9 @@ const excluirUsuario = async (id) => {
                             {formatDateBRFromAPI(nota.fin_data_emissao)}
                           </td>
 
-                          <td className={styles.noteValueCell}>{formatCurrency(nota.fin_valor_total)}</td>
+                          <td className={styles.noteValueCell}>
+                            {formatCurrency(nota.fin_valor_total)}
+                          </td>
 
                           <td>
                             <span className={styles.noteStatusBadge}>Ativo</span>
@@ -1415,56 +1490,48 @@ const excluirUsuario = async (id) => {
       </main>
 
       {empresaModal && (
-  <div className={styles.modalOverlay} onClick={() => setEmpresaModal(null)}>
-    <div className={styles.companyModal} onClick={(e) => e.stopPropagation()}>
-      <button
-        type="button"
-        className={styles.modalClose}
-        onClick={() => setEmpresaModal(null)}
-      >
-        ×
-      </button>
+        <div className={styles.modalOverlay} onClick={() => setEmpresaModal(null)}>
+          <div className={styles.companyModal} onClick={(e) => e.stopPropagation()}>
+            <button
+              type="button"
+              className={styles.modalClose}
+              onClick={() => setEmpresaModal(null)}
+            >
+              ×
+            </button>
 
-      <h2>{empresaModal.emp_nome_fantasia}</h2>
+            <h2>{empresaModal.emp_nome_fantasia}</h2>
 
-      <div className={styles.modalInfoGrid}>
-        <p><strong>Razão Social:</strong> {empresaModal.emp_razao_social || 'Não informado'}</p>
-        <p><strong>CNPJ:</strong> {empresaModal.emp_cnpj || 'Não informado'}</p>
-        <p><strong>E-mail:</strong> {empresaModal.emp_email || 'Não informado'}</p>
-        <p><strong>Telefone:</strong> {empresaModal.emp_telefone || 'Não informado'}</p>
-        <p><strong>Município:</strong> {empresaModal.emp_municipio || 'Não informado'}</p>
-        <p>
-          <strong>Tipo:</strong>{' '}
-          {Number(empresaModal.emp_tipo) === 0 ? 'ME' : 'MEI'}
-        </p>
-      </div>
-    </div>
-  </div>
-)}
+            <div className={styles.modalInfoGrid}>
+              <p>
+                <strong>Razão Social:</strong>{' '}
+                {empresaModal.emp_razao_social || 'Não informado'}
+              </p>
+
+              <p>
+                <strong>CNPJ:</strong> {empresaModal.emp_cnpj || 'Não informado'}
+              </p>
+
+              <p>
+                <strong>E-mail:</strong> {empresaModal.emp_email || 'Não informado'}
+              </p>
+
+              <p>
+                <strong>Telefone:</strong> {empresaModal.emp_telefone || 'Não informado'}
+              </p>
+
+              <p>
+                <strong>Município:</strong>{' '}
+                {empresaModal.emp_municipio || 'Não informado'}
+              </p>
+
+              <p>
+                <strong>Tipo:</strong> {getTipoEmpresaTexto(empresaModal.emp_tipo)}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function formatCurrency(value) {
-  const numero = Number(value || 0);
-
-  return numero.toLocaleString('pt-BR', {
-    style: 'currency',
-    currency: 'BRL',
-  });
-}
-
-function formatDateBR(dateString) {
-  const [year, month, day] = dateString.split('-');
-  return `${day}/${month}/${year}`;
-}
-
-function formatDateBRFromAPI(dateString) {
-  if (!dateString) return '-';
-
-  const date = new Date(dateString);
-
-  return date.toLocaleDateString('pt-BR', {
-    timeZone: 'UTC',
-  });
 }

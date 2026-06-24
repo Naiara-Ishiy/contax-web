@@ -6,8 +6,8 @@ import Inicial from './pages/telas/inicial';
 import Login from './pages/telas/login';
 import MenuAdm from './pages/telas/menuAdm';
 import MenuME from './pages/telas/menuME';
-import MenuMEvisu from './pages/telas/menuMEvisu'
-import MenuMEgeren from './pages/telas/menuMEgeren'
+import MenuMEVisualizador from './pages/telas/menuMEVisualizador';
+import MenuMEGerente from './pages/telas/menuMEGerente';
 import MenuMEI from './pages/telas/menuMEI';
 
 function App() {
@@ -18,8 +18,8 @@ function App() {
       <Route path="/tela/login" element={<Login />} />
       <Route path="/tela/menuAdm" element={<MenuAdm />} />
       <Route path="/tela/menuME" element={<MenuME />} />
-      <Route path="/tela/menuMEvisu" element={<MenuMEvisu />} />
-      <Route path="/tela/menuMEgeren" element={<MenuMEgeren />} />
+      <Route path="/tela/menuMEVisualizador" element={<MenuMEVisualizador />} />
+      <Route path="/tela/menuMEGerente" element={<MenuMEGerente />} />
       <Route path="/tela/menuMEI" element={<MenuMEI />} />
     </Routes>
   );

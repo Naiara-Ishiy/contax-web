@@ -99,7 +99,7 @@ function TabelaDocumentos({ documentos }) {
 }
 
 // --- COMPONENTE PRINCIPAL ---
-export default function MenuME() {
+export default function MenuMEGerente() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [filtroMes, setFiltroMes] = useState('06');
   const [filtroAno, setFiltroAno] = useState('2026');

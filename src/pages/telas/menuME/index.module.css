@@ -1118,7 +1118,7 @@
 }
 
 .perfilField label {
-  浅色text: #6c757d;
+  color: #6c757d;
   font-size: 12px;
   text-transform: uppercase;
   font-weight: 600;
@@ -1218,6 +1218,42 @@
 }
 
 /* ===== RESPONSIVO ===== */
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.viewButton {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #06b6d4;
+  background: #06b6d4;
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  background: #0891b2;
+}
+
+.downloadButton {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #10b981;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.downloadButton:hover {
+  background: #059669;
+}
+
 @media (max-width: 900px) {
   .topbarInner {
     flex-direction: column;
