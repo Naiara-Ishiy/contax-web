@@ -204,7 +204,9 @@ export default function MenuAdm() {
   const buscarUsuarios = async () => {
     try {
       const response = await usuariosService.listar({ limit: 25 });
+      
       setUsuarios(response.dados || response.data?.dados || []);
+
     } catch (err) {
       console.error('Erro ao listar usuários:', err);
       setUsuarios([]);
@@ -215,7 +217,17 @@ export default function MenuAdm() {
   const buscarNotas = async () => {
     try {
       const response = await api.get('/documentos');
-      setNotas(response.data.dados || []);
+      const dados = response.data.dados || [];
+
+      console.table(dados);
+      console.log("IDs das notas:", dados.map(n => n.doc_id));
+
+      const repetidos = dados
+        .map(n => n.doc_id)
+        .filter((id, index, arr) => arr.indexOf(id) !== index);
+
+      console.log("IDs repetidos:", repetidos);
+      setNotas(dados);
     } catch (err) {
       console.log(err);
       setNotas([]);
@@ -578,6 +590,8 @@ export default function MenuAdm() {
   const impostosMensais = financeiroMensal?.impostos ?? 0;
   const despesasMensais = financeiroMensal?.despesas ?? 0;
   const saldoMensal = financeiroMensal?.saldo ?? 0;
+
+  console.log(isAdmin);
 
   if (loading && empresas.length === 0) {
     return <p>Carregando empresas...</p>;
@@ -1317,7 +1331,7 @@ export default function MenuAdm() {
           <>
             <section className={styles.card}>
               <div className={styles.cardHeader}>
-                <h2>Lançar Nota Fiscal (apenas Admin)</h2>
+                <h2>Lançar Nota Fiscal</h2>
               </div>
 
               <form className={styles.form} onSubmit={lancarNota}>
