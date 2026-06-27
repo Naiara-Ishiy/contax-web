@@ -13,7 +13,7 @@ import MenuMEI from './pages/telas/menuMEI';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
+      <Route path="/" element={<Login />} />
       <Route path="/tela/inicial" element={<Inicial />} />
       <Route path="/tela/login" element={<Login />} />
       <Route path="/tela/menuAdm" element={<MenuAdm />} />
