@@ -204,7 +204,7 @@ export default function MenuAdm() {
   const buscarUsuarios = async () => {
     try {
       const response = await usuariosService.listar({ limit: 25 });
-      
+
       setUsuarios(response.dados || response.data?.dados || []);
 
     } catch (err) {
@@ -466,20 +466,27 @@ export default function MenuAdm() {
     try {
       setLoading(true);
 
+      const usuarioId = usuarioLogado?.usu_id || usuarioLogado?.id;
+
+      if (!usuarioId) {
+        feedbackErro('Usuário não autenticado. Faça login novamente e tente novamente.');
+        setLoading(false);
+        return;
+      }
+
       const formData = new FormData();
-      formData.append('img', notaForm.arquivo);
+      // O backend espera o arquivo no campo 'arquivo', por isso o nome deve ser esse
+      formData.append('arquivo', notaForm.arquivo);
       formData.append('emp_id', notaForm.empresa);
       formData.append('tpd_id', notaForm.tpd_id);
       formData.append('fin_valor', notaForm.valor);
       formData.append('fin_categoria', 'Faturamento');
       formData.append('doc_observacao', notaForm.descricao.trim());
       formData.append('doc_data_vencimento', notaForm.data);
+      formData.append('usu_id', usuarioId);
 
-      const response = await api.post('/documentos', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      // Não definimos Content-Type manualmente: o browser adiciona o boundary correto
+      const response = await api.post('/documentos', formData);
 
       if (response.data.sucesso) {
         feedbackSucesso('Nota fiscal armazenada e financeiro gerado com sucesso!');
@@ -640,36 +647,32 @@ export default function MenuAdm() {
 
           <nav className={styles.nav}>
             <button
-              className={`${styles.navButton} ${
-                activeTab === 'dashboard' ? styles.navButtonActive : ''
-              }`}
+              className={`${styles.navButton} ${activeTab === 'dashboard' ? styles.navButtonActive : ''
+                }`}
               onClick={() => setActiveTab('dashboard')}
             >
               Dashboard
             </button>
 
             <button
-              className={`${styles.navButton} ${
-                activeTab === 'empresas' ? styles.navButtonActive : ''
-              }`}
+              className={`${styles.navButton} ${activeTab === 'empresas' ? styles.navButtonActive : ''
+                }`}
               onClick={() => setActiveTab('empresas')}
             >
               Empresas
             </button>
 
             <button
-              className={`${styles.navButton} ${
-                activeTab === 'usuarios' ? styles.navButtonActive : ''
-              }`}
+              className={`${styles.navButton} ${activeTab === 'usuarios' ? styles.navButtonActive : ''
+                }`}
               onClick={() => setActiveTab('usuarios')}
             >
               Usuários
             </button>
 
             <button
-              className={`${styles.navButton} ${
-                activeTab === 'notas' ? styles.navButtonActive : ''
-              }`}
+              className={`${styles.navButton} ${activeTab === 'notas' ? styles.navButtonActive : ''
+                }`}
               onClick={() => setActiveTab('notas')}
             >
               Notas Fiscais
@@ -765,11 +768,10 @@ export default function MenuAdm() {
                             <div>
                               <div className={styles.companyName}>
                                 <span
-                                  className={`${styles.typeBadge} ${
-                                    Number(empresa.emp_tipo) === 0
+                                  className={`${styles.typeBadge} ${Number(empresa.emp_tipo) === 0
                                       ? styles.badgeME
                                       : styles.badgeMEI
-                                  }`}
+                                    }`}
                                 >
                                   {getTipoEmpresaTexto(empresa.emp_tipo)}
                                 </span>
@@ -796,14 +798,14 @@ export default function MenuAdm() {
                                       status === 'Saudável'
                                         ? '#d9f8e8'
                                         : status === 'Atenção'
-                                        ? '#fff4d6'
-                                        : '#ffe4e6',
+                                          ? '#fff4d6'
+                                          : '#ffe4e6',
                                     color:
                                       status === 'Saudável'
                                         ? '#047857'
                                         : status === 'Atenção'
-                                        ? '#b45309'
-                                        : '#b91c1c',
+                                          ? '#b45309'
+                                          : '#b91c1c',
                                   }}
                                 >
                                   {status}
@@ -1102,11 +1104,10 @@ export default function MenuAdm() {
 
                           <td>
                             <span
-                              className={`${styles.companyBadge} ${
-                                Number(empresa.emp_tipo) === 0
+                              className={`${styles.companyBadge} ${Number(empresa.emp_tipo) === 0
                                   ? styles.badgeME
                                   : styles.badgeMEI
-                              }`}
+                                }`}
                             >
                               {getTipoEmpresaTexto(empresa.emp_tipo)}
                             </span>
