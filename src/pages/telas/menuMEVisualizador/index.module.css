@@ -100,6 +100,11 @@
   padding: 4rem 2rem;
 }
 
+.tabContent {
+  max-width: 125rem;
+  margin: 0 auto;
+}
+
 /* ===== CARD BASE ===== */
 .card {
   background: #ffffff;
@@ -124,66 +129,167 @@
 /* ===== DASHBOARD ===== */
 .dashboardLayout {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: 1fr;
 }
-
 /* ===== HERO EMPRESA ===== */
 .companyHeroCard {
-  min-height: 10.5rem;
-  padding: 1.5rem 2.2rem;
+  min-height: 19rem;
+  padding: 2.8rem 3rem;
+  align-items: stretch;
+  position: relative;
+}
 
+.companyHeader {
   display: flex;
   align-items: center;
+  gap: 1.2rem;
+  margin-bottom: 0.6rem;
 }
 
-.companyHeroContent {
-  width: 100%;
+.companyBadge {
+  height: 3rem;
+  padding: 0 1.2rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  border: 1px solid #dbe5ef;
+  color: #334155;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.companyTitle {
+  margin: 0;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.heroMetrics {
   display: grid;
+  grid-template-columns: repeat(2, minmax(360px, 1fr));
+  gap: 2rem;
+  margin: 2.8rem 0;
+  width: 100%;
+}
 
-  grid-template-columns: minmax(0, 1fr) 24rem;
+.metricCard {
+  display: flex;
   align-items: center;
-  gap: 3.2rem;
+  gap: 1.4rem;
+  padding: 1.8rem;
+  border-radius: 1.6rem;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
 }
 
-.companyHeroLeft {
-  min-width: 0;
+.metricIcon {
+  width: 4.8rem;
+  height: 4.8rem;
+  border-radius: 1.4rem;
+  background: #e0f7fd;
+  color: #0891b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.companyHeroRight {
-  min-width: 24rem;
-  text-align: right;
-}
-
-.companyHeroRight span {
+.metricContent span {
   display: block;
   font-size: 1.2rem;
-  color: #475569;
-  margin-bottom: 0.35rem;
+  color: #64748b;
+  font-weight: 600;
 }
 
-.companyHeroRight strong {
+.metricContent strong {
   display: block;
-  font-size: 3.5rem;
+  margin-top: 0.5rem;
+  font-size: 2.2rem;
+  color: #0f172a;
   font-weight: 700;
-  color: #0ea5b7;
-  line-height: 1;
 }
 
-.companyHeroRight small {
-  display: block;
-  margin-top: 0.55rem;
-  font-size: 1.12rem;
-  color: #94a3b8;
+.limitCard {
+  padding: 2rem;
+  border-radius: 1.6rem;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
 }
 
-/* ===== EMPRESA ===== */
-.companyTop {
+.limitHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.4rem;
+}
+
+.limitHeader h3 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: #0f172a;
+}
+
+.limitHeader span {
+  font-size: 1.25rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.limitFooter {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 0.7rem;
+  justify-content: space-between;
+  margin-top: 1.4rem;
 }
+
+.limitFooter span {
+  display: block;
+  font-size: 1.2rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.limitFooter strong {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 1.8rem;
+  color: #059669;
+}
+
+.limitStatus {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.limitStatus strong {
+  margin: 0;
+  color: #0891b2;
+}
+
+.healthBadge {
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  background: #d9f8e8;
+  color: #047857;
+  border: 1px solid #b7efcf;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.companyHeroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.4rem;
+}
+
+
+.companyHeroPeriod {
+  position: absolute;
+  top: 2.4rem;
+  right: 3rem;
+}
+/* ===== EMPRESA ===== */
 
 .typeBadge,
 .monthBadge {
@@ -203,21 +309,6 @@
   color: #334155;
 }
 
-.companyName {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-
-  color: #1e293b;
-  margin-bottom: 0.3rem;
-}
-
-.companyName strong {
-  font-size: 2.5rem;
-  font-weight: 700;
-  line-height: 1.05;
-}
-
 .dot {
   width: 11px;
   height: 11px;
@@ -227,26 +318,8 @@
 }
 
 .companyCnpj {
-  margin: 0.35rem 0 1.3rem;
-  font-size: 1.35rem;
-  color: #64748b;
-}
-
-.limitText {
-  display: flex;
-  align-items: center;
-  flex-wrap: nowrap;
-  gap: 0.8rem;
-
-  font-size: 1.3rem;
-  color: #475569;
-
-  margin: 0 0 1.1rem;
-  white-space: nowrap;
-}
-
-.limitText strong {
-  color: #0f172a;
+  font-size: 1.5rem;
+  margin-bottom: 1.6rem;
 }
 
 .positiveValue {
@@ -254,47 +327,26 @@
 }
 
 /* ===== PROGRESSO ===== */
-.heroProgressArea {
-  display: grid;
-  grid-template-columns: 1fr auto auto;
-  align-items: center;
-  gap: 0.8rem;
-}
 
 .progressBar {
   width: 100%;
-  height: 0.85rem;
+  height: 1rem;
+  background: #d8eaf2;
   border-radius: 999px;
-  background: #d9edf5;
   overflow: hidden;
+  margin-top: 1rem;
 }
 
 .progressFill {
   height: 100%;
+
+  background: linear-gradient(
+    90deg,
+    #1cb5d0,
+    #17a8c2
+  );
   border-radius: 999px;
-  background: linear-gradient(90deg, #06b6d4, #22c1dc);
-}
-
-.percent {
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: #0891b2;
-  text-align: right;
-  min-width: 4.8rem;
-}
-
-.statusBadge {
-  justify-self: start;
-
-  padding: 0.38rem 1.05rem;
-  border-radius: 999px;
-
-  font-size: 0.95rem;
-  font-weight: 700;
-
-  background: #d9f8e8;
-  color: #047857;
-  border: 1px solid #b7efcf;
+  transition: width 0.3s ease;
 }
 
 /* ===== FILTRO ===== */
@@ -520,7 +572,7 @@
   justify-content: center;
 
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .cashIconBox {
@@ -548,7 +600,7 @@
   font-size: 5rem;
   line-height: 1;
   color: #059669;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .cashHeroHeader p {
@@ -585,7 +637,7 @@
   display: block;
   font-size: 3.2rem;
   color: #059669;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .cashRedValue {
@@ -608,7 +660,601 @@
   }
 }
 
+.downloadButton {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #06b6d4;
+  background: #ecfeff;
+  color: #0891b2;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.documentTitleButton {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #0f172a;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.documentTitleButton:hover {
+  color: #0891b2;
+  text-decoration: underline;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.documentModal {
+  width: min(560px, calc(100% - 32px));
+  background: #ffffff;
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+  position: relative;
+  animation: modalExpand 0.22s ease;
+}
+
+.modalClose {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  cursor: pointer;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.modalInfoGrid {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.modalInfoGrid p {
+  margin: 0;
+  padding: 12px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.modalDownloadButton {
+  width: 100%;
+  margin-top: 18px;
+  padding: 1.2rem;
+  border-radius: 1rem;
+  border: none;
+  background: linear-gradient(135deg, #06b6d4, #0ea5b7);
+  color: #ffffff;
+  font-size: 1.4rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.taxHeader {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 2.4rem;
+}
+
+.taxHeader h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.taxHeader p {
+  margin-top: 0.7rem;
+  font-size: 1.45rem;
+  color: #64748b;
+}
+
+.impostosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 2.4rem;
+}
+
+.impostoCard {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.6rem;
+  padding: 2.4rem;
+  min-height: 13.5rem;
+
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+  gap: 2rem;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.impostoCard h3 {
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.8rem;
+}
+
+.impostoCard strong {
+  display: block;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #0891b2;
+  line-height: 1;
+}
+
+.impostoCard span {
+  display: block;
+  margin-top: 1rem;
+  font-size: 1.25rem;
+  color: #64748b;
+}
+
+.taxIconBox {
+  width: 6.4rem;
+  height: 6.4rem;
+  min-width: 6.4rem;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.taxIconBlue {
+  background: #e0f7fd;
+  color: #0891b2;
+}
+
+.taxIconOrange {
+  background: #fff3e8;
+  color: #f97316;
+}
+
+.taxIconGreen {
+  background: #e8fff1;
+  color: #22c55e;
+}
+
+.orangeValue {
+  color: #f97316 !important;
+}
+
+.greenValue {
+  color: #22c55e !important;
+}
+
+.proximoVencimentoCard {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 3rem;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.8rem;
+  padding: 2.8rem;
+  margin-bottom: 2.4rem;
+
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.dueLeft {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.dueIconBox {
+  width: 6.4rem;
+  height: 6.4rem;
+  min-width: 6.4rem;
+  border-radius: 50%;
+
+  background: #fff3e8;
+  color: #f97316;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dueLeft span,
+.dueValue span {
+  font-size: 1.35rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.dueLeft h3 {
+  margin: 0.4rem 0 0;
+  font-size: 2.2rem;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.dueLeft p {
+  margin-top: 0.6rem;
+  font-size: 1.35rem;
+  color: #64748b;
+}
+
+.dueLeft small {
+  display: inline-flex;
+  margin-top: 0.8rem;
+  padding: 0.4rem 1rem;
+  border-radius: 999px;
+
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fdba74;
+
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.dueValue {
+  border-left: 1px solid #e5e7eb;
+  padding-left: 3rem;
+  min-width: 16rem;
+}
+
+.dueValue strong {
+  display: block;
+  margin-top: 0.8rem;
+  font-size: 2.7rem;
+  color: #ea580c;
+  font-weight: 700;
+}
+
+.downloadGuideButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.9rem;
+
+  min-width: 15rem;
+  padding: 1.25rem 2rem;
+
+  border: none;
+  border-radius: 1rem;
+
+  background: linear-gradient(135deg, #06b6d4, #0891b2);
+  color: #ffffff;
+
+  font-size: 1.35rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  box-shadow: 0 10px 20px rgba(8, 145, 178, 0.18);
+  transition: all 0.18s ease;
+}
+
+.downloadGuideButton:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.downloadGuideButton:active {
+  transform: scale(0.97);
+}
+
+.taxInfoBox {
+  margin-top: 2rem;
+
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  padding: 1.4rem 1.6rem;
+  border-radius: 1.2rem;
+
+  background: #eff6ff;
+  color: #06b6d4;
+
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.periodBox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.periodBox span {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.periodInput {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+
+  padding: 0.9rem 1.2rem;
+
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 1rem;
+
+  color: #0f172a;
+  font-size: 1.35rem;
+  font-weight: 600;
+
+  box-shadow: 0 2px 8px rgba(0,0,0,.04);
+}
+
+.periodInput svg {
+  color: #64748b;
+}
+
+/* Posicionamento do container flutuante */
+.containerPeriodo {
+  position: relative;
+  display: inline-block;
+}
+
+/* Caixa do Menu Suspenso */
+.periodDropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 6px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  list-style: none;
+  padding: 6px;
+  min-width: 200px;
+  max-height: 240px;
+  overflow-y: auto; /* Permite scroll se houver muitos meses */
+  z-index: 100; /* Fica acima dos cards */
+}
+
+/* Customização da barra de rolagem interna do dropdown */
+.periodDropdown::-webkit-scrollbar {
+  width: 6px;
+}
+.periodDropdown::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.periodDropdownOption {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.periodDropdownOption:hover {
+  background-color: #f1f5f9;
+  color: #00a3c4; 
+}
+
+
+.periodDropdownOptionActive {
+  composes: periodDropdownOption;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  font-weight: 600;
+}
+/* --- Estilização da Aba de Prazos --- */
+.prazosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.prazoCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #eee;
+  background-color: #fff;
+}
+
+.prazoCardText h4 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  color: #333;
+  font-weight: 600;
+}
+
+.prazoCardText span {
+  font-size: 13px;
+  color: #6c757d;
+}
+
+.prazoCardText strong {
+  color: #333;
+}
+
+/* --- Estilização da Aba de Perfil --- */
+.perfilGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.perfilGroup {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.perfilField label {
+  color: #6c757d;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.perfilField strong {
+  font-size: 16px;
+  color: #333;
+}
+
+.perfilField span {
+  font-size: 15px;
+  color: #333;
+}
+
+.perfilStatusBadge {
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.perfilVinculo {
+  color: #00a896;
+  font-weight: bold;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.perfilDot {
+  background-color: #00a896;
+  width: 8px;
+  height: 8px;
+}
+
+.btnAlterarSenha {
+  margin-top: 12px;
+  width: fit-content;
+  color: #e74c3c;
+  border-color: #e74c3c;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ===== PRAZOS ===== */
+.prazosLista {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.prazoCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.8rem 2.2rem;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 1.2rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+}
+
+.prazoCardText h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.6rem;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.prazoCardText span {
+  font-size: 1.3rem;
+  color: #64748b;
+}
+
+.prazoCardText strong {
+  color: #334155;
+}
+
+@keyframes modalExpand {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.downloadButton:hover {
+  background: #06b6d4;
+  color: #ffffff;
+}
+
 /* ===== RESPONSIVO ===== */
+.actionsCell {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.viewButton {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #06b6d4;
+  background: #06b6d4;
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.viewButton:hover {
+  background: #0891b2;
+}
+
+.downloadButton {
+  padding: 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid #10b981;
+  background: #10b981;
+  color: #ffffff;
+  font-size: 1.15rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.downloadButton:hover {
+  background: #059669;
+}
+
 @media (max-width: 900px) {
   .topbarInner {
     flex-direction: column;

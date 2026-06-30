@@ -806,7 +806,7 @@ const isVisualizador = nivelAcesso === 0;
               <div className={styles.perfilGroup}>
                 <div className={styles.perfilField}>
                   <label>Nível de Permissão</label>
-                  <span>Administrador (Cliente ME)</span>
+                  <span>Gerente (Cliente ME)</span>
                 </div>
                 <div className={styles.perfilField}>
                   <label>Vínculo Contábil</label>

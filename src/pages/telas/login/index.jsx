@@ -53,7 +53,12 @@ function Login() {
 
     if (nivel === 2) {
       navigate('/tela/menuAdm');
-    } else if (tipo === 1) {
+    } else if (nivel == 1) {
+      navigate('/tela/menuMEGerente');
+    } else if (nivel == 0) {
+      navigate('/tela/menuMEVisualizador');
+    }
+      else if (tipo === 1) {
       navigate('/tela/menuMEI');
     } else {
       navigate('/tela/menuME');
