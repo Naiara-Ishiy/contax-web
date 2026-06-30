@@ -119,6 +119,13 @@ export default function MenuAdm() {
   const [notasRecentes, setNotasRecentes] = useState([]);
   const [prazosPendentes, setPrazosPendentes] = useState([]);
   const [auditoriaRecente, setAuditoriaRecente] = useState([]);
+  const hoje = new Date();
+
+  const [filtro, setFiltro] = useState({
+    empresa:'',
+    mes: hoje.getMonth() + 1,
+    ano: hoje.getFullYear(),
+  });
 
   // 5. ESTADOS DE EDIÇÃO / MODAIS
   const [empresaModal, setEmpresaModal] = useState(null);
@@ -221,6 +228,7 @@ export default function MenuAdm() {
 
       console.table(dados);
       console.log("IDs das notas:", dados.map(n => n.doc_id));
+      console.log("Primeira nota:", dados[0]);
 
       const repetidos = dados
         .map(n => n.doc_id)
@@ -253,6 +261,16 @@ export default function MenuAdm() {
 
     carregarDadosIniciais();
   }, []);
+
+const empresasFiltradas = useMemo(
+  () =>
+    !filtro.empresa
+      ? empresas
+      : empresas.filter(
+          (empresa) => empresa.emp_id === Number(filtro.empresa)
+        ),
+  [empresas, filtro.empresa]
+);
 
   const prepararEdicaoUsuario = (usuario) => {
     setUsuarioSendoEditado(usuario.usu_id || usuario.id);
@@ -734,11 +752,7 @@ export default function MenuAdm() {
               <section className={styles.card}>
                 <div className={styles.cardHeader}>
                   <h2>
-                    Visão Geral —{' '}
-                    {new Date().toLocaleDateString('pt-BR', {
-                      month: 'long',
-                      year: 'numeric',
-                    })}
+                    Visão Geral — {filtro.mes.toString().padStart(2, "0")}/{filtro.ano}
                   </h2>
                 </div>
 
@@ -746,11 +760,27 @@ export default function MenuAdm() {
                   <div className={styles.emptyBox}>Nenhuma empresa cadastrada.</div>
                 ) : (
                   <div className={styles.dashboardCompanies}>
-                    {empresas.map((empresa) => {
-                      const notasEmpresa = notas.filter((n) => n.emp_id === empresa.emp_id);
+                    {empresasFiltradas.map((empresa) => {
+                      const notasEmpresa = notas.filter((nota) => {
+
+    if (Number(nota.emp_id) !== Number(empresa.emp_id))
+        return false;
+
+    const data = new Date(
+        nota.fin_data_emissao ||
+        nota.doc_data_upload ||
+        Date.now()
+      );
+
+    return (
+        data.getMonth() + 1 === filtro.mes &&
+        data.getFullYear() === filtro.ano
+    );
+
+});
 
                       const total = notasEmpresa.reduce(
-                        (acc, n) => acc + Number(n.fin_valor_total || 0),
+                        (acc, n) => acc + Number(n.fin_valor_total ?? 0),
                         0
                       );
 
@@ -840,26 +870,77 @@ export default function MenuAdm() {
                   <h2>Filtro</h2>
                 </div>
 
-                <div className={styles.filterBody}>
-                  <div className={styles.field}>
-                    <label>Mês</label>
-                    <input type="month" className={styles.input} />
-                  </div>
+<div className={styles.filterBody}>
 
-                  <div className={styles.field}>
-                    <label>Empresa</label>
+  {/* MÊS */}
+  <div className={styles.field}>
+    <label>Mês</label>
+    <select
+      className={styles.input}
+      value={filtro.mes}
+      onChange={(e) =>
+        setFiltro({
+          ...filtro,
+          mes: Number(e.target.value),
+        })
+      }
+    >
+      {[
+        "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
+        "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro",
+      ].map((mes, index) => (
+        <option key={index + 1} value={index + 1}>
+          {mes}
+        </option>
+      ))}
+    </select>
+  </div>
 
-                    <select className={styles.input}>
-                      <option value="">Todas</option>
+  {/* ANO */}
+  <div className={styles.field}>
+    <label>Ano</label>
+    <select
+      className={styles.input}
+      value={filtro.ano}
+      onChange={(e) =>
+        setFiltro({
+          ...filtro,
+          ano: Number(e.target.value),
+        })
+      }
+    >
+      {[2024, 2025, 2026, 2027].map((ano) => (
+        <option key={ano} value={ano}>
+          {ano}
+        </option>
+      ))}
+    </select>
+  </div>
 
-                      {empresas.map((e) => (
-                        <option key={e.emp_id}>{e.emp_nome_fantasia}</option>
-                      ))}
-                    </select>
-                  </div>
+  {/* EMPRESA */}
+  <div className={styles.field}>
+    <label>Empresa</label>
+    <select
+      className={styles.input}
+      value={filtro.empresa}
+      onChange={(e) =>
+        setFiltro({
+          ...filtro,
+          empresa: e.target.value,
+        })
+      }
+    >
+      <option value="">Todas</option>
 
-                  <button className={styles.primaryButton}>Aplicar</button>
-                </div>
+      {empresas.map((e) => (
+        <option key={e.emp_id} value={e.emp_id}>
+          {e.emp_nome_fantasia}
+        </option>
+      ))}
+    </select>
+  </div>
+
+</div>
               </section>
             </div>
 
